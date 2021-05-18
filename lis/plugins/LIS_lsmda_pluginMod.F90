@@ -23,7 +23,7 @@ module LIS_lsmda_pluginMod
 !  30 Oct 2014: David Mocko, re-organized and added Noah-3.6
 !  1  Aug 2016: Mahdi Navari, added NoahMP.3.6
 !  Sep 2017: Mahdi Navari added JULES 5.0
-!  Oct  2018 : Mhdi Navari , added Noah.3.9 
+!  Oct  2018 : Mhdi Navari , added Noah.3.9
 !  21 Oct 2018: Mahdi Navari, added NoahMP.3.9
 !  Dec 2018: Mahdi Navari: added Noah-MP.4.0.1
 !  13 May 2019: Yeosang Yoon, added SNODEP & LDTSI Assimilation for NoahMP.4.0.1
@@ -32,6 +32,7 @@ module LIS_lsmda_pluginMod
 !                            enabled the compilation of JULES 5.3 DA
 !  13 Dec 2019: Eric Kemp, replaced LDTSI with USAFSI
 !  17 Feb 2020: Yeosang Yoon, added SNODEP & USAFSI Assimilation for Jules 5.x
+!  19 Apr 2021: Zdenko Heyvaert, added ESA CCI SM Assimilation for NoahMP.4.0.1
 !
 !EOP
   implicit none
@@ -186,7 +187,7 @@ subroutine LIS_lsmda_plugin
 #endif
 
 #if ( defined SM_NOAHMP_3_6 )
-   use noahmp36_dasoilm_Mod 
+   use noahmp36_dasoilm_Mod
    use noahmp36_dasnow_Mod
    use noahmp36_dasnodep_Mod
    use noahmp36_tws_DAlogMod, only : noahmp36_tws_DAlog
@@ -396,8 +397,8 @@ subroutine LIS_lsmda_plugin
 
 #if ( defined SM_NOAHMP_3_6 )
 ! MN: Noahmp-3.6 soil moisture
-   external noahmp36_getsoilm           
-   external noahmp36_setsoilm              
+   external noahmp36_getsoilm
+   external noahmp36_setsoilm
    external noahmp36_getsmpred
 !   external noahmp36_getLbandTbPred   !I think we need this for real Lband DA
    external noahmp36_qcsoilm
@@ -439,8 +440,8 @@ subroutine LIS_lsmda_plugin
    external noahmp36_descale_tws
    external noahmp36_updatetws
 
-   external noahmp36_getvegvars          
-   external noahmp36_setvegvars  
+   external noahmp36_getvegvars
+   external noahmp36_setvegvars
    external noahmp36_transform_veg
    external noahmp36_map_veg
    external noahmp36_updatevegvars
@@ -450,8 +451,8 @@ subroutine LIS_lsmda_plugin
    external noahmp36_scale_veg
    external noahmp36_descale_veg
 
-   external noahmp36_getalbedovars          
-   external noahmp36_setalbedovars  
+   external noahmp36_getalbedovars
+   external noahmp36_setalbedovars
    external noahmp36_updatealbedovars
    external noahmp36_qcalbedo
    external noahmp36_getalbedopred
@@ -463,10 +464,10 @@ subroutine LIS_lsmda_plugin
    external noahmp36_map_albedo
 #endif
 
-#if ( defined SM_NOAHMP_4_0_1 ) 
+#if ( defined SM_NOAHMP_4_0_1 )
 ! MN NoahMP.4.0.1 Soil moisture DA
-   external NoahMP401_getsoilm           
-   external NoahMP401_setsoilm              
+   external NoahMP401_getsoilm
+   external NoahMP401_setsoilm
    external NoahMP401_getsmpred
    external NoahMP401_qcsoilm
    external NoahMP401_qc_soilmobs
@@ -474,8 +475,8 @@ subroutine LIS_lsmda_plugin
    external NoahMP401_descale_soilm
    external NoahMP401_updatesoilm
 
-   external NoahMP401_getsnowvars         
-   external NoahMP401_setsnowvars              
+   external NoahMP401_getsnowvars
+   external NoahMP401_setsnowvars
    external NoahMP401_getsnowpred
    external NoahMP401_getswepred
    external NoahMP401_qcsnow
@@ -1208,7 +1209,7 @@ subroutine LIS_lsmda_plugin
    call registerlsmdaqcstate(trim(LIS_noah33Id)//"+"//&
         trim(LIS_synsndId)//char(0),noah33_qcsnow)
    call registerlsmdaqcobsstate(trim(LIS_noah33Id)//"+"//&
-        trim(LIS_synsndId)//char(0),noah33_qc_snowobs) 
+        trim(LIS_synsndId)//char(0),noah33_qc_snowobs)
    call registerlsmdascalestatevar(trim(LIS_noah33Id)//"+"//&
         trim(LIS_synsndId)//char(0),noah33_scale_snow)
    call registerlsmdadescalestatevar(trim(LIS_noah33Id)//"+"//&
@@ -1360,7 +1361,7 @@ subroutine LIS_lsmda_plugin
    call registerlsmdaupdatestate(trim(LIS_noah36Id)//"+"//&
         trim(LIS_SMOPSsmobsId)//char(0),noah36_updatesoilm)
 
-! MN 
+! MN
 ! Noah-3.6 RT SMOPS ASCAT soil moisture
    call registerlsmdainit(trim(LIS_noah36Id)//"+"//&
         trim(LIS_SMOPS_ASCATsmobsId)//char(0),noah36_dasoilm_init)
@@ -1752,7 +1753,7 @@ subroutine LIS_lsmda_plugin
 
 #if ( defined SM_NOAH_3_9 )
 
-! Noah-3.9 RT SMOPS ASCAT soil moisture! MN 
+! Noah-3.9 RT SMOPS ASCAT soil moisture! MN
    call registerlsmdainit(trim(LIS_noah39Id)//"+"//&
         trim(LIS_SMOPS_ASCATsmobsId)//char(0),noah39_dasoilm_init)
    call registerlsmdagetstatevar(trim(LIS_noah39Id)//"+"//&
@@ -1961,7 +1962,7 @@ subroutine LIS_lsmda_plugin
    call registerlsmdaqcstate(trim(LIS_noahmp36Id)//"+"//&
         trim(LIS_synsndId)//char(0),noahmp36_qcsnow)
    call registerlsmdaqcobsstate(trim(LIS_noahmp36Id)//"+"//&
-        trim(LIS_synsndId)//char(0),noahmp36_qc_snowobs) 
+        trim(LIS_synsndId)//char(0),noahmp36_qc_snowobs)
    call registerlsmdascalestatevar(trim(LIS_noahmp36Id)//"+"//&
         trim(LIS_synsndId)//char(0),noahmp36_scale_snow)
    call registerlsmdadescalestatevar(trim(LIS_noahmp36Id)//"+"//&
@@ -2008,7 +2009,7 @@ subroutine LIS_lsmda_plugin
    call registerlsmdaqcstate(trim(LIS_noahmp36Id)//"+"//&
         trim(LIS_synsweId)//char(0),noahmp36_qcsnow)
    call registerlsmdaqcobsstate(trim(LIS_noahmp36Id)//"+"//&
-        trim(LIS_synsweId)//char(0),noahmp36_qc_snowobs) 
+        trim(LIS_synsweId)//char(0),noahmp36_qc_snowobs)
    call registerlsmdascalestatevar(trim(LIS_noahmp36Id)//"+"//&
         trim(LIS_synsweId)//char(0),noahmp36_scale_snow)
    call registerlsmdadescalestatevar(trim(LIS_noahmp36Id)//"+"//&
@@ -2030,7 +2031,7 @@ subroutine LIS_lsmda_plugin
    call registerlsmdaqcstate(trim(LIS_noahmp36Id)//"+"//&
         trim(LIS_ASOsweobsId)//char(0),noahmp36_qcsnow)
    call registerlsmdaqcobsstate(trim(LIS_noahmp36Id)//"+"//&
-        trim(LIS_ASOsweobsId)//char(0),noahmp36_qc_snowobs) 
+        trim(LIS_ASOsweobsId)//char(0),noahmp36_qc_snowobs)
    call registerlsmdascalestatevar(trim(LIS_noahmp36Id)//"+"//&
         trim(LIS_ASOsweobsId)//char(0),noahmp36_scale_snow)
    call registerlsmdadescalestatevar(trim(LIS_noahmp36Id)//"+"//&
@@ -2438,6 +2439,27 @@ subroutine LIS_lsmda_plugin
    call registerlsmdaupdatestate(trim(LIS_noahmp401Id)//"+"//&
         trim(LIS_NASASMAPsmobsId )//char(0),NoahMP401_updatesoilm)
 
+!ZH
+! Noah-MP.4.0.1 ESACCI soil moisture
+   call registerlsmdainit(trim(LIS_noahmp401Id)//"+"//&
+        trim(LIS_ESACCIsmobsId)//char(0),NoahMP401_dasoilm_init)
+   call registerlsmdagetstatevar(trim(LIS_noahmp401Id)//"+"//&
+        trim(LIS_ESACCIsmobsId)//char(0),NoahMP401_getsoilm)
+   call registerlsmdasetstatevar(trim(LIS_noahmp401Id)//"+"//&
+        trim(LIS_ESACCIsmobsId)//char(0),NoahMP401_setsoilm)
+   call registerlsmdagetobspred(trim(LIS_noahmp401Id)//"+"//&
+        trim(LIS_ESACCIsmobsId)//char(0),NoahMP401_getsmpred)
+   call registerlsmdaqcstate(trim(LIS_noahmp401Id)//"+"//&
+        trim(LIS_ESACCIsmobsId)//char(0),NoahMP401_qcsoilm)
+   call registerlsmdaqcobsstate(trim(LIS_noahmp401Id)//"+"//&
+        trim(LIS_ESACCIsmobsId)//char(0),NoahMP401_qc_soilmobs)
+   call registerlsmdascalestatevar(trim(LIS_noahmp401Id)//"+"//&
+        trim(LIS_ESACCIsmobsId)//char(0),NoahMP401_scale_soilm)
+   call registerlsmdadescalestatevar(trim(LIS_noahmp401Id)//"+"//&
+        trim(LIS_ESACCIsmobsId)//char(0),NoahMP401_descale_soilm)
+   call registerlsmdaupdatestate(trim(LIS_noahmp401Id)//"+"//&
+        trim(LIS_ESACCIsmobsId)//char(0),NoahMP401_updatesoilm)
+
 !YK
 ! Noah-MP.4.0.1 SMOS NRT NN soil moisture
    call registerlsmdainit(trim(LIS_noahmp401Id)//"+"//&
@@ -2470,7 +2492,7 @@ subroutine LIS_lsmda_plugin
    call registerlsmdaqcstate(trim(LIS_noahmp401Id)//"+"//&
         trim(LIS_synsndId)//char(0),noahmp401_qcsnow)
    call registerlsmdaqcobsstate(trim(LIS_noahmp401Id)//"+"//&
-        trim(LIS_synsndId)//char(0),noahmp401_qc_snowobs) 
+        trim(LIS_synsndId)//char(0),noahmp401_qc_snowobs)
    call registerlsmdascalestatevar(trim(LIS_noahmp401Id)//"+"//&
         trim(LIS_synsndId)//char(0),noahmp401_scale_snow)
    call registerlsmdadescalestatevar(trim(LIS_noahmp401Id)//"+"//&
@@ -3593,7 +3615,7 @@ subroutine LIS_lsmda_plugin
    call registerlsmdaqcobsstate(trim(LIS_jules5xId)//"+"//&
         trim(LIS_usafsiobsId)//char(0),jules5x_qc_usafsiobs)
 #endif
-#endif 
+#endif
 
 #endif  !endif for DA_DIRECT_INSERTION, DA_ENKS, or DA_ENKF
 
