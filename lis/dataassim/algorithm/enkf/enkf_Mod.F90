@@ -988,10 +988,10 @@ contains
             LIS_rc%nstvars(k),state_size, stvar)
 
        do v=1,LIS_rc%nstvars(k)
-       ! Michel Bechtold, 2021/07/22, wrong use of DA instance index k       
+       ! Michel Bechtold, 2022/02/28, wrong use of DA instance index k       
        ! call LIS_writevar_spread(ftn,n,k,ensspread_id(v), &
        !     stvar(v,:),v)
-          call LIS_writevar_spread(ftn,n,1,ensspread_id(v), &
+          call LIS_writevar_spread(ftn,n,LIS_rc%lsm_index,ensspread_id(v), &
                stvar(v,:),v)
        enddo
        
@@ -1123,10 +1123,10 @@ contains
        endif
        
        do v=1,LIS_rc%nstvars(k)
-       ! Michel Bechtold, 2021/07/22, wrong use of DA instance index k       
+       ! Michel Bechtold, 2022/02/28, wrong use of DA instance index k       
        ! call LIS_writevar_incr(ftn,n,k,incr_id(v), &
        !   enkf_struc(n,k)%anlys_incr(v,:),v)
-          call LIS_writevar_incr(ftn,n,1,incr_id(v), &
+          call LIS_writevar_incr(ftn,n,LIS_rc%lsm_index,incr_id(v), &
                enkf_struc(n,k)%anlys_incr(v,:),v)
        enddo
        
