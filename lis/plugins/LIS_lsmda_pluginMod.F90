@@ -586,8 +586,8 @@ subroutine LIS_lsmda_plugin
    external ac70_map_veg
    external ac70_updatevegvars
    external ac70_qcveg
-   external ac70_getLAIpred
-   external ac70_qc_LAIobs
+   external ac70_getFCOVERpred
+   external ac70_qc_FCOVERobs
    external ac70_scale_veg
    external ac70_descale_veg
 
@@ -3069,101 +3069,24 @@ subroutine LIS_lsmda_plugin
 
 !LAI
    call registerlsmdainit(trim(LIS_ac70Id)//"+"//&
-        trim(LIS_GLASSlaiobsId)//char(0),ac70_daveg_init)
+        trim(LIS_CGLSFCOVERobsId)//char(0),ac70_daveg_init)
    call registerlsmdagetstatevar(trim(LIS_ac70Id)//"+"//&
-        trim(LIS_GLASSlaiobsId)//char(0),ac70_getvegvars)
+        trim(LIS_CGLSFCOVERobsId)//char(0),ac70_getvegvars)
    call registerlsmdasetstatevar(trim(LIS_ac70Id)//"+"//&
-        trim(LIS_GLASSlaiobsId)//char(0),ac70_setvegvars)
-   call registerlsmdaobstransform(trim(LIS_ac70Id)//"+"//&
-        trim(LIS_GLASSlaiobsId)//char(0),ac70_transform_veg)
-   call registerlsmdamapobstolsm(trim(LIS_ac70Id)//"+"//&
-        trim(LIS_GLASSlaiobsId)//char(0),ac70_map_veg)
+        trim(LIS_CGLSFCOVERobsId)//char(0),ac70_setvegvars)
    call registerlsmdaupdatestate(trim(LIS_ac70Id)//"+"//&
-        trim(LIS_GLASSlaiobsId)//char(0),ac70_updatevegvars)
+        trim(LIS_CGLSFCOVERobsId)//char(0),ac70_updatevegvars)
    call registerlsmdaqcstate(trim(LIS_ac70Id)//"+"//&
-        trim(LIS_GLASSlaiobsId)//char(0),ac70_qcveg)
+        trim(LIS_CGLSFCOVERobsId)//char(0),ac70_qcveg)
 
    call registerlsmdagetobspred(trim(LIS_ac70Id)//"+"//&
-        trim(LIS_GLASSlaiobsId)//char(0),ac70_getLAIpred)
+        trim(LIS_CGLSFCOVERobsId)//char(0),ac70_getFCOVERpred)
    call registerlsmdaqcobsstate(trim(LIS_ac70Id)//"+"//&
-        trim(LIS_GLASSlaiobsId)//char(0),ac70_qc_LAIobs)
+        trim(LIS_CGLSFCOVERobsId)//char(0),ac70_qc_FCOVERobs)
    call registerlsmdascalestatevar(trim(LIS_ac70Id)//"+"//&
-        trim(LIS_GLASSlaiobsId)//char(0),ac70_scale_veg)
+        trim(LIS_CGLSFCOVERobsId)//char(0),ac70_scale_veg)
    call registerlsmdadescalestatevar(trim(LIS_ac70Id)//"+"//&
-        trim(LIS_GLASSlaiobsId)//char(0),ac70_descale_veg)
-
-   call registerlsmdainit(trim(LIS_ac70Id)//"+"//&
-        trim(LIS_MCD15A2HlaiobsId)//char(0),ac70_daveg_init)
-   call registerlsmdagetstatevar(trim(LIS_ac70Id)//"+"//&
-        trim(LIS_MCD15A2HlaiobsId)//char(0),ac70_getvegvars)
-   call registerlsmdasetstatevar(trim(LIS_ac70Id)//"+"//&
-        trim(LIS_MCD15A2HlaiobsId)//char(0),ac70_setvegvars)
-   call registerlsmdaobstransform(trim(LIS_ac70Id)//"+"//&
-        trim(LIS_MCD15A2HlaiobsId)//char(0),ac70_transform_veg)
-   call registerlsmdamapobstolsm(trim(LIS_ac70Id)//"+"//&
-        trim(LIS_MCD15A2HlaiobsId)//char(0),ac70_map_veg)
-   call registerlsmdaupdatestate(trim(LIS_ac70Id)//"+"//&
-        trim(LIS_MCD15A2HlaiobsId)//char(0),ac70_updatevegvars)
-   call registerlsmdaqcstate(trim(LIS_ac70Id)//"+"//&
-        trim(LIS_MCD15A2HlaiobsId)//char(0),ac70_qcveg)
-
-   call registerlsmdagetobspred(trim(LIS_ac70Id)//"+"//&
-        trim(LIS_MCD15A2HlaiobsId)//char(0),ac70_getLAIpred)
-   call registerlsmdaqcobsstate(trim(LIS_ac70Id)//"+"//&
-        trim(LIS_MCD15A2HlaiobsId)//char(0),ac70_qc_LAIobs)
-   call registerlsmdascalestatevar(trim(LIS_ac70Id)//"+"//&
-        trim(LIS_MCD15A2HlaiobsId)//char(0),ac70_scale_veg)
-   call registerlsmdadescalestatevar(trim(LIS_ac70Id)//"+"//&
-        trim(LIS_MCD15A2HlaiobsId)//char(0),ac70_descale_veg)
-
-   call registerlsmdainit(trim(LIS_ac70Id)//"+"//&
-        trim(LIS_NASASMAPvodobsId)//char(0),ac70_daveg_init)
-   call registerlsmdagetstatevar(trim(LIS_ac70Id)//"+"//&
-        trim(LIS_NASASMAPvodobsId)//char(0),ac70_getvegvars)
-   call registerlsmdasetstatevar(trim(LIS_ac70Id)//"+"//&
-        trim(LIS_NASASMAPvodobsId)//char(0),ac70_setvegvars)
-   call registerlsmdaobstransform(trim(LIS_ac70Id)//"+"//&
-        trim(LIS_NASASMAPvodobsId)//char(0),ac70_transform_veg)
-   call registerlsmdamapobstolsm(trim(LIS_ac70Id)//"+"//&
-        trim(LIS_NASASMAPvodobsId)//char(0),ac70_map_veg)
-   call registerlsmdaupdatestate(trim(LIS_ac70Id)//"+"//&
-        trim(LIS_NASASMAPvodobsId)//char(0),ac70_updatevegvars)
-   call registerlsmdaqcstate(trim(LIS_ac70Id)//"+"//&
-        trim(LIS_NASASMAPvodobsId)//char(0),ac70_qcveg)
-
-   call registerlsmdagetobspred(trim(LIS_ac70Id)//"+"//&
-        trim(LIS_NASASMAPvodobsId)//char(0),ac70_getLAIpred)
-   call registerlsmdaqcobsstate(trim(LIS_ac70Id)//"+"//&
-        trim(LIS_NASASMAPvodobsId)//char(0),ac70_qc_LAIobs)
-   call registerlsmdascalestatevar(trim(LIS_ac70Id)//"+"//&
-        trim(LIS_NASASMAPvodobsId)//char(0),ac70_scale_veg)
-   call registerlsmdadescalestatevar(trim(LIS_ac70Id)//"+"//&
-        trim(LIS_NASASMAPvodobsId)//char(0),ac70_descale_veg)
-
-
-   call registerlsmdainit(trim(LIS_ac70Id)//"+"//&
-        trim(LIS_MODISsportLAIobsId)//char(0),ac70_daveg_init)
-   call registerlsmdagetstatevar(trim(LIS_ac70Id)//"+"//&
-        trim(LIS_MODISsportLAIobsId)//char(0),ac70_getvegvars)
-   call registerlsmdasetstatevar(trim(LIS_ac70Id)//"+"//&
-        trim(LIS_MODISsportLAIobsId)//char(0),ac70_setvegvars)
-   call registerlsmdaobstransform(trim(LIS_ac70Id)//"+"//&
-        trim(LIS_MODISsportLAIobsId)//char(0),ac70_transform_veg)
-   call registerlsmdamapobstolsm(trim(LIS_ac70Id)//"+"//&
-        trim(LIS_MODISsportLAIobsId)//char(0),ac70_map_veg)
-   call registerlsmdaupdatestate(trim(LIS_ac70Id)//"+"//&
-        trim(LIS_MODISsportLAIobsId)//char(0),ac70_updatevegvars)
-   call registerlsmdaqcstate(trim(LIS_ac70Id)//"+"//&
-        trim(LIS_MODISsportLAIobsId)//char(0),ac70_qcveg)
-
-   call registerlsmdagetobspred(trim(LIS_ac70Id)//"+"//&
-        trim(LIS_MODISsportLAIobsId)//char(0),ac70_getLAIpred)
-   call registerlsmdaqcobsstate(trim(LIS_ac70Id)//"+"//&
-        trim(LIS_MODISsportLAIobsId)//char(0),ac70_qc_LAIobs)
-   call registerlsmdascalestatevar(trim(LIS_ac70Id)//"+"//&
-        trim(LIS_MODISsportLAIobsId)//char(0),ac70_scale_veg)
-   call registerlsmdadescalestatevar(trim(LIS_ac70Id)//"+"//&
-        trim(LIS_MODISsportLAIobsId)//char(0),ac70_descale_veg)
+        trim(LIS_CGLSFCOVERobsId)//char(0),ac70_descale_veg)
 
 #endif
 

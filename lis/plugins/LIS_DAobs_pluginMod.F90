@@ -294,6 +294,9 @@ subroutine LIS_DAobs_plugin
 #if ( defined DA_OBS_CGLS_LAI )
     use CGLSLAI_Mod,       only : CGLSlai_setup
 #endif
+#if ( defined DA_OBS_CGLS_FCOVER )
+    use CGLSFCOVER_Mod,       only : CGLSFCOVER_setup
+#endif
 #if ( defined DA_OBS_NRT_SMAPSM )
     use SMAPNRTsm_Mod,           only : SMAPNRTsm_setup
 #endif
@@ -508,6 +511,10 @@ subroutine LIS_DAobs_plugin
 
 #if ( defined DA_OBS_GLASS_LAI)
     external read_CGLSlai, write_CGLSlai
+#endif
+
+#if ( defined DA_OBS_CGLS_FCOVER)
+    external read_CGLSFCOVER, write_CGLSFCOVER
 #endif
 
 #if ( defined DA_OBS_GLASS_Albedo)
@@ -982,6 +989,16 @@ subroutine LIS_DAobs_plugin
         read_CGLSlai)
    call registerwritedaobs(trim(LIS_CGLSlaiobsId)//char(0),&
         write_CGLSlai)
+#endif
+
+#if ( defined DA_OBS_CGLS_FCOVER )
+   call registerdaobsclass(trim(LIS_CGLSFCOVERobsId),"LSM")
+   call registerdaobssetup(trim(LIS_CGLSFCOVERobsId)//char(0),&
+        CGLSFCOVER_setup)
+   call registerreaddaobs(trim(LIS_CGLSFCOVERobsId)//char(0),&
+        read_CGLSFCOVER)
+   call registerwritedaobs(trim(LIS_CGLSFCOVERobsId)//char(0),&
+        write_CGLSFCOVER)
 #endif
 
 #if ( defined DA_OBS_NRT_SMAPSM )

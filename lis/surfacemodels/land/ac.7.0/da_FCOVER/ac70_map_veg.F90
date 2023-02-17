@@ -42,22 +42,22 @@ subroutine ac70_map_veg(n,k,OBS_State,LSM_Incr_State)
 !  \end{description}
 !
 !EOP
-  type(ESMF_Field)         :: laiIncrField
-  type(ESMF_Field)         :: obs_LAI_field
-  real, pointer            :: laiincr(:)
-  real, pointer            :: LAIobs(:)
+  type(ESMF_Field)         :: AC70CCiprevIncrField
+  type(ESMF_Field)         :: obs_FCOVER_field
+  real, pointer            :: AC70CCiprevincr(:)
+  real, pointer            :: FCOVERobs(:)
   integer                  :: t
   integer                  :: status
   integer                  :: obs_state_count
   character*100,allocatable    :: obs_state_objs(:)
-  real, allocatable            :: ac70_lai(:)
+  real, allocatable            :: ac70_CCiprev(:)
 
-  allocate(ac70_lai(LIS_rc%npatch(n,LIS_rc%lsm_index)))
+  allocate(ac70_CCiprev(LIS_rc%npatch(n,LIS_rc%lsm_index)))
 
-  call ESMF_StateGet(LSM_Incr_State,"LAI",laiIncrField,rc=status)
+  call ESMF_StateGet(LSM_Incr_State,"AC70 CCiprev",AC70CCiprevIncrField,rc=status)
   call LIS_verify(status)
 
-  call ESMF_FieldGet(laiIncrField,localDE=0,farrayPtr=laiincr,rc=status)
+  call ESMF_FieldGet(AC70CCiprevIncrField,localDE=0,farrayPtr=AC70CCiprevincr,rc=status)
   call LIS_verify(status)
   
   call ESMF_StateGet(OBS_State,itemCount=obs_state_count,rc=status)
@@ -67,27 +67,27 @@ subroutine ac70_map_veg(n,k,OBS_State,LSM_Incr_State)
   call ESMF_StateGet(OBS_State,itemNameList=obs_state_objs,rc=status)
   call LIS_verify(status)
   
-  call ESMF_StateGet(OBS_State,obs_state_objs(1),obs_LAI_field,&
+  call ESMF_StateGet(OBS_State,obs_state_objs(1),obs_FCOVER_field,&
        rc=status)
   call LIS_verify(status)
-  call ESMF_FieldGet(obs_LAI_field,localDE=0,farrayPtr=LAIobs,rc=status)
+  call ESMF_FieldGet(obs_FCOVER_field,localDE=0,farrayPtr=FCOVERobs,rc=status)
   call LIS_verify(status)
 
   do t=1,LIS_rc%npatch(n,LIS_rc%lsm_index)
-     ac70_lai(t)  = ac70_struc(n)%ac70(t)%lai
+     ac70_CCiprev(t)  = ac70_struc(n)%ac70(t)%CCiprev
   enddo
 
   do t=1,LIS_rc%npatch(n,LIS_rc%lsm_index)
-     if(LAIobs(LIS_surface(n,LIS_rc%lsm_index)%tile(t)%index).ge.0) then 
-        laiincr(t) = LAIobs(LIS_surface(n,LIS_rc%lsm_index)%tile(t)%index)&
-             - ac70_lai(t)
+     if(FCOVERobs(LIS_surface(n,LIS_rc%lsm_index)%tile(t)%index).ge.0) then 
+        AC70CCiprevincr(t) = FCOVERobs(LIS_surface(n,LIS_rc%lsm_index)%tile(t)%index)&
+             - ac70_CCiprev(t)
      else
-        laiincr(t) = 0 
+        AC70CCiprevincr(t) = 0 
      endif
   enddo
 !  stop
   deallocate(obs_state_objs)
-  deallocate(ac70_lai)
+  deallocate(ac70_CCiprev)
 
 end subroutine ac70_map_veg
    

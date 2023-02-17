@@ -7,11 +7,11 @@
 !-------------------------END NOTICE -- DO NOT EDIT-----------------------
 !BOP
 !
-! !MODULE: CGLSfcover_Mod
+! !MODULE: CGLSFCOVER_Mod
 ! 
 ! !DESCRIPTION: 
 !   This module contains interfaces and subroutines to
-!   handle the CGLS fCover data.
+!   handle the CGLS FCOVER data.
 !
 !  Available lis.config options:
 !
@@ -56,7 +56,7 @@
 ! !REVISION HISTORY: 
 !  15 Feb 2023    Zdenko Heyvaert; initial reader based on Samuel Scherrer's CGLS LAI reader
 ! 
-module CGLSfcover_Mod
+module CGLSFCOVER_Mod
     ! !USES: 
     use ESMF
     use map_utils
@@ -69,21 +69,21 @@ module CGLSfcover_Mod
     !-----------------------------------------------------------------------------
     ! !PUBLIC MEMBER FUNCTIONS:
     !-----------------------------------------------------------------------------
-    public :: CGLSfcover_setup
+    public :: CGLSFCOVER_setup
     !-----------------------------------------------------------------------------
     ! !PUBLIC TYPES:
     !-----------------------------------------------------------------------------
-    public :: CGLSfcover_struc
+    public :: CGLSFCOVER_struc
     !EOP
-    type, public:: CGLSfcover_dec
+    type, public:: CGLSFCOVER_dec
 
         character*100          :: version
         logical                :: startMode
         integer                :: nc
         integer                :: nr
         integer                :: mi
-        real,     allocatable  :: fcoverobs1(:)
-        real,     allocatable  :: fcoverobs2(:)
+        real,     allocatable  :: FCOVERobs1(:)
+        real,     allocatable  :: FCOVERobs2(:)
         real                   :: gridDesci(50)    
         real*8                 :: time1, time2
         integer                :: fnd
@@ -118,19 +118,19 @@ module CGLSfcover_Mod
         integer                :: nbins
         integer                :: ntimes
 
-    end type CGLSfcover_dec
+    end type CGLSFCOVER_dec
 
-    type(CGLSfcover_dec),allocatable :: CGLSfcover_struc(:)
+    type(CGLSFCOVER_dec),allocatable :: CGLSFCOVER_struc(:)
 
 contains
 
     !BOP
     ! 
-    ! !ROUTINE: CGLSfcover_setup
-    ! \label{CGLSfcover_setup}
+    ! !ROUTINE: CGLSFCOVER_setup
+    ! \label{CGLSFCOVER_setup}
     ! 
     ! !INTERFACE: 
-    subroutine CGLSfcover_setup(k, OBS_State, OBS_Pert_State)
+    subroutine CGLSFCOVER_setup(k, OBS_State, OBS_Pert_State)
         ! !USES: 
         use ESMF
         use LIS_coreMod
@@ -151,7 +151,7 @@ contains
         ! !DESCRIPTION: 
         !   
         !   This routine completes the runtime initializations and 
-        !   creation of data structures required for handling CGLS fCover data.
+        !   creation of data structures required for handling CGLS FCOVER data.
         !  
         !   The arguments are: 
         !   \begin{description}
@@ -167,7 +167,7 @@ contains
         type(ESMF_Field)       ::  pertField(LIS_rc%nnest)
         type(ESMF_ArraySpec)   ::  intarrspec, realarrspec
         type(ESMF_ArraySpec)   ::  pertArrSpec
-        character*100          ::  fcoverobsdir
+        character*100          ::  FCOVERobsdir
         character*100          ::  temp
         real, parameter        ::  minssdev =0.001
         real,  allocatable         ::  ssdev(:)
@@ -183,7 +183,7 @@ contains
         integer                :: c,r
         integer                :: ngrid
 
-        allocate(CGLSfcover_struc(LIS_rc%nnest))
+        allocate(CGLSFCOVER_struc(LIS_rc%nnest))
 
         call ESMF_ArraySpecSet(intarrspec,rank=1,typekind=ESMF_TYPEKIND_I4,&
              rc=status)
@@ -200,19 +200,19 @@ contains
         call ESMF_ConfigFindLabel(LIS_config,"CGLS FCOVER data directory:",&
              rc=status)
         do n=1,LIS_rc%nnest
-            call ESMF_ConfigGetAttribute(LIS_config,fcoverobsdir,&
+            call ESMF_ConfigGetAttribute(LIS_config,FCOVERobsdir,&
                  rc=status)
             call LIS_verify(status, 'CGLS FCOVER data directory: is missing')
 
             call ESMF_AttributeSet(OBS_State(n),"Data Directory",&
-                 fcoverobsdir, rc=status)
+                 FCOVERobsdir, rc=status)
             call LIS_verify(status)
         enddo
 
         call ESMF_ConfigFindLabel(LIS_config,"CGLS FCOVER apply QC flags:",&
              rc=status)
         do n=1,LIS_rc%nnest
-            call ESMF_ConfigGetAttribute(LIS_config,CGLSfcover_struc(n)%qcflag,&
+            call ESMF_ConfigGetAttribute(LIS_config,CGLSFCOVER_struc(n)%qcflag,&
                  rc=status)
             call LIS_verify(status, 'CGLS FCOVER apply QC flags: is missing')
         enddo
@@ -225,7 +225,7 @@ contains
         call ESMF_ConfigFindLabel(LIS_config,"CGLS FCOVER is resampled:",&
              rc=status)
         do n=1,LIS_rc%nnest
-            call ESMF_ConfigGetAttribute(LIS_config,CGLSfcover_struc(n)%isresampled,&
+            call ESMF_ConfigGetAttribute(LIS_config,CGLSFCOVER_struc(n)%isresampled,&
                  rc=status)
             call LIS_verify(status, 'CGLS FCOVER is resampled: is missing')
         enddo
@@ -233,64 +233,64 @@ contains
         call ESMF_ConfigFindLabel(LIS_config,"CGLS FCOVER spatial resolution:",&
              rc=status)
         do n=1,LIS_rc%nnest
-            if (CGLSfcover_struc(n)%isresampled.ne.0) then
-                call ESMF_ConfigGetAttribute(LIS_config,CGLSfcover_struc(n)%spatialres,&
+            if (CGLSFCOVER_struc(n)%isresampled.ne.0) then
+                call ESMF_ConfigGetAttribute(LIS_config,CGLSFCOVER_struc(n)%spatialres,&
                      rc=status)
                 call LIS_verify(status, 'CGLS FCOVER spatial resolution: is missing')
             endif
         enddo
 
         do n=1,LIS_rc%nnest
-            if (CGLSfcover_struc(n)%isresampled.ne.0) then
+            if (CGLSFCOVER_struc(n)%isresampled.ne.0) then
                 call ESMF_ConfigFindLabel(LIS_config,"CGLS FCOVER lat max:",&
                      rc=status)
                 if (status .ne. 0) then
-                    CGLSfcover_struc(n)%latmax = 90. - 0.5 * CGLSfcover_struc(n)%spatialres
+                    CGLSFCOVER_struc(n)%latmax = 90. - 0.5 * CGLSFCOVER_struc(n)%spatialres
                 else
-                    call ESMF_ConfigGetAttribute(LIS_config,CGLSfcover_struc(n)%latmax,&
+                    call ESMF_ConfigGetAttribute(LIS_config,CGLSFCOVER_struc(n)%latmax,&
                          rc=status)
                 endif
 
                 call ESMF_ConfigFindLabel(LIS_config,"CGLS FCOVER lat min:",&
                      rc=status)
                 if (status .ne. 0) then
-                    CGLSfcover_struc(n)%latmin = -90. + 0.5 * CGLSfcover_struc(n)%spatialres
+                    CGLSFCOVER_struc(n)%latmin = -90. + 0.5 * CGLSFCOVER_struc(n)%spatialres
                 else
-                    call ESMF_ConfigGetAttribute(LIS_config,CGLSfcover_struc(n)%latmin,&
+                    call ESMF_ConfigGetAttribute(LIS_config,CGLSFCOVER_struc(n)%latmin,&
                          rc=status)
                 endif
                 call ESMF_ConfigFindLabel(LIS_config,"CGLS FCOVER lon max:",&
                      rc=status)
                 if (status .ne. 0) then
-                    CGLSfcover_struc(n)%lonmax = 180. - 0.5 * CGLSfcover_struc(n)%spatialres
+                    CGLSFCOVER_struc(n)%lonmax = 180. - 0.5 * CGLSFCOVER_struc(n)%spatialres
                 else
-                    call ESMF_ConfigGetAttribute(LIS_config,CGLSfcover_struc(n)%lonmax,&
+                    call ESMF_ConfigGetAttribute(LIS_config,CGLSFCOVER_struc(n)%lonmax,&
                          rc=status)
                 endif
                 call ESMF_ConfigFindLabel(LIS_config,"CGLS FCOVER lon min:",&
                      rc=status)
                 if (status .ne. 0) then
-                    CGLSfcover_struc(n)%lonmin = -180. + 0.5 * CGLSfcover_struc(n)%spatialres
+                    CGLSFCOVER_struc(n)%lonmin = -180. + 0.5 * CGLSFCOVER_struc(n)%spatialres
                 else
-                    call ESMF_ConfigGetAttribute(LIS_config,CGLSfcover_struc(n)%lonmin,&
+                    call ESMF_ConfigGetAttribute(LIS_config,CGLSFCOVER_struc(n)%lonmin,&
                          rc=status)
                 endif
 
-                CGLSfcover_struc(n)%dlat = CGLSfcover_struc(n)%spatialres
-                CGLSfcover_struc(n)%dlon = CGLSfcover_struc(n)%spatialres
-                CGLSfcover_struc(n)%nr = nint((CGLSfcover_struc(n)%latmax - CGLSfcover_struc(n)%latmin)&
-                                           / CGLSfcover_struc(n)%spatialres) + 1
-                CGLSfcover_struc(n)%nc = nint((CGLSfcover_struc(n)%lonmax - CGLSfcover_struc(n)%lonmin)&
-                                           / CGLSfcover_struc(n)%spatialres) + 1
+                CGLSFCOVER_struc(n)%dlat = CGLSFCOVER_struc(n)%spatialres
+                CGLSFCOVER_struc(n)%dlon = CGLSFCOVER_struc(n)%spatialres
+                CGLSFCOVER_struc(n)%nr = nint((CGLSFCOVER_struc(n)%latmax - CGLSFCOVER_struc(n)%latmin)&
+                                           / CGLSFCOVER_struc(n)%spatialres) + 1
+                CGLSFCOVER_struc(n)%nc = nint((CGLSFCOVER_struc(n)%lonmax - CGLSFCOVER_struc(n)%lonmin)&
+                                           / CGLSFCOVER_struc(n)%spatialres) + 1
             else
-                CGLSfcover_struc(n)%latmax = 80.
-                CGLSfcover_struc(n)%latmin = -59.9910714285396
-                CGLSfcover_struc(n)%lonmax= -180.
-                CGLSfcover_struc(n)%lonmin = 179.991071429063
-                CGLSfcover_struc(n)%dlat = 0.008928002004371148
-                CGLSfcover_struc(n)%dlon = 0.008928349985839856
-                CGLSfcover_struc(n)%nc = 40320
-                CGLSfcover_struc(n)%nr = 15680
+                CGLSFCOVER_struc(n)%latmax = 80.
+                CGLSFCOVER_struc(n)%latmin = -59.9910714285396
+                CGLSFCOVER_struc(n)%lonmax= -180.
+                CGLSFCOVER_struc(n)%lonmin = 179.991071429063
+                CGLSFCOVER_struc(n)%dlat = 0.008928002004371148
+                CGLSFCOVER_struc(n)%dlon = 0.008928349985839856
+                CGLSFCOVER_struc(n)%nc = 40320
+                CGLSFCOVER_struc(n)%nr = 15680
             endif
         enddo
 
@@ -320,7 +320,7 @@ contains
         call ESMF_ConfigFindLabel(LIS_config, "CGLS FCOVER number of bins in the CDF:", rc=status)
         do n=1, LIS_rc%nnest
             if(LIS_rc%dascaloption(k).ne."none") then 
-                call ESMF_ConfigGetAttribute(LIS_config,CGLSfcover_struc(n)%nbins, rc=status)
+                call ESMF_ConfigGetAttribute(LIS_config,CGLSFCOVER_struc(n)%nbins, rc=status)
                 call LIS_verify(status, "CGLS FCOVER number of bins in the CDF: not defined")
             endif
         enddo
@@ -349,8 +349,8 @@ contains
 
         do n=1,LIS_rc%nnest
 
-            allocate(CGLSfcover_struc(n)%fcoverobs1(LIS_rc%obs_lnc(k)*LIS_rc%obs_lnr(k)))
-            allocate(CGLSfcover_struc(n)%fcoverobs2(LIS_rc%obs_lnc(k)*LIS_rc%obs_lnr(k)))
+            allocate(CGLSFCOVER_struc(n)%FCOVERobs1(LIS_rc%obs_lnc(k)*LIS_rc%obs_lnr(k)))
+            allocate(CGLSFCOVER_struc(n)%FCOVERobs2(LIS_rc%obs_lnc(k)*LIS_rc%obs_lnr(k)))
 
             write(unit=temp,fmt='(i2.2)') 1
             read(unit=temp,fmt='(2a1)') vid
@@ -398,7 +398,7 @@ contains
 
                 ! Set obs err to be uniform (will be rescaled later for each grid point). 
                 ssdev = obs_pert%ssdev(1)
-                CGLSfcover_struc(n)%ssdev_inp = obs_pert%ssdev(1)
+                CGLSFCOVER_struc(n)%ssdev_inp = obs_pert%ssdev(1)
 
                 pertField(n) = ESMF_FieldCreate(arrayspec=pertArrSpec,&
                      grid=LIS_obsEnsOnGrid(n,k),name="Observation"//vid(1)//vid(2),&
@@ -457,82 +457,82 @@ contains
             if(LIS_rc%dascaloption(k).ne."none") then 
 
                 call LIS_getCDFattributes(k,modelcdffile(n),&
-                     CGLSfcover_struc(n)%ntimes, ngrid)
+                     CGLSFCOVER_struc(n)%ntimes, ngrid)
 
                 allocate(ssdev(LIS_rc%obs_ngrid(k)))
                 ssdev = obs_pert%ssdev(1)
 
-                allocate(CGLSfcover_struc(n)%model_mu(LIS_rc%obs_ngrid(k),&
-                     CGLSfcover_struc(n)%ntimes))
-                allocate(CGLSfcover_struc(n)%model_sigma(LIS_rc%obs_ngrid(k),&
-                     CGLSfcover_struc(n)%ntimes))
-                allocate(CGLSfcover_struc(n)%obs_mu(LIS_rc%obs_ngrid(k),&
-                     CGLSfcover_struc(n)%ntimes))
-                allocate(CGLSfcover_struc(n)%obs_sigma(LIS_rc%obs_ngrid(k),&
-                     CGLSfcover_struc(n)%ntimes))
-                allocate(CGLSfcover_struc(n)%model_xrange(&
-                     LIS_rc%obs_ngrid(k), CGLSfcover_struc(n)%ntimes, &
-                     CGLSfcover_struc(n)%nbins))
-                allocate(CGLSfcover_struc(n)%obs_xrange(&
-                     LIS_rc%obs_ngrid(k), CGLSfcover_struc(n)%ntimes, &
-                     CGLSfcover_struc(n)%nbins))
-                allocate(CGLSfcover_struc(n)%model_cdf(&
-                     LIS_rc%obs_ngrid(k), CGLSfcover_struc(n)%ntimes, &
-                     CGLSfcover_struc(n)%nbins))
-                allocate(CGLSfcover_struc(n)%obs_cdf(&
-                     LIS_rc%obs_ngrid(k), CGLSfcover_struc(n)%ntimes, & 
-                     CGLSfcover_struc(n)%nbins))
+                allocate(CGLSFCOVER_struc(n)%model_mu(LIS_rc%obs_ngrid(k),&
+                     CGLSFCOVER_struc(n)%ntimes))
+                allocate(CGLSFCOVER_struc(n)%model_sigma(LIS_rc%obs_ngrid(k),&
+                     CGLSFCOVER_struc(n)%ntimes))
+                allocate(CGLSFCOVER_struc(n)%obs_mu(LIS_rc%obs_ngrid(k),&
+                     CGLSFCOVER_struc(n)%ntimes))
+                allocate(CGLSFCOVER_struc(n)%obs_sigma(LIS_rc%obs_ngrid(k),&
+                     CGLSFCOVER_struc(n)%ntimes))
+                allocate(CGLSFCOVER_struc(n)%model_xrange(&
+                     LIS_rc%obs_ngrid(k), CGLSFCOVER_struc(n)%ntimes, &
+                     CGLSFCOVER_struc(n)%nbins))
+                allocate(CGLSFCOVER_struc(n)%obs_xrange(&
+                     LIS_rc%obs_ngrid(k), CGLSFCOVER_struc(n)%ntimes, &
+                     CGLSFCOVER_struc(n)%nbins))
+                allocate(CGLSFCOVER_struc(n)%model_cdf(&
+                     LIS_rc%obs_ngrid(k), CGLSFCOVER_struc(n)%ntimes, &
+                     CGLSFCOVER_struc(n)%nbins))
+                allocate(CGLSFCOVER_struc(n)%obs_cdf(&
+                     LIS_rc%obs_ngrid(k), CGLSFCOVER_struc(n)%ntimes, & 
+                     CGLSFCOVER_struc(n)%nbins))
 
                 !----------------------------------------------------------------------------
                 ! Read the model and observation CDF data
                 !----------------------------------------------------------------------------
                 call LIS_readMeanSigmaData(n,k,&
-                     CGLSfcover_struc(n)%ntimes, & 
+                     CGLSFCOVER_struc(n)%ntimes, & 
                      LIS_rc%obs_ngrid(k), &
                      modelcdffile(n), &
                      "FCOVER",&
-                     CGLSfcover_struc(n)%model_mu,&
-                     CGLSfcover_struc(n)%model_sigma)
+                     CGLSFCOVER_struc(n)%model_mu,&
+                     CGLSFCOVER_struc(n)%model_sigma)
 
                 call LIS_readMeanSigmaData(n,k,&
-                     CGLSfcover_struc(n)%ntimes, & 
+                     CGLSFCOVER_struc(n)%ntimes, & 
                      LIS_rc%obs_ngrid(k), &
                      obscdffile(n), &
                      "FCOVER",&
-                     CGLSfcover_struc(n)%obs_mu,&
-                     CGLSfcover_struc(n)%obs_sigma)
+                     CGLSFCOVER_struc(n)%obs_mu,&
+                     CGLSFCOVER_struc(n)%obs_sigma)
 
                 call LIS_readCDFdata(n,k,&
-                     CGLSfcover_struc(n)%nbins,&
-                     CGLSfcover_struc(n)%ntimes, & 
+                     CGLSFCOVER_struc(n)%nbins,&
+                     CGLSFCOVER_struc(n)%ntimes, & 
                      LIS_rc%obs_ngrid(k), &
                      modelcdffile(n), &
                      "FCOVER",&
-                     CGLSfcover_struc(n)%model_xrange,&
-                     CGLSfcover_struc(n)%model_cdf)
+                     CGLSFCOVER_struc(n)%model_xrange,&
+                     CGLSFCOVER_struc(n)%model_cdf)
 
                 call LIS_readCDFdata(n,k,&
-                     CGLSfcover_struc(n)%nbins,&
-                     CGLSfcover_struc(n)%ntimes, & 
+                     CGLSFCOVER_struc(n)%nbins,&
+                     CGLSFCOVER_struc(n)%ntimes, & 
                      LIS_rc%obs_ngrid(k), &
                      obscdffile(n), &
                      "FCOVER",&
-                     CGLSfcover_struc(n)%obs_xrange,&
-                     CGLSfcover_struc(n)%obs_cdf)
+                     CGLSFCOVER_struc(n)%obs_xrange,&
+                     CGLSFCOVER_struc(n)%obs_cdf)
 
-                if(CGLSfcover_struc(n)%useSsdevScal.eq.1) then 
-                    if(CGLSfcover_struc(n)%ntimes.eq.1) then 
+                if(CGLSFCOVER_struc(n)%useSsdevScal.eq.1) then 
+                    if(CGLSFCOVER_struc(n)%ntimes.eq.1) then 
                         jj = 1
                     else
                         jj = LIS_rc%mo
                     endif
                     do t=1,LIS_rc%obs_ngrid(k)
-                        if(CGLSfcover_struc(n)%obs_sigma(t,jj).ne.LIS_rc%udef) then 
-                            print*, ssdev(t),CGLSfcover_struc(n)%model_sigma(t,jj),&
-                                 CGLSfcover_struc(n)%obs_sigma(t,jj)
-                            if(CGLSfcover_struc(n)%obs_sigma(t,jj).ne.0) then 
-                                ssdev(t) = ssdev(t)*CGLSfcover_struc(n)%model_sigma(t,jj)/&
-                                     CGLSfcover_struc(n)%obs_sigma(t,jj)
+                        if(CGLSFCOVER_struc(n)%obs_sigma(t,jj).ne.LIS_rc%udef) then 
+                            print*, ssdev(t),CGLSFCOVER_struc(n)%model_sigma(t,jj),&
+                                 CGLSFCOVER_struc(n)%obs_sigma(t,jj)
+                            if(CGLSFCOVER_struc(n)%obs_sigma(t,jj).ne.0) then 
+                                ssdev(t) = ssdev(t)*CGLSFCOVER_struc(n)%model_sigma(t,jj)/&
+                                     CGLSFCOVER_struc(n)%obs_sigma(t,jj)
                             endif
 
                             if(ssdev(t).lt.minssdev) then 
@@ -555,7 +555,7 @@ contains
 
         do n=1,LIS_rc%nnest
             ! scale factor for unpacking the data
-            CGLSfcover_struc(n)%scale = 0.033333
+            CGLSFCOVER_struc(n)%scale = 0.033333
 
             if(LIS_rc%lis_obs_map_proj(k).ne."latlon") then
                 write(LIS_logunit,*)&
@@ -563,59 +563,59 @@ contains
                 call LIS_endrun
             endif
 
-            CGLSfcover_struc(n)%gridDesci(1) = 0  ! regular lat-lon grid
-            CGLSfcover_struc(n)%gridDesci(2) = CGLSfcover_struc(n)%nc
-            CGLSfcover_struc(n)%gridDesci(3) = CGLSfcover_struc(n)%nr 
-            CGLSfcover_struc(n)%gridDesci(4) = CGLSfcover_struc(n)%latmax
-            CGLSfcover_struc(n)%gridDesci(5) = CGLSfcover_struc(n)%lonmin
-            CGLSfcover_struc(n)%gridDesci(6) = 128
-            CGLSfcover_struc(n)%gridDesci(7) = CGLSfcover_struc(n)%latmin
-            CGLSfcover_struc(n)%gridDesci(8) = CGLSfcover_struc(n)%lonmax
-            CGLSfcover_struc(n)%gridDesci(9) = CGLSfcover_struc(n)%dlat
-            CGLSfcover_struc(n)%gridDesci(10) = CGLSfcover_struc(n)%dlon
-            CGLSfcover_struc(n)%gridDesci(20) = 64
+            CGLSFCOVER_struc(n)%gridDesci(1) = 0  ! regular lat-lon grid
+            CGLSFCOVER_struc(n)%gridDesci(2) = CGLSFCOVER_struc(n)%nc
+            CGLSFCOVER_struc(n)%gridDesci(3) = CGLSFCOVER_struc(n)%nr 
+            CGLSFCOVER_struc(n)%gridDesci(4) = CGLSFCOVER_struc(n)%latmax
+            CGLSFCOVER_struc(n)%gridDesci(5) = CGLSFCOVER_struc(n)%lonmin
+            CGLSFCOVER_struc(n)%gridDesci(6) = 128
+            CGLSFCOVER_struc(n)%gridDesci(7) = CGLSFCOVER_struc(n)%latmin
+            CGLSFCOVER_struc(n)%gridDesci(8) = CGLSFCOVER_struc(n)%lonmax
+            CGLSFCOVER_struc(n)%gridDesci(9) = CGLSFCOVER_struc(n)%dlat
+            CGLSFCOVER_struc(n)%gridDesci(10) = CGLSFCOVER_struc(n)%dlon
+            CGLSFCOVER_struc(n)%gridDesci(20) = 64
 
-            CGLSfcover_struc(n)%mi = CGLSfcover_struc(n)%nc*CGLSfcover_struc(n)%nr
+            CGLSFCOVER_struc(n)%mi = CGLSFCOVER_struc(n)%nc*CGLSFCOVER_struc(n)%nr
 
             !-----------------------------------------------------------------------------
             !   Use interpolation if LIS is running finer than native resolution. 
             !-----------------------------------------------------------------------------
-            if(LIS_rc%obs_gridDesc(k,10).lt.CGLSfcover_struc(n)%dlon) then 
+            if(LIS_rc%obs_gridDesc(k,10).lt.CGLSFCOVER_struc(n)%dlon) then 
 
-                allocate(CGLSfcover_struc(n)%rlat(LIS_rc%obs_lnc(k)*LIS_rc%obs_lnr(k)))
-                allocate(CGLSfcover_struc(n)%rlon(LIS_rc%obs_lnc(k)*LIS_rc%obs_lnr(k)))
-                allocate(CGLSfcover_struc(n)%n11(LIS_rc%obs_lnc(k)*LIS_rc%obs_lnr(k)))
-                allocate(CGLSfcover_struc(n)%n12(LIS_rc%obs_lnc(k)*LIS_rc%obs_lnr(k)))
-                allocate(CGLSfcover_struc(n)%n21(LIS_rc%obs_lnc(k)*LIS_rc%obs_lnr(k)))
-                allocate(CGLSfcover_struc(n)%n22(LIS_rc%obs_lnc(k)*LIS_rc%obs_lnr(k)))
-                allocate(CGLSfcover_struc(n)%w11(LIS_rc%obs_lnc(k)*LIS_rc%obs_lnr(k)))
-                allocate(CGLSfcover_struc(n)%w12(LIS_rc%obs_lnc(k)*LIS_rc%obs_lnr(k)))
-                allocate(CGLSfcover_struc(n)%w21(LIS_rc%obs_lnc(k)*LIS_rc%obs_lnr(k)))
-                allocate(CGLSfcover_struc(n)%w22(LIS_rc%obs_lnc(k)*LIS_rc%obs_lnr(k)))
+                allocate(CGLSFCOVER_struc(n)%rlat(LIS_rc%obs_lnc(k)*LIS_rc%obs_lnr(k)))
+                allocate(CGLSFCOVER_struc(n)%rlon(LIS_rc%obs_lnc(k)*LIS_rc%obs_lnr(k)))
+                allocate(CGLSFCOVER_struc(n)%n11(LIS_rc%obs_lnc(k)*LIS_rc%obs_lnr(k)))
+                allocate(CGLSFCOVER_struc(n)%n12(LIS_rc%obs_lnc(k)*LIS_rc%obs_lnr(k)))
+                allocate(CGLSFCOVER_struc(n)%n21(LIS_rc%obs_lnc(k)*LIS_rc%obs_lnr(k)))
+                allocate(CGLSFCOVER_struc(n)%n22(LIS_rc%obs_lnc(k)*LIS_rc%obs_lnr(k)))
+                allocate(CGLSFCOVER_struc(n)%w11(LIS_rc%obs_lnc(k)*LIS_rc%obs_lnr(k)))
+                allocate(CGLSFCOVER_struc(n)%w12(LIS_rc%obs_lnc(k)*LIS_rc%obs_lnr(k)))
+                allocate(CGLSFCOVER_struc(n)%w21(LIS_rc%obs_lnc(k)*LIS_rc%obs_lnr(k)))
+                allocate(CGLSFCOVER_struc(n)%w22(LIS_rc%obs_lnc(k)*LIS_rc%obs_lnr(k)))
 
                 write(LIS_logunit,*)&
                      '[INFO] create interpolation input for CGLS FCOVER'       
 
-                call bilinear_interp_input_withgrid(CGLSfcover_struc(n)%gridDesci(:), &
+                call bilinear_interp_input_withgrid(CGLSFCOVER_struc(n)%gridDesci(:), &
                      LIS_rc%obs_gridDesc(k,:),&
                      LIS_rc%obs_lnc(k)*LIS_rc%obs_lnr(k),&
-                     CGLSfcover_struc(n)%rlat, CGLSfcover_struc(n)%rlon,&
-                     CGLSfcover_struc(n)%n11, CGLSfcover_struc(n)%n12, &
-                     CGLSfcover_struc(n)%n21, CGLSfcover_struc(n)%n22, &
-                     CGLSfcover_struc(n)%w11, CGLSfcover_struc(n)%w12, &
-                     CGLSfcover_struc(n)%w21, CGLSfcover_struc(n)%w22)
+                     CGLSFCOVER_struc(n)%rlat, CGLSFCOVER_struc(n)%rlon,&
+                     CGLSFCOVER_struc(n)%n11, CGLSFCOVER_struc(n)%n12, &
+                     CGLSFCOVER_struc(n)%n21, CGLSFCOVER_struc(n)%n22, &
+                     CGLSFCOVER_struc(n)%w11, CGLSFCOVER_struc(n)%w12, &
+                     CGLSFCOVER_struc(n)%w21, CGLSFCOVER_struc(n)%w22)
             else
 
-                allocate(CGLSfcover_struc(n)%n11(&
-                     CGLSfcover_struc(n)%nc*CGLSfcover_struc(n)%nr))
+                allocate(CGLSFCOVER_struc(n)%n11(&
+                     CGLSFCOVER_struc(n)%nc*CGLSFCOVER_struc(n)%nr))
 
                 write(LIS_logunit,*)&
                      '[INFO] create upscaling input for CGLS FCOVER'       
 
-                call upscaleByAveraging_input(CGLSfcover_struc(n)%gridDesci(:),&
+                call upscaleByAveraging_input(CGLSFCOVER_struc(n)%gridDesci(:),&
                      LIS_rc%obs_gridDesc(k,:),&
-                     CGLSfcover_struc(n)%nc*CGLSfcover_struc(n)%nr, &
-                     LIS_rc%obs_lnc(k)*LIS_rc%obs_lnr(k), CGLSfcover_struc(n)%n11)
+                     CGLSFCOVER_struc(n)%nc*CGLSFCOVER_struc(n)%nr, &
+                     LIS_rc%obs_lnc(k)*LIS_rc%obs_lnr(k), CGLSFCOVER_struc(n)%n11)
 
                 write(LIS_logunit,*)&
                      '[INFO] finished creating upscaling input for CGLS FCOVER'       
@@ -624,11 +624,11 @@ contains
             call LIS_registerAlarm("CGLS FCOVER read alarm",&
                  86400.0, 86400.0)
 
-            CGLSfcover_struc(n)%startMode = .true. 
+            CGLSFCOVER_struc(n)%startMode = .true. 
 
             call ESMF_StateAdd(OBS_State(n),(/obsField(n)/),rc=status)
             call LIS_verify(status)
 
         enddo
-    end subroutine CGLSfcover_setup
-end module CGLSfcover_Mod
+    end subroutine CGLSFCOVER_setup
+end module CGLSFCOVER_Mod

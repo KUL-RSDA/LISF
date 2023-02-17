@@ -35,31 +35,19 @@ subroutine ac70_setvegvars(n, LSM_State)
 ! 
 !EOP
 
-  type(ESMF_Field)       :: laiField,lfmassField
+  type(ESMF_Field)       :: AC70CCiprevField
 
   integer                :: t
   integer                :: status
-  real, pointer          :: lai(:)
-  real                   :: lfmass
+  real, pointer          :: AC70CCiprev(:)
  
-  call ESMF_StateGet(LSM_State,"LAI",laiField,rc=status)
+  call ESMF_StateGet(LSM_State,"AC70 CCiprev",AC70CCiprevField,rc=status)
   call LIS_verify(status)
-  call ESMF_FieldGet(laiField,localDE=0,farrayPtr=lai,rc=status)
+  call ESMF_FieldGet(AC70CCiprevField,localDE=0,farrayPtr=AC70CCiprev,rc=status)
   call LIS_verify(status)
-
-!  call ESMF_StateGet(LSM_State,"LeafMass",lfmassField,rc=status)
-!  call LIS_verify(status)
-!  call ESMF_FieldGet(lfmassField,localDE=0,farrayPtr=lfmass,rc=status)
-!  call LIS_verify(status)
 
   do t=1,LIS_rc%npatch(n,LIS_rc%lsm_index)
-!     XLAI    = max(LFMASS*LAPM,laimin)
-
-     if(sla(AC70_struc(n)%ac70(t)%vegetype).ne.0) then 
-        AC70_struc(n)%ac70(t)%lai = lai(t)
-        lfmass = lai(t)/(sla(AC70_struc(n)%ac70(t)%vegetype)/1000.0)
-        AC70_struc(n)%ac70(t)%lfmass = lfmass
-     endif
+      AC70_struc(n)%ac70(t)%CCiprev = AC70CCiprev(t)
   enddo
   
 end subroutine ac70_setvegvars

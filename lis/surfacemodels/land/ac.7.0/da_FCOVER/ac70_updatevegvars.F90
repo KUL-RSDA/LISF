@@ -42,43 +42,43 @@ subroutine ac70_updatevegvars(n, LSM_State, LSM_Incr_State)
 !
 !EOP
 
-  type(ESMF_Field)       :: laiField, laiIncrField
+  type(ESMF_Field)       :: AC70CCiprevField, AC70CCiprevIncrField
 
   integer                :: t,gid
   integer                :: status
-  real, pointer          :: lai(:), laiincr(:)
+  real, pointer          :: AC70CCiprev(:), AC70CCiprevincr(:)
 !  real, pointer          :: lfmass(:), lfmassincr(:)
-  real                   :: laitmp,laimax,laimin
+  real                   :: AC70CCiprevtmp,AC70CCiprevmax,AC70CCiprevmin
 
   logical                :: update_flag(LIS_rc%ngrid(n))
   real                   :: perc_violation(LIS_rc%ngrid(n))
 
-  real                   :: laimean(LIS_rc%ngrid(n))
-  integer                :: nlaimean(LIS_rc%ngrid(n))
+  real                   :: AC70CCiprevmean(LIS_rc%ngrid(n))
+  integer                :: nAC70CCiprevmean(LIS_rc%ngrid(n))
 
  
-  call ESMF_StateGet(LSM_State,"LAI",laiField,rc=status)
+  call ESMF_StateGet(LSM_State,"AC70 CCiprev",AC70CCiprevField,rc=status)
   call LIS_verify(status)
 
-  call ESMF_StateGet(LSM_Incr_State,"LAI",laiIncrField,rc=status)
+  call ESMF_StateGet(LSM_Incr_State,"AC70 CCiprev",AC70CCiprevIncrField,rc=status)
   call LIS_verify(status)
  
-  call ESMF_FieldGet(laiField,localDE=0,farrayPtr=lai,rc=status)
+  call ESMF_FieldGet(AC70CCiprevField,localDE=0,farrayPtr=AC70CCiprev,rc=status)
   call LIS_verify(status)
 
-  call ESMF_FieldGet(laiIncrField,localDE=0,farrayPtr=laiincr,rc=status)
+  call ESMF_FieldGet(AC70CCiprevIncrField,localDE=0,farrayPtr=AC70CCiprevincr,rc=status)
   call LIS_verify(status)
 
-  call ESMF_AttributeGet(laiField,"Max Value",laimax,rc=status)
+  call ESMF_AttributeGet(AC70CCiprevField,"Max Value",AC70CCiprevmax,rc=status)
   call LIS_verify(status)
-  call ESMF_AttributeGet(laiField,"Min Value",laimin,rc=status)
+  call ESMF_AttributeGet(AC70CCiprevField,"Min Value",AC70CCiprevmin,rc=status)
   call LIS_verify(status)
 
 
   update_flag    = .true.
   perc_violation = 0.0
-  laimean       = 0.0
-  nlaimean      = 0
+  AC70CCiprevmean       = 0.0
+  nAC70CCiprevmean      = 0
 
   do t=1,LIS_rc%npatch(n,LIS_rc%lsm_index)
 
@@ -86,10 +86,10 @@ subroutine ac70_updatevegvars(n, LSM_State, LSM_Incr_State)
           LIS_surface(n,LIS_rc%lsm_index)%tile(t)%col,&
           LIS_surface(n,LIS_rc%lsm_index)%tile(t)%row)
 
-     laitmp =  lai(t) + laiincr(t)
+     AC70CCiprevtmp =  AC70CCiprev(t) + AC70CCiprevincr(t)
 
 
-     if(laitmp.lt.laimin.or.laitmp.gt.laimax) then
+     if(AC70CCiprevtmp.lt.AC70CCiprevmin.or.AC70CCiprevtmp.gt.AC70CCiprevmax) then
         update_flag(gid) = .false.
         perc_violation(gid) = perc_violation(gid) +1
      endif
@@ -112,19 +112,19 @@ subroutine ac70_updatevegvars(n, LSM_State, LSM_Incr_State)
           LIS_surface(n,LIS_rc%lsm_index)%tile(t)%row)
      if(.not.update_flag(gid)) then
         if(perc_violation(gid).lt.0.8) then
-           if((lai(t)+laiincr(t).gt.laimin).and.&
-                (lai(t)+laiincr(t).lt.laimax)) then 
-              laimean(gid) = laimean(gid) + &
-                   lai(t) + laiincr(t)
-              nlaimean(gid) = nlaimean(gid) + 1
+           if((AC70CCiprev(t)+AC70CCiprevincr(t).gt.AC70CCiprevmin).and.&
+                (AC70CCiprev(t)+AC70CCiprevincr(t).lt.AC70CCiprevmax)) then 
+              AC70CCiprevmean(gid) = AC70CCiprevmean(gid) + &
+                   AC70CCiprev(t) + AC70CCiprevincr(t)
+              nAC70CCiprevmean(gid) = nAC70CCiprevmean(gid) + 1
            endif
         endif
      endif
   enddo
 
  do gid=1,LIS_rc%ngrid(n)
-     if(nlaimean(gid).gt.0) then
-        laimean(gid) = laimean(gid)/nlaimean(gid)
+     if(nAC70CCiprevmean(gid).gt.0) then
+        AC70CCiprevmean(gid) = AC70CCiprevmean(gid)/nAC70CCiprevmean(gid)
      endif
   enddo
 
@@ -134,19 +134,19 @@ subroutine ac70_updatevegvars(n, LSM_State, LSM_Incr_State)
           LIS_surface(n,LIS_rc%lsm_index)%tile(t)%col,&
           LIS_surface(n,LIS_rc%lsm_index)%tile(t)%row)
 
-     laitmp =  lai(t) + laiincr(t)
+     AC70CCiprevtmp =  AC70CCiprev(t) + AC70CCiprevincr(t)
 
 ! If the update is unphysical, simply set to the average of
 ! the good ensemble members. If all else fails, do not
 ! update.
 
      if(update_flag(gid)) then
-        lai(t) = laitmp
+        AC70CCiprev(t) = AC70CCiprevtmp
      elseif(perc_violation(gid).lt.0.8) then
-        if(laitmp.lt.laimin.or.laitmp.gt.laimax) then
-           lai(t) = laimean(gid)
+        if(AC70CCiprevtmp.lt.AC70CCiprevmin.or.AC70CCiprevtmp.gt.AC70CCiprevmax) then
+           AC70CCiprev(t) = AC70CCiprevmean(gid)
         else
-           lai(t) = lai(t) + laiincr(t)
+           AC70CCiprev(t) = AC70CCiprev(t) + AC70CCiprevincr(t)
         endif
      endif
   enddo

@@ -43,8 +43,8 @@ subroutine ac70_transform_veg(n,OBS_State)
 !nothing to be done
 
 #if 0 
-  type(ESMF_Field)         :: obs_lai_field
-  real, pointer            :: laiobs(:)
+  type(ESMF_Field)         :: obs_FCOVER_field
+  real, pointer            :: FCOVERobs(:)
   integer                  :: t
   integer                  :: N_obs_size
   integer                  :: status
@@ -52,17 +52,17 @@ subroutine ac70_transform_veg(n,OBS_State)
   call ESMF_AttributeGet(OBS_State,name="Number Of Observations",&
        value=N_obs_size,rc=status)
   call LIS_verify(status, 'attributeget error in ac70_transform_LAI')
-  call ESMF_StateGet(OBS_State,"Observation01",obs_lai_field,&
+  call ESMF_StateGet(OBS_State,"Observation01",obs_FCOVER_field,&
        rc=status)
   call LIS_verify(status,'stateget error in ac70_transform_LAI')
-  call ESMF_FieldGet(obs_lai_field,localDE=0,farrayPtr=laiobs,rc=status)
+  call ESMF_FieldGet(obs_FCOVER_field,localDE=0,farrayPtr=FCOVERobs,rc=status)
   call LIS_verify(status,'fieldget error in ac70_transform_LAI')
 
   ! If using 8th mesh LAI data, convert it from inches to meters.
   ! 16th mesh LAI data are already in meters.
   do t=1,N_obs_size
-     if(laiobs(t).ne.LIS_rc%udef) then 
-        laiobs(t) = laiobs(t)
+     if(FCOVERobs(t).ne.LIS_rc%udef) then 
+        FCOVERobs(t) = FCOVERobs(t)
      endif
   enddo
 #endif

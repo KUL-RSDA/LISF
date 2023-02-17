@@ -8,14 +8,14 @@
 #include "LIS_misc.h"
 
 !BOP
-! !ROUTINE: read_CGLSfcover
-! \label{read_CGLSfcover}
+! !ROUTINE: read_CGLSFCOVER
+! \label{read_CGLSFCOVER}
 !
 ! !REVISION HISTORY:
 !  15 Feb 2023    Zdenko Heyvaert; initial reader based on Samuel Scherrer's CGLS LAI reader
 !
 ! !INTERFACE: 
-subroutine read_CGLSfcover(n, k, OBS_State, OBS_Pert_State)
+subroutine read_CGLSFCOVER(n, k, OBS_State, OBS_Pert_State)
     ! !USES: 
     use ESMF
     use LIS_mpiMod
@@ -26,7 +26,7 @@ subroutine read_CGLSfcover(n, k, OBS_State, OBS_Pert_State)
     use LIS_DAobservationsMod
     use map_utils
     use LIS_pluginIndices
-    use CGLSfcover_Mod, only : CGLSfcover_struc
+    use CGLSFCOVER_Mod, only : CGLSFCOVER_struc
 
     implicit none
     ! !ARGUMENTS: 
@@ -55,7 +55,7 @@ subroutine read_CGLSfcover(n, k, OBS_State, OBS_Pert_State)
     real,  parameter       :: MAX_FCOVER_VALUE=1.0, MIN_FCOVER_VALUE=0.0001
     integer                :: status
     integer                :: grid_index
-    character(len=255)     :: fcoverobsdir
+    character(len=255)     :: FCOVERobsdir
     character(len=255)     :: fname
     integer                :: cyr, cmo, cda, chr,cmn,css,cdoy
     real                   :: wt1, wt2,ts
@@ -65,14 +65,14 @@ subroutine read_CGLSfcover(n, k, OBS_State, OBS_Pert_State)
     logical                :: alarmCheck, file_exists,dataCheck
     integer                :: t,c,r,i,j,p,jj
     real,          pointer :: obsl(:)
-    type(ESMF_Field)       :: fcoverfield, pertField
+    type(ESMF_Field)       :: FCOVERfield, pertField
     integer                :: gid(LIS_rc%obs_ngrid(k))
     integer                :: assimflag(LIS_rc%obs_ngrid(k))
     logical                :: data_update
     logical                :: data_upd_flag(LIS_npes)
     logical                :: data_upd_flag_local
     logical                :: data_upd
-    real                   :: fcoverobs(LIS_rc%obs_lnc(k)*LIS_rc%obs_lnr(k))
+    real                   :: FCOVERobs(LIS_rc%obs_lnc(k)*LIS_rc%obs_lnr(k))
     integer                :: fnd
     real                   :: timenow
     integer                :: prev_month
@@ -82,7 +82,7 @@ subroutine read_CGLSfcover(n, k, OBS_State, OBS_Pert_State)
 
 
     call ESMF_AttributeGet(OBS_State,"Data Directory",&
-         fcoverobsdir, rc=status)
+         FCOVERobsdir, rc=status)
     call LIS_verify(status)
     call ESMF_AttributeGet(OBS_State,"Data Update Status",&
          data_update, rc=status)
@@ -92,17 +92,17 @@ subroutine read_CGLSfcover(n, k, OBS_State, OBS_Pert_State)
 
     alarmCheck = LIS_isAlarmRinging(LIS_rc, "CGLS FCOVER read alarm")
 
-    if(alarmCheck.or.CGLSfcover_struc(n)%startMode) then 
-        CGLSfcover_struc(n)%startMode = .false.
+    if(alarmCheck.or.CGLSFCOVER_struc(n)%startMode) then 
+        CGLSFCOVER_struc(n)%startMode = .false.
 
         call create_CGLS_FCOVER_filename(&
-            CGLSfcover_struc(n)%isresampled, CGLSfcover_struc(n)%spatialres,&
-            fcoverobsdir, LIS_rc%yr, LIS_rc%mo, LIS_rc%da, fname)
+            CGLSFCOVER_struc(n)%isresampled, CGLSFCOVER_struc(n)%spatialres,&
+            FCOVERobsdir, LIS_rc%yr, LIS_rc%mo, LIS_rc%da, fname)
 
         inquire(file=fname,exist=file_exists)          
         if(file_exists) then 
             write(LIS_logunit,*) '[INFO] Reading ',trim(fname)
-            call read_CGLS_FCOVER_data(n,k, fname,fcoverobs)
+            call read_CGLS_FCOVER_data(n,k, fname,FCOVERobs)
             fnd = 1
         else
             fnd = 0 
@@ -110,7 +110,7 @@ subroutine read_CGLSfcover(n, k, OBS_State, OBS_Pert_State)
         endif
     else
         fnd = 0 
-        fcoverobs = LIS_rc%udef
+        FCOVERobs = LIS_rc%udef
     endif
 
     dataCheck = .false.
@@ -125,11 +125,11 @@ subroutine read_CGLSfcover(n, k, OBS_State, OBS_Pert_State)
 
     if(dataCheck) then 
 
-        call ESMF_StateGet(OBS_State,"Observation01",fcoverfield,&
+        call ESMF_StateGet(OBS_State,"Observation01",FCOVERfield,&
              rc=status)
         call LIS_verify(status, 'Error: StateGet Observation01')
 
-        call ESMF_FieldGet(fcoverfield,localDE=0,farrayPtr=obsl,rc=status)
+        call ESMF_FieldGet(FCOVERfield,localDE=0,farrayPtr=obsl,rc=status)
         call LIS_verify(status, 'Error: FieldGet')
 
         ! if (LIS_rc%da == 1) then
@@ -156,15 +156,15 @@ subroutine read_CGLSfcover(n, k, OBS_State, OBS_Pert_State)
 
             call LIS_rescale_with_CDF_matching(     &
                  n,k,                               & 
-                 CGLSfcover_struc(n)%nbins,         & 
-                 CGLSfcover_struc(n)%ntimes,        & 
+                 CGLSFCOVER_struc(n)%nbins,         & 
+                 CGLSFCOVER_struc(n)%ntimes,        & 
                  MAX_FCOVER_VALUE,                      & 
                  MIN_FCOVER_VALUE,                      & 
-                 CGLSfcover_struc(n)%model_xrange,  &
-                 CGLSfcover_struc(n)%obs_xrange,    &
-                 CGLSfcover_struc(n)%model_cdf,     &
-                 CGLSfcover_struc(n)%obs_cdf,       &
-                 fcoverobs)
+                 CGLSFCOVER_struc(n)%model_xrange,  &
+                 CGLSFCOVER_struc(n)%obs_xrange,    &
+                 CGLSFCOVER_struc(n)%model_cdf,     &
+                 CGLSFCOVER_struc(n)%obs_cdf,       &
+                 FCOVERobs)
         endif
 
         obsl = LIS_rc%udef 
@@ -172,7 +172,7 @@ subroutine read_CGLSfcover(n, k, OBS_State, OBS_Pert_State)
             do c=1, LIS_rc%obs_lnc(k)
                 if(LIS_obs_domain(n,k)%gindex(c,r).ne.-1) then 
                     obsl(LIS_obs_domain(n,k)%gindex(c,r))=&
-                         fcoverobs(c+(r-1)*LIS_rc%obs_lnc(k))
+                         FCOVERobs(c+(r-1)*LIS_rc%obs_lnc(k))
                 endif
             enddo
         enddo
@@ -209,33 +209,33 @@ subroutine read_CGLSfcover(n, k, OBS_State, OBS_Pert_State)
             call LIS_verify(status)
 
             if(LIS_rc%obs_ngrid(k).gt.0) then 
-                call ESMF_AttributeSet(fcoverfield,"Grid Number",&
+                call ESMF_AttributeSet(FCOVERfield,"Grid Number",&
                      gid,itemCount=LIS_rc%obs_ngrid(k),rc=status)
                 call LIS_verify(status)
 
-                call ESMF_AttributeSet(fcoverfield,"Assimilation Flag",&
+                call ESMF_AttributeSet(FCOVERfield,"Assimilation Flag",&
                      assimflag,itemCount=LIS_rc%obs_ngrid(k),rc=status)
                 call LIS_verify(status)
 
             endif
             if(LIS_rc%dascaloption(k).eq."CDF matching") then 
-                if(CGLSfcover_struc(n)%useSsdevScal.eq.1) then
+                if(CGLSFCOVER_struc(n)%useSsdevScal.eq.1) then
                     call ESMF_StateGet(OBS_Pert_State,"Observation01",pertfield,&
                          rc=status)
                     call LIS_verify(status, 'Error: StateGet Observation01')
 
                     allocate(ssdev(LIS_rc%obs_ngrid(k)))
-                    ssdev = CGLSfcover_struc(n)%ssdev_inp 
+                    ssdev = CGLSFCOVER_struc(n)%ssdev_inp 
 
-                    if(CGLSfcover_struc(n)%ntimes.eq.1) then 
+                    if(CGLSFCOVER_struc(n)%ntimes.eq.1) then 
                         jj = 1
                     else
                         jj = LIS_rc%mo
                     endif
                     do t=1,LIS_rc%obs_ngrid(k)
-                        if(CGLSfcover_struc(n)%obs_sigma(t,jj).gt.0) then 
-                            ssdev(t) = ssdev(t)*CGLSfcover_struc(n)%model_sigma(t,jj)/&
-                                 CGLSfcover_struc(n)%obs_sigma(t,jj)
+                        if(CGLSFCOVER_struc(n)%obs_sigma(t,jj).gt.0) then 
+                            ssdev(t) = ssdev(t)*CGLSFCOVER_struc(n)%model_sigma(t,jj)/&
+                                 CGLSFCOVER_struc(n)%obs_sigma(t,jj)
                             if(ssdev(t).lt.minssdev) then 
                                 ssdev(t) = minssdev
                             endif
@@ -261,7 +261,7 @@ subroutine read_CGLSfcover(n, k, OBS_State, OBS_Pert_State)
              .false., rc=status)
         call LIS_verify(status)     
     endif
-end subroutine read_CGLSfcover
+end subroutine read_CGLSFCOVER
 
 !BOP
 ! 
@@ -269,7 +269,7 @@ end subroutine read_CGLSfcover
 ! \label{read_CGLS_FCOVER_data}
 !
 ! !INTERFACE:
-subroutine read_CGLS_FCOVER_data(n, k, fname, fcoverobs_ip)
+subroutine read_CGLS_FCOVER_data(n, k, fname, FCOVERobs_ip)
     ! 
     ! !USES:   
 #if(defined USE_NETCDF3 || defined USE_NETCDF4)
@@ -278,7 +278,7 @@ subroutine read_CGLS_FCOVER_data(n, k, fname, fcoverobs_ip)
     use LIS_coreMod,  only : LIS_rc, LIS_domain
     use LIS_logMod
     use LIS_timeMgrMod
-    use CGLSfcover_Mod, only : CGLSfcover_struc
+    use CGLSFCOVER_Mod, only : CGLSFCOVER_struc
 
     implicit none
     !
@@ -287,7 +287,7 @@ subroutine read_CGLS_FCOVER_data(n, k, fname, fcoverobs_ip)
     integer                       :: n 
     integer                       :: k
     character (len=*)             :: fname
-    real                          :: fcoverobs_ip(LIS_rc%obs_lnc(k)*LIS_rc%obs_lnr(k))
+    real                          :: FCOVERobs_ip(LIS_rc%obs_lnc(k)*LIS_rc%obs_lnr(k))
 
     ! !OUTPUT PARAMETERS:
     !
@@ -302,22 +302,22 @@ subroutine read_CGLS_FCOVER_data(n, k, fname, fcoverobs_ip)
     !  \item[k]            number of observation state
     !  \item[k]            number of observation state
     !  \item[fname]        name of the CGLS FCOVER file
-    !  \item[fcoverobs\_ip]   CGLS FCOVER data processed to the LIS domain
+    !  \item[FCOVERobs\_ip]   CGLS FCOVER data processed to the LIS domain
     !  \end{description}
     !
     !
     !EOP
 
     integer                 :: lat_offset, lon_offset
-    integer                 :: fcover(CGLSfcover_struc(n)%nc,CGLSfcover_struc(n)%nr)
-    integer                 :: flag(CGLSfcover_struc(n)%nc,CGLSfcover_struc(n)%nr)
-    real                    :: fcover_flagged(CGLSfcover_struc(n)%nc,CGLSfcover_struc(n)%nr)
-    real                    :: fcover_in(CGLSfcover_struc(n)%nc*CGLSfcover_struc(n)%nr)
-    logical*1               :: fcover_data_b(CGLSfcover_struc(n)%nc*CGLSfcover_struc(n)%nr)
-    logical*1               :: fcoverobs_b_ip(LIS_rc%obs_lnc(k)*LIS_rc%obs_lnr(k))
+    integer                 :: FCOVER(CGLSFCOVER_struc(n)%nc,CGLSFCOVER_struc(n)%nr)
+    integer                 :: flag(CGLSFCOVER_struc(n)%nc,CGLSFCOVER_struc(n)%nr)
+    real                    :: FCOVER_flagged(CGLSFCOVER_struc(n)%nc,CGLSFCOVER_struc(n)%nr)
+    real                    :: FCOVER_in(CGLSFCOVER_struc(n)%nc*CGLSFCOVER_struc(n)%nr)
+    logical*1               :: FCOVER_data_b(CGLSFCOVER_struc(n)%nc*CGLSFCOVER_struc(n)%nr)
+    logical*1               :: FCOVERobs_b_ip(LIS_rc%obs_lnc(k)*LIS_rc%obs_lnr(k))
     integer                 :: c,r,t
     integer                 :: nid
-    integer                 :: fcoverid, flagid
+    integer                 :: FCOVERid, flagid
     integer                 :: ios
 
     integer, dimension(nf90_max_var_dims) :: dimIDs
@@ -326,61 +326,61 @@ subroutine read_CGLS_FCOVER_data(n, k, fname, fcoverobs_ip)
 #if(defined USE_NETCDF3 || defined USE_NETCDF4)
 
     !values
-    fcover_data_b = .false.
+    FCOVER_data_b = .false.
 
     lat_offset = 1  ! no offset
     lon_offset = 1
 
 
-    if (CGLSfcover_struc(n)%isresampled.eq.0) then
+    if (CGLSFCOVER_struc(n)%isresampled.eq.0) then
         ! read the data from a file and optionally apply quality flags
         ios = nf90_open(path=trim(fname),mode=NF90_NOWRITE,ncid=nid)
         call LIS_verify(ios,'Error opening file '//trim(fname))
 
-        ios = nf90_inq_varid(nid, 'FCOVER',fcoverid)
+        ios = nf90_inq_varid(nid, 'FCOVER',FCOVERid)
         call LIS_verify(ios, 'Error nf90_inq_varid: FCOVER')
 
         ios = nf90_inq_varid(nid, 'QFLAG',flagid)
         call LIS_verify(ios, 'Error nf90_inq_varid: QFLAG')
 
-        ios = nf90_get_var(nid, fcoverid, fcover, &
+        ios = nf90_get_var(nid, FCOVERid, FCOVER, &
              start=(/lon_offset,lat_offset/), &
-             count=(/CGLSfcover_struc(n)%nc,CGLSfcover_struc(n)%nr/)) 
+             count=(/CGLSFCOVER_struc(n)%nc,CGLSFCOVER_struc(n)%nr/)) 
 
         call LIS_verify(ios, 'Error nf90_get_var: FCOVER')
 
         ios = nf90_get_var(nid, flagid, flag, &
              start=(/lon_offset,lat_offset/), &
-             count=(/CGLSfcover_struc(n)%nc,CGLSfcover_struc(n)%nr/))
+             count=(/CGLSFCOVER_struc(n)%nc,CGLSFCOVER_struc(n)%nr/))
 
         call LIS_verify(ios, 'Error nf90_get_var: QFLAG')
 
         ios = nf90_close(ncid=nid)
         call LIS_verify(ios,'Error closing file '//trim(fname))
 
-        do r=1, CGLSfcover_struc(n)%nr
-            do c=1, CGLSfcover_struc(n)%nc
+        do r=1, CGLSFCOVER_struc(n)%nr
+            do c=1, CGLSFCOVER_struc(n)%nc
 
-                if(CGLSfcover_struc(n)%qcflag.eq.1) then !apply QC flag
+                if(CGLSFCOVER_struc(n)%qcflag.eq.1) then !apply QC flag
 
-                    if(fcover(c,r).gt.0) then
-                        if (is_valid_CGLSfcover_flag(flag(c,r))) then
-                            fcover_flagged(c,r) =&
-                                 fcover(c,r)*CGLSfcover_struc(n)%scale
+                    if(FCOVER(c,r).gt.0) then
+                        if (is_valid_CGLSFCOVER_flag(flag(c,r))) then
+                            FCOVER_flagged(c,r) =&
+                                 FCOVER(c,r)*CGLSFCOVER_struc(n)%scale
                         else
-                            fcover_flagged(c,r) = LIS_rc%udef
+                            FCOVER_flagged(c,r) = LIS_rc%udef
                         endif
                     else
-                        fcover_flagged(c,r) = LIS_rc%udef
+                        FCOVER_flagged(c,r) = LIS_rc%udef
                     endif
 
                 else  ! no QC flag applied                
 
-                    if(fcover(c,r).gt.0) then
-                        fcover_flagged(c,r) =&
-                             fcover(c,r)*CGLSfcover_struc(n)%scale
+                    if(FCOVER(c,r).gt.0) then
+                        FCOVER_flagged(c,r) =&
+                             FCOVER(c,r)*CGLSFCOVER_struc(n)%scale
                     else
-                        fcover_flagged(c,r) = LIS_rc%udef
+                        FCOVER_flagged(c,r) = LIS_rc%udef
                     endif
                 endif
             end do
@@ -388,92 +388,92 @@ subroutine read_CGLS_FCOVER_data(n, k, fname, fcoverobs_ip)
     else
         ! if the data has been resampled, we assume that it also has been
         ! unpacked and flagged already, so we can directly read it into
-        ! fcover_flagged
+        ! FCOVER_flagged
         ios = nf90_open(path=trim(fname),mode=NF90_NOWRITE,ncid=nid)
         call LIS_verify(ios,'Error opening file '//trim(fname))
 
-        ios = nf90_inq_varid(nid, 'CGLS_FCOVER',fcoverid)
+        ios = nf90_inq_varid(nid, 'CGLS_FCOVER',FCOVERid)
         call LIS_verify(ios, 'Error nf90_inq_varid: CGLS_FCOVER')
 
-        ios = nf90_get_var(nid, fcoverid, fcover_flagged, &
+        ios = nf90_get_var(nid, FCOVERid, FCOVER_flagged, &
              start=(/lon_offset,lat_offset/), &
-             count=(/CGLSfcover_struc(n)%nc,CGLSfcover_struc(n)%nr/)) 
+             count=(/CGLSFCOVER_struc(n)%nc,CGLSFCOVER_struc(n)%nr/)) 
 
         call LIS_verify(ios, 'Error nf90_get_var: CGLS_FCOVER')
 
         ios = nf90_close(ncid=nid)
         call LIS_verify(ios,'Error closing file '//trim(fname))
 
-        ! the data is already read into fcover_flagged, but we have to replace
+        ! the data is already read into FCOVER_flagged, but we have to replace
         ! NaNs/invalid values with LIS_rc%udef
-        do r=1, CGLSfcover_struc(n)%nr
-            do c=1, CGLSfcover_struc(n)%nc
-                if (isnan(fcover_flagged(c, r))) then
-                    fcover_flagged(c, r) = LIS_rc%udef
-                else if (.not. (0.0 < fcover_flagged(c, r) .and. fcover_flagged(c, r) < 20.0)) then
-                    fcover_flagged(c, r) = LIS_rc%udef
+        do r=1, CGLSFCOVER_struc(n)%nr
+            do c=1, CGLSFCOVER_struc(n)%nc
+                if (isnan(FCOVER_flagged(c, r))) then
+                    FCOVER_flagged(c, r) = LIS_rc%udef
+                else if (.not. (0.0 < FCOVER_flagged(c, r) .and. FCOVER_flagged(c, r) < 20.0)) then
+                    FCOVER_flagged(c, r) = LIS_rc%udef
                 endif
             end do
         end do
     endif
 
 
-    ! fill fcover_in and fcover_data_b, which are required further on
-    do r=1, CGLSfcover_struc(n)%nr
-        do c=1, CGLSfcover_struc(n)%nc
-            fcover_in(c+(r-1)*CGLSfcover_struc(n)%nc) = fcover_flagged(c,r)
-            if(fcover_flagged(c,r).ne.LIS_rc%udef) then
-                fcover_data_b(c+(r-1)*CGLSfcover_struc(n)%nc) = .true.
+    ! fill FCOVER_in and FCOVER_data_b, which are required further on
+    do r=1, CGLSFCOVER_struc(n)%nr
+        do c=1, CGLSFCOVER_struc(n)%nc
+            FCOVER_in(c+(r-1)*CGLSFCOVER_struc(n)%nc) = FCOVER_flagged(c,r)
+            if(FCOVER_flagged(c,r).ne.LIS_rc%udef) then
+                FCOVER_data_b(c+(r-1)*CGLSFCOVER_struc(n)%nc) = .true.
             else
-                fcover_data_b(c+(r-1)*CGLSfcover_struc(n)%nc) = .false.
+                FCOVER_data_b(c+(r-1)*CGLSFCOVER_struc(n)%nc) = .false.
             endif
         enddo
     enddo
 
-    if(LIS_rc%obs_gridDesc(k,10).lt.CGLSfcover_struc(n)%dlon) then 
+    if(LIS_rc%obs_gridDesc(k,10).lt.CGLSFCOVER_struc(n)%dlon) then 
         write(LIS_logunit,*) '[INFO] interpolating CGLS FCOVER',trim(fname)
         !--------------------------------------------------------------------------
         ! Interpolate to the LIS running domain if model has finer resolution
         ! than observations
         !-------------------------------------------------------------------------- 
         call bilinear_interp(LIS_rc%obs_gridDesc(k,:),&
-             fcover_data_b, fcover_in, fcoverobs_b_ip, fcoverobs_ip, &
-             CGLSfcover_struc(n)%nc*CGLSfcover_struc(n)%nr, &
+             FCOVER_data_b, FCOVER_in, FCOVERobs_b_ip, FCOVERobs_ip, &
+             CGLSFCOVER_struc(n)%nc*CGLSFCOVER_struc(n)%nr, &
              LIS_rc%obs_lnc(k)*LIS_rc%obs_lnr(k), &
-             CGLSfcover_struc(n)%rlat,CGLSfcover_struc(n)%rlon,&
-             CGLSfcover_struc(n)%w11,CGLSfcover_struc(n)%w12,&
-             CGLSfcover_struc(n)%w21,CGLSfcover_struc(n)%w22,&
-             CGLSfcover_struc(n)%n11,CGLSfcover_struc(n)%n12,&
-             CGLSfcover_struc(n)%n21,CGLSfcover_struc(n)%n22,LIS_rc%udef,ios)
+             CGLSFCOVER_struc(n)%rlat,CGLSFCOVER_struc(n)%rlon,&
+             CGLSFCOVER_struc(n)%w11,CGLSFCOVER_struc(n)%w12,&
+             CGLSFCOVER_struc(n)%w21,CGLSFCOVER_struc(n)%w22,&
+             CGLSFCOVER_struc(n)%n11,CGLSFCOVER_struc(n)%n12,&
+             CGLSFCOVER_struc(n)%n21,CGLSFCOVER_struc(n)%n22,LIS_rc%udef,ios)
      else
         write(LIS_logunit,*) '[INFO] upscaling CGLS FCOVER',trim(fname)
         !--------------------------------------------------------------------------
         ! Upscale to the LIS running domain if model has coarser resolution
         ! than observations
         !-------------------------------------------------------------------------- 
-        call upscaleByAveraging(CGLSfcover_struc(n)%nc*CGLSfcover_struc(n)%nr,&
+        call upscaleByAveraging(CGLSFCOVER_struc(n)%nc*CGLSFCOVER_struc(n)%nr,&
              LIS_rc%obs_lnc(k)*LIS_rc%obs_lnr(k), &
-             LIS_rc%udef, CGLSfcover_struc(n)%n11,&
-             fcover_data_b,fcover_in, fcoverobs_b_ip, fcoverobs_ip)
+             LIS_rc%udef, CGLSFCOVER_struc(n)%n11,&
+             FCOVER_data_b,FCOVER_in, FCOVERobs_b_ip, FCOVERobs_ip)
     endif
 
 #endif
 
 contains
 
-    function is_valid_CGLSfcover_flag(flag) result(isvalid)
+    function is_valid_CGLSFCOVER_flag(flag) result(isvalid)
         implicit none
         integer, value :: flag
-        logical :: sea, filled, no_obs, fcover_invalid, climato_filled, gap_filled
-        ! logical :: fapar_invalid, fcover_invalid, high_lat_correction, EBF, bare
+        logical :: sea, filled, no_obs, FCOVER_invalid, climato_filled, gap_filled
+        ! logical :: fapar_invalid, FCOVER_invalid, high_lat_correction, EBF, bare
         logical :: isvalid
 
         sea = (iand(flag, 1) /= 0)
         filled = (iand(flag, 4) /= 0)
         no_obs = (iand(flag, 32) /= 0)
-        fcover_invalid = (iand(flag, 64) /= 0)
+        FCOVER_invalid = (iand(flag, 64) /= 0)
         ! fapar_invalid = (iand(flag, 128) /= 0)
-        ! fcover_invalid = (iand(flag, 256) /= 0)
+        ! FCOVER_invalid = (iand(flag, 256) /= 0)
         ! high_lat_correction = (iand(flag, 512) /= 0)
         ! EBF = (iand(flag, 1024) /= 0)
         ! bare = (iand(flag, 2048) /= 0)
@@ -483,17 +483,17 @@ contains
         isvalid = .not. sea &
             .and. .not. filled &
             .and. .not. no_obs &
-            .and. .not. fcover_invalid &
+            .and. .not. FCOVER_invalid &
             .and. .not. climato_filled &
             .and. .not. gap_filled
 
-    end function is_valid_CGLSfcover_flag
+    end function is_valid_CGLSFCOVER_flag
 
 end subroutine read_CGLS_FCOVER_data
 
 !BOP
-! !ROUTINE: create_CGLSfcover_filename
-! \label{create_CGLSfcover_filename}
+! !ROUTINE: create_CGLSFCOVER_filename
+! \label{create_CGLSFCOVER_filename}
 ! 
 ! !INTERFACE: 
 subroutine create_CGLS_FCOVER_filename(isresampled, res, ndir, year, month, day, filename)
@@ -525,13 +525,13 @@ subroutine create_CGLS_FCOVER_filename(isresampled, res, ndir, year, month, day,
     !EOP
 
     if (isresampled.ne.0) then
-        call create_CGLSfcover_filename_from_resampled(res, ndir, year, month, day, filename)
+        call create_CGLSFCOVER_filename_from_resampled(res, ndir, year, month, day, filename)
     else
-         call create_CGLSfcover_filename_from_original(ndir, year, month, day, filename)
+         call create_CGLSFCOVER_filename_from_original(ndir, year, month, day, filename)
     endif
 
 contains
-    subroutine create_CGLSfcover_filename_from_original(ndir, year, month, day, filename)
+    subroutine create_CGLSFCOVER_filename_from_original(ndir, year, month, day, filename)
         implicit none
         character (len=*) :: ndir
         integer, value    :: year, month, day
@@ -591,9 +591,9 @@ contains
              trim(prefix)//'_'//trim(time)//'0000_GLOBE_'//trim(sensor)//'_'//trim(version)//'/'//&
              'c_gls_'//trim(prefix2)//'_'//trim(time)//'0000_GLOBE_'//trim(sensor)//'_'//trim(version)//'.nc'
 
-    end subroutine create_CGLSfcover_filename_from_original
+    end subroutine create_CGLSFCOVER_filename_from_original
 
-    subroutine create_CGLSfcover_filename_from_resampled(res, ndir, year, month, day, filename)
+    subroutine create_CGLSFCOVER_filename_from_resampled(res, ndir, year, month, day, filename)
         implicit none
         real*8, value     :: res
         character (len=*) :: ndir
@@ -618,9 +618,9 @@ contains
 
 
         filename = trim(ndir)//'/'//&
-             'CGLS_FCOVER_resampled_'//trim(resstr)//'deg_'//yearstr//'_'//monthstr//'_'//daystr//'.nc'
+             'CGLS_FCOVER_resampled_'//trim(resstr)//'.deg_'//yearstr//'_'//monthstr//'_'//daystr//'.nc'
 
-    end subroutine create_CGLSfcover_filename_from_resampled
+    end subroutine create_CGLSFCOVER_filename_from_resampled
 
 end subroutine create_CGLS_FCOVER_filename
 

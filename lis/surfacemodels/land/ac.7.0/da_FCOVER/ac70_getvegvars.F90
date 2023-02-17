@@ -39,25 +39,18 @@ subroutine ac70_getvegvars(n, LSM_State)
 !  \end{description}
 !
 !EOP
-  type(ESMF_Field)       :: laiField,lfmassField
-
+  type(ESMF_Field)       :: AC70CCiprevField
   integer                :: t
   integer                :: status
-  real, pointer          :: lai(:),lfmass(:)
+  real, pointer          :: AC70CCiprev(:)
  
-  call ESMF_StateGet(LSM_State,"LAI",laiField,rc=status)
+  call ESMF_StateGet(LSM_State,"AC70 CCiprev",AC70CCiprevField,rc=status)
   call LIS_verify(status)
-  call ESMF_FieldGet(laiField,localDE=0,farrayPtr=lai,rc=status)
+  call ESMF_FieldGet(AC70CCiprevField,localDE=0,farrayPtr=AC70CCiprev,rc=status)
   call LIS_verify(status)
-
-!  call ESMF_StateGet(LSM_State,"LeafMass",lfmassField,rc=status)
-!  call LIS_verify(status)
-!  call ESMF_FieldGet(lfmassField,localDE=0,farrayPtr=lfmass,rc=status)
-!  call LIS_verify(status)
 
   do t=1,LIS_rc%npatch(n,LIS_rc%lsm_index)
-     lai(t) = AC70_struc(n)%ac70(t)%lai
-!     lfmass(t) = AC70_struc(n)%ac70(t)%lfmass
+     AC70CCiprev(t) = AC70_struc(n)%ac70(t)%CCiprev
   enddo
   
 end subroutine ac70_getvegvars

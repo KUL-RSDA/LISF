@@ -8,14 +8,14 @@
 ! All Rights Reserved.
 !-------------------------END NOTICE -- DO NOT EDIT-----------------------
 !BOP
-! !ROUTINE: ac70_getLAIpred
-! \label{ac70_getLAIpred}
+! !ROUTINE: ac70_getFCOVERpred
+! \label{ac70_getFCOVERpred}
 !
 ! !REVISION HISTORY:
 ! 22 Dec 2017: Sujay Kumar; Initial Specification
 !
 ! !INTERFACE:
-subroutine ac70_getLAIpred(n, k,obs_pred)
+subroutine ac70_getFCOVERpred(n, k,obs_pred)
 ! !USES:
   use ESMF
   use LIS_constantsMod
@@ -35,7 +35,7 @@ subroutine ac70_getLAIpred(n, k,obs_pred)
 !
 ! !DESCRIPTION:
 !
-!  Returns the LAI obs pred (model's estimate of 
+!  Returns the FCOVER obs pred (model's estimate of 
 !  observations) for data assimilation
 ! 
 !  The arguments are: 
@@ -48,17 +48,17 @@ subroutine ac70_getLAIpred(n, k,obs_pred)
   integer                :: i,t,m,gid,kk
   real                   :: inputs_tp(6), sm_out
   character*50           :: units_tp(6)
-  real                   :: lai(LIS_rc%npatch(n,LIS_rc%lsm_index))
+  real                   :: AC70CCiprev(LIS_rc%npatch(n,LIS_rc%lsm_index))
 
 
   do t=1, LIS_rc%npatch(n,LIS_rc%lsm_index)
-     lai(t) = AC70_struc(n)%ac70(t)%lai
+     AC70CCiprev(t) = AC70_struc(n)%ac70(t)%CCiprev
   enddo
 
   call LIS_convertPatchSpaceToObsEnsSpace(n,k,&
        LIS_rc%lsm_index, &
-       lai,&
+       AC70CCiprev,&
        obs_pred)
 
-end subroutine ac70_getLAIpred
+end subroutine ac70_getFCOVERpred
 

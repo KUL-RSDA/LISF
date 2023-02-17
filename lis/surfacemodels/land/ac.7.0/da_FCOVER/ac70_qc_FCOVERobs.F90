@@ -8,14 +8,14 @@
 ! All Rights Reserved.
 !-------------------------END NOTICE -- DO NOT EDIT-----------------------
 !BOP
-! !ROUTINE: ac70_qc_LAIobs
-! \label{ac70_qc_LAIobs}
+! !ROUTINE: ac70_qc_FCOVERobs
+! \label{ac70_qc_FCOVERobs}
 !
 ! !REVISION HISTORY:
 ! 22 Dec 2017: Sujay Kumar; Initial Specification
 !
 ! !INTERFACE:
-subroutine ac70_qc_LAIobs(n,k,OBS_State)
+subroutine ac70_qc_FCOVERobs(n,k,OBS_State)
 ! !USES:
   use ESMF
   use LIS_coreMod
@@ -45,5 +45,5 @@ subroutine ac70_qc_LAIobs(n,k,OBS_State)
 !
 !EOP
 
-end subroutine ac70_qc_LAIobs
+end subroutine ac70_qc_FCOVERobs
 

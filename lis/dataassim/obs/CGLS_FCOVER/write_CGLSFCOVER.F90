@@ -7,14 +7,14 @@
 !-------------------------END NOTICE -- DO NOT EDIT-----------------------
 !BOP
 ! 
-! !ROUTINE: write_CGLSfcover
-! \label{write_CGLSfcover}
+! !ROUTINE: write_CGLSFCOVER
+! \label{write_CGLSFCOVER}
 ! 
 ! !REVISION HISTORY: 
 !  15 Feb 2023    Zdenko Heyvaert; initial reader based on Samuel Scherrer's CGLS LAI reader
 ! 
 ! !INTERFACE: 
-subroutine write_CGLSfcover(n, k, OBS_State)
+subroutine write_CGLSFCOVER(n, k, OBS_State)
 ! !USES: 
   use ESMF
   use LIS_coreMod
@@ -37,9 +37,9 @@ subroutine write_CGLSfcover(n, k, OBS_State)
 ! CGLS FCOVER observations to a file
 ! 
 !EOP
-  type(ESMF_Field)         :: fcoverField
+  type(ESMF_Field)         :: FCOVERField
   logical                  :: data_update
-  real, pointer            :: fcoverobs(:)
+  real, pointer            :: FCOVERobs(:)
   character*100            :: obsname
   integer                  :: ftn
   integer                  :: status
@@ -50,22 +50,22 @@ subroutine write_CGLSfcover(n, k, OBS_State)
 
   if(data_update) then 
      
-     call ESMF_StateGet(OBS_State, "Observation01",fcoverField, &
+     call ESMF_StateGet(OBS_State, "Observation01",FCOVERField, &
           rc=status)
      call LIS_verify(status)
      
-     call ESMF_FieldGet(fcoverField, localDE=0, farrayPtr=fcoverobs, rc=status)
+     call ESMF_FieldGet(FCOVERField, localDE=0, farrayPtr=FCOVERobs, rc=status)
      call LIS_verify(status)
 
      if(LIS_masterproc) then 
         ftn = LIS_getNextUnitNumber()
-        call CGLS_fcoverobsname(n,k,obsname)        
+        call CGLS_FCOVERobsname(n,k,obsname)        
 
         call LIS_create_output_directory('DAOBS')
         open(ftn,file=trim(obsname), form='unformatted')
      endif
 
-     call LIS_writevar_gridded_obs(ftn,n,k,fcoverobs)
+     call LIS_writevar_gridded_obs(ftn,n,k,FCOVERobs)
      
      if(LIS_masterproc) then 
         call LIS_releaseUnitNumber(ftn)
@@ -73,14 +73,14 @@ subroutine write_CGLSfcover(n, k, OBS_State)
 
   endif  
 
-end subroutine write_CGLSfcover
+end subroutine write_CGLSFCOVER
 
 !BOP
-! !ROUTINE: CGLS_fcoverobsname
-! \label{CGLS_fcoverobsname}
+! !ROUTINE: CGLS_FCOVERobsname
+! \label{CGLS_FCOVERobsname}
 ! 
 ! !INTERFACE: 
-subroutine CGLS_fcoverobsname(n,k,obsname)
+subroutine CGLS_FCOVERobsname(n,k,obsname)
 ! !USES: 
   use LIS_coreMod, only : LIS_rc
 
@@ -119,4 +119,4 @@ subroutine CGLS_fcoverobsname(n,k,obsname)
        '/LISDAOBS_'//cdate1// &
        trim(cda)//trim(cdate)//'.1gs4r'
 
-end subroutine CGLS_fcoverobsname
+end subroutine CGLS_FCOVERobsname

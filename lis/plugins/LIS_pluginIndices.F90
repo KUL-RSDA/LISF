@@ -289,6 +289,8 @@ module LIS_pluginIndices
         "MCD15A2H LAI"
    character*50, public,  parameter :: LIS_CGLSlaiobsId          = &
         "CGLS LAI"
+   character*50, public,  parameter :: LIS_CGLSFCOVERobsId       = &
+        "CGLS FCOVER"
    character*50, public,  parameter :: LIS_GLASSalbedoobsId      = &
         "GLASS Albedo"
    character*50, public,  parameter :: LIS_SMAPNRTsmobsId        = &
