@@ -410,7 +410,7 @@ subroutine read_CGLS_FCOVER_data(n, k, fname, FCOVERobs_ip)
             do c=1, CGLSFCOVER_struc(n)%nc
                 if (isnan(FCOVER_flagged(c, r))) then
                     FCOVER_flagged(c, r) = LIS_rc%udef
-                else if (.not. (0.0 < FCOVER_flagged(c, r) .and. FCOVER_flagged(c, r) < 20.0)) then
+                else if (.not. (0.0 <= FCOVER_flagged(c, r) .and. FCOVER_flagged(c, r) <= 1.0)) then
                     FCOVER_flagged(c, r) = LIS_rc%udef
                 endif
             end do
