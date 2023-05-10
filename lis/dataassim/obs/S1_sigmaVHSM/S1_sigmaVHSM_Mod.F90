@@ -90,8 +90,6 @@ contains
     type(ESMF_Field)       ::  pertField(LIS_rc%nnest)
     type(ESMF_ArraySpec)   ::  pertArrSpec
     character*100          ::  S1sigmaobsdir
-    character*80           ::  S1_firstfile
-    character*80           ::  S1_filename
     character*100          ::  temp
     real,  allocatable         ::  obsstd(:)
     character*1            ::  vid(2)
@@ -101,13 +99,6 @@ contains
     type(pert_dec_type)    :: obs_pert
     real, pointer          :: obs_temp(:,:)
     real, allocatable          :: ssdev(:)
-    real                   :: dx, dy
-    integer                :: NX, NY 
-    integer                :: ncid
-    integer                :: flist
-    integer                :: ios
-    character*100          :: infile 
-    character*100          :: xname, yname 
 
     allocate(S1_sigma_struc(LIS_rc%nnest))
 
@@ -267,27 +258,16 @@ contains
 ! set up the S1 domain %and interpolation weights. 
 !-------------------------------------------------------------
 
-
-    ! Open first file to get nx ny dimensions
-    call system('ls ./' // trim(S1sigmaobsdir) // ' > ./S1_listfiles.txt')
-
-    open(flist, file=trim('./S1_listfiles.txt'), &
-         status='old', iostat=status)
-
-    read(flist, '(a)', iostat=status) S1_firstfile
-    S1_filename = trim(S1sigmaobsdir) // '/' // trim(S1_firstfile)
-
-    ios = nf90_open(path=S1_filename,&
-                    mode=NF90_NOWRITE,ncid=ncid)
-    call LIS_verify(ios,&
-        'Error reading in S1 data dimensions: Error opening file '// S1_filename)
-    ios = nf90_inquire_dimension(ncid,1,yname,NY)
-    ios = nf90_inquire_dimension(ncid,2,xname,NX)
-    ios = nf90_close(ncid)
-
     do n=1,LIS_rc%nnest
-       S1_sigma_struc(n)%nc = NX
-       S1_sigma_struc(n)%nr = NY
+       call ESMF_ConfigFindLabel(LIS_config,&
+                    "S1 backscatter domain x-dimension size:",rc=status)
+       call ESMF_ConfigGetAttribute(LIS_config,S1_sigma_struc(n)%nc,rc=status)
+       call LIS_verify(status,'[ERR] S1 backscatter domain x-dimension size: not defined')
+
+       call ESMF_ConfigFindLabel(LIS_config,&
+                   "S1 backscatter domain y-dimension size:",rc=status)
+       call ESMF_ConfigGetAttribute(LIS_config,S1_sigma_struc(n)%nr,rc=status)
+       call LIS_verify(status,'[ERR] S1 backscatter domain y-dimension size: not defined')
 
        allocate(S1_sigma_struc(n)%sigma(LIS_rc%obs_lnc(k),LIS_rc%obs_lnr(k)))
        allocate(S1_sigma_struc(n)%sigmatime(&
