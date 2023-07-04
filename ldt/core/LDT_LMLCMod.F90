@@ -886,6 +886,35 @@ contains
       end select
     endif
 
+  ! Attributes serving Aquacrop only (at this time):
+    if (LDT_rc%lsm.eq."Aquacrop.7.0") then
+      select case( LDT_rc%lc_type(n) ) 
+       case( "IGBPNCEP" ) 
+         call LDT_verify(nf90_put_att(ftn,NF90_GLOBAL,"NUMBER_LANDCATS", &
+              20))
+       case( "USGS" )
+         call LDT_verify(nf90_put_att(ftn,NF90_GLOBAL,"NUMBER_LANDCATS", &
+              27))
+       case( "USGS-RUC" )
+         call LDT_verify(nf90_put_att(ftn,NF90_GLOBAL,"NUMBER_LANDCATS", &
+              28))
+       case( "MODI-RUC" )
+         call LDT_verify(nf90_put_att(ftn,NF90_GLOBAL,"NUMBER_LANDCATS", &
+              21))
+       case( "NLCD40" )
+         call LDT_verify(nf90_put_att(ftn,NF90_GLOBAL,"NUMBER_LANDCATS", &
+              40))
+       case( "UMD" )
+         call LDT_verify(nf90_put_att(ftn,NF90_GLOBAL,"NUMBER_LANDCATS", &
+              13))
+       case( "Bondville" ) 
+         call LDT_verify(nf90_put_att(ftn,NF90_GLOBAL,"NUMBER_LANDCATS", &
+              20))
+         call LDT_verify(nf90_put_att(ftn,NF90_GLOBAL,"LANDCOVER_SCHEME", &
+              "IGBPNCEP"))
+      end select
+    endif
+
     call LDT_verify(nf90_put_att(ftn,NF90_GLOBAL,"BARESOILCLASS", &
          LDT_rc%bareclass))
     call LDT_verify(nf90_put_att(ftn,NF90_GLOBAL,"URBANCLASS", &

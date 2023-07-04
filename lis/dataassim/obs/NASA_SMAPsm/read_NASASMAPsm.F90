@@ -163,9 +163,17 @@ subroutine read_NASASMAPsm(n, k, OBS_State, OBS_Pert_State)
          write(hh,'(i2.2)') LIS_rc%hr
 
          if(LIS_masterproc) then
-            list_files = trim(smobsdir)//'/'//trim(yyyy)//'.'//trim(mm)//'.'//&
+            ! MB: AquaCrop runs at daily resolution, check if ts=86400,
+            ! then collect all observations of one day            
+            if (LIS_rc%ts .ne. 86400.0) then
+                list_files = trim(smobsdir)//'/'//trim(yyyy)//'.'//trim(mm)//'.'//&
                          trim(dd)//'/SMAP_L2_*' &
                          //trim(yyyy)//trim(mm)//trim(dd)//'T'//trim(hh)//'*.h5'
+            else
+                list_files = trim(smobsdir)//'/'//trim(yyyy)//'.'//trim(mm)//'.'//&
+                     trim(dd)//'/SMAP_L2_*' &
+                     //trim(yyyy)//trim(mm)//trim(dd)//'T'//'*.h5'                
+            endif
             write(LIS_logunit,*) &
                   '[INFO] Searching for ',trim(list_files)
             rc = create_filelist(trim(list_files)//char(0), &
@@ -191,8 +199,12 @@ subroutine read_NASASMAPsm(n, k, OBS_State, OBS_Pert_State)
             if(ierr.ne.0) then
                exit
             endif
-
-            mn_ind = index(fname,trim(yyyymmdd)//'T'//trim(hh))+11
+            ! MB: AquaCrop runs at daily resolution, check if ts=86400            
+            if (LIS_rc%ts .ne. 86400.0) then
+                mn_ind = index(fname,trim(yyyymmdd)//'T'//trim(hh))+11
+            else
+                mn_ind = index(fname,trim(yyyymmdd)//'T')+13
+            end if 
             read(fname(mn_ind:mn_ind+1),'(i2.2)') mn
             ss=0
             call LIS_tick(timenow,doy,gmt,LIS_rc%yr, LIS_rc%mo, LIS_rc%da, &
@@ -447,7 +459,9 @@ subroutine read_NASASMAPsm(n, k, OBS_State, OBS_Pert_State)
             if(LIS_obs_domain(n,k)%gindex(c,r).ne.-1) then
                grid_index = c+(r-1)*LIS_rc%obs_lnc(k)
                dt = (NASASMAPsm_struc(n)%smtime(c,r)-time1)
-               if(dt.ge.0.and.dt.lt.(time3-time1)) then
+               ! MB: AquaCrop runs at daily resolution, check if ts=86400
+               if((dt.ge.0.and.dt.lt.(time3-time1)) .or. &
+                   (LIS_rc%ts .eq. 86400.0)) then 
                   sm_current(c,r) = &
                        NASASMAPsm_struc(n)%smobs(c,r)
                   if(LIS_obs_domain(n,k)%gindex(c,r).ne.-1) then
@@ -470,7 +484,9 @@ subroutine read_NASASMAPsm(n, k, OBS_State, OBS_Pert_State)
                grid_index = c + (r - 1)*LIS_rc%obs_lnc(k)
 
                dt = (LIS_rc%gmt - NASASMAPsm_struc(n)%smtime(c, r))*3600.0
-               if (dt .ge. 0 .and. dt .lt. LIS_rc%ts) then
+               ! MB: AquaCrop runs at daily resolution, check if ts=86400
+               if ((dt .ge. 0 .and. dt .lt. LIS_rc%ts) .or. &
+                  (LIS_rc%ts .eq. 86400.0)) then
                   sm_current(c, r) = &
                         NASASMAPsm_struc(n)%smobs(c, r)
                   if (LIS_obs_domain(n, k)%gindex(c, r) .ne. -1) then

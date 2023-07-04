@@ -163,6 +163,11 @@ subroutine read_S1_sigmaVVVHSMLAI(n,k,OBS_State,OBS_Pert_State)
                    S1_sigma_struc(n)%s_vv(c,r)
               s_vh(LIS_obs_domain(n,k)%gindex(c,r)) = & 
                    S1_sigma_struc(n)%s_vh(c,r)
+           else if (LIS_rc%ts .eq. 86400.0) then
+              s_vv(LIS_obs_domain(n,k)%gindex(c,r)) = & 
+                   S1_sigma_struc(n)%s_vv(c,r)
+              s_vh(LIS_obs_domain(n,k)%gindex(c,r)) = & 
+                   S1_sigma_struc(n)%s_vh(c,r)
            endif
            
         endif

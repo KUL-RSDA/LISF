@@ -73,6 +73,9 @@ subroutine LIS_lsmoptue_plugin
 #if ( defined SM_NOAHMP_3_6 )
    use NoahMP36_peMod, only : NoahMP36_setup_pedecvars
 #endif
+#if ( defined SM_AC_7_0 )
+   use ac70_peMod, only : ac70_setup_pedecvars
+#endif
 #if ( defined SM_NOAHMP_4_0_1 )
    use NoahMP401_peMod, only : NoahMP401_setup_pedecvars
 #endif
@@ -127,6 +130,22 @@ subroutine LIS_lsmoptue_plugin
 
    external NoahMP36_getpeobspred_SMAPsmobs
    external NoahMP36_setupobspred_SMAPsmobs
+
+#endif
+
+#if ( defined SM_AC_7_0 )
+
+   external ac70_f2t
+   external ac70_set_pedecvars
+
+   external ac70_getpeobspred_ARSsmobs
+   external ac70_setupobspred_ARSsmobs
+
+   external ac70_getpeobspred_ISMNsmobs
+   external ac70_setupobspred_ISMNsmobs
+
+   external ac70_getpeobspred_SMAPsmobs
+   external ac70_setupobspred_SMAPsmobs
 
 #endif
 
@@ -294,6 +313,36 @@ subroutine LIS_lsmoptue_plugin
    call registerlsmpegetobspred(trim(LIS_noahmp36Id)//"+"//      &
                                 trim(LIS_SMAPsmobsId)//char(0), &
                                 NoahMP36_getpeobspred_SMAPsmobs)
+#endif
+
+#if ( defined SM_AC_7_0 )
+   call registerlsmf2t(trim(LIS_ac70Id)//"+"// &
+                       trim(LIS_paramEstimRunId)//char(0),ac70_f2t)
+   call registerlsmpesetupdecisionspace(trim(LIS_ac70Id)//char(0), &
+                                        ac70_setup_pedecvars)
+   call registerlsmpesetdecisionspace(trim(LIS_ac70Id)//char(0), &
+                                      ac70_set_pedecvars)
+
+   call registerlsmpesetupobspred(trim(LIS_ac70Id)//"+"//      &
+                                  trim(LIS_ARSsmobsId)//char(0), &
+                                  ac70_setupobspred_ARSsmobs)
+   call registerlsmpegetobspred(trim(LIS_ac70Id)//"+"//      &
+                                trim(LIS_ARSsmobsId)//char(0), &
+                                ac70_getpeobspred_ARSsmobs)
+
+   call registerlsmpesetupobspred(trim(LIS_ac70Id)//"+"//      &
+                                  trim(LIS_ISMNsmobsId)//char(0), &
+                                  ac70_setupobspred_ISMNsmobs)
+   call registerlsmpegetobspred(trim(LIS_ac70Id)//"+"//      &
+                                trim(LIS_ISMNsmobsId)//char(0), &
+                                ac70_getpeobspred_ISMNsmobs)
+
+   call registerlsmpesetupobspred(trim(LIS_ac70Id)//"+"//      &
+                                  trim(LIS_SMAPsmobsId)//char(0), &
+                                  ac70_setupobspred_SMAPsmobs)
+   call registerlsmpegetobspred(trim(LIS_ac70Id)//"+"//      &
+                                trim(LIS_SMAPsmobsId)//char(0), &
+                                ac70_getpeobspred_SMAPsmobs)
 #endif
 
 #if ( defined SM_NOAHMP_4_0_1 )

@@ -95,6 +95,18 @@ subroutine LIS_lsmrtm_plugin
 #endif
 #endif
 
+#if ( defined SM_AC_7_0 )
+#if ( defined RM_RTM_FORWARD )
+   external ac70_f2t
+#endif
+#if ( defined RTMS_CMEM )
+   external ac70_sfc2cmem3
+#endif
+#if ( defined RTMS_WCM )
+   external ac70_sfc2wcm
+#endif
+#endif
+
 #if ( defined SM_MOSAIC )
 #if ( defined RM_RTM_FORWARD )
    external mos_f2t
@@ -187,6 +199,31 @@ subroutine LIS_lsmrtm_plugin
 #if ( defined RTMS_WCM)
    call registerlsm2rtm(trim(LIS_wcmRTMId)//"+"//&
         trim(LIS_noahmp36Id)//char(0), noahmp36_sfc2wcm)
+#endif
+#endif
+
+
+#if ( defined SM_AC_7_0 )
+#if ( defined RM_RTM_FORWARD )
+   call registerlsmf2t(trim(LIS_ac70Id)//"+"//&
+        trim(LIS_RTMforwardId)//char(0), ac70_f2t)
+#endif
+
+#if ( defined RTMS_CMEM )
+   call registerlsm2rtm(trim(LIS_cmem3Id)//"+"//&
+        trim(LIS_ac70Id)//char(0), ac70_sfc2cmem3)
+#endif
+#endif
+
+#if ( defined SM_AC_7_0 )
+#if ( defined RM_RTM_FORWARD )
+   call registerlsmf2t(trim(LIS_ac70Id)//"+"&
+        //trim(LIS_RTMforwardId)//char(0),ac70_f2t)
+#endif
+
+#if ( defined RTMS_WCM)
+   call registerlsm2rtm(trim(LIS_wcmRTMId)//"+"//&
+        trim(LIS_ac70Id)//char(0), ac70_sfc2wcm)
 #endif
 #endif
 

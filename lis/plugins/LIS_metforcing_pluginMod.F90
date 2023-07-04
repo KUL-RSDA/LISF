@@ -136,6 +136,10 @@ subroutine LIS_metforcing_plugin
    use merra2_forcingMod
 #endif
 
+#if ( defined MF_MERRA2_AC )
+   use merra2_ac_forcingMod
+#endif
+
 #if ( defined MF_ERA5 )
    use era5_forcingMod
 #endif
@@ -370,6 +374,13 @@ subroutine LIS_metforcing_plugin
    external timeinterp_merra2
    external finalize_merra2
    external reset_merra2
+#endif
+
+#if ( defined MF_MERRA2_AC )
+   external get_merra2_ac
+   external timeinterp_merra2_ac
+   external finalize_merra2_ac
+   external reset_merra2_ac
 #endif
 
 #if ( defined MF_ERA5 )
@@ -752,6 +763,16 @@ subroutine LIS_metforcing_plugin
                                   timeinterp_merra2)
    call registerresetmetforc(trim(LIS_merra2Id)//char(0),reset_merra2)
    call registerfinalmetforc(trim(LIS_merra2Id)//char(0),finalize_merra2)
+#endif
+
+#if ( defined MF_MERRA2_AC )
+! - MERRA2 AC Reanalysis Forcing:
+   call registerinitmetforc(trim(LIS_merra2_acId)//char(0),init_MERRA2_ac)
+   call registerretrievemetforc(trim(LIS_merra2_acId)//char(0),get_merra2_ac)
+   call registertimeinterpmetforc(trim(LIS_merra2_acId)//char(0), &
+                                  timeinterp_merra2_ac)
+   call registerresetmetforc(trim(LIS_merra2_acId)//char(0),reset_merra2_ac)
+   call registerfinalmetforc(trim(LIS_merra2_acId)//char(0),finalize_merra2_ac)
 #endif
 
 #if ( defined MF_ERA5)

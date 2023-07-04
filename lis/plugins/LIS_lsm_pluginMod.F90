@@ -236,6 +236,10 @@ subroutine LIS_lsm_plugin
    use summa1_lsmMod,  only : summa1_lsm_ini
 #endif
 
+#if ( defined SM_AC_7_0 )
+   use ac70_lsmMod, only : ac70_ini
+#endif
+
 #if ( defined SM_LSM_TEMPLATE )
    external template_main
    external template_setup
@@ -521,6 +525,17 @@ subroutine LIS_lsm_plugin
    external summa1_f2t
    external summa1_writerst
    external summa1_finalize
+#endif
+
+#if ( defined SM_AC_7_0 )
+   external ac70_main
+   external ac70_setup
+   external ac70_readrst
+   external ac70_dynsetup
+   external ac70_f2t
+   external ac70_writerst
+   external ac70_finalize
+   external ac70_reset
 #endif
 
 #if ( defined SM_LSM_TEMPLATE )
@@ -954,6 +969,29 @@ subroutine LIS_lsm_plugin
         trim(LIS_retroId)//char(0),summa1_f2t)
    call registerlsmf2t(trim(LIS_summa1Id)//"+"//&
         trim(LIS_nuopccplId)//char(0),summa1_f2t)
+#endif
+
+#if ( defined SM_AC_7_0 )
+   call registerlsminit(trim(LIS_ac70Id)//char(0),ac70_ini)
+   call registerlsmsetup(trim(LIS_ac70Id)//char(0),ac70_setup)
+   call registerlsmf2t(trim(LIS_ac70Id)//"+"//trim(LIS_retroId)//char(0),&
+        ac70_f2t)
+   call registerlsmf2t(trim(LIS_ac70Id)//"+"//trim(LIS_nuopccplId)//char(0),&
+        ac70_f2t)
+   ! ------------wanshu----add registry for smootherDA for NoahMP-----------------
+   call registerlsmf2t(trim(LIS_ac70Id)//"+"//&
+        trim(LIS_smootherDAId)//char(0), ac70_f2t)
+   ! -----------------------------------------------------------------------------
+   call registerlsmf2t(trim(LIS_ac70Id)//"+"//&
+        trim(LIS_agrmetrunId)//char(0),ac70_f2t)
+   call registerlsmf2t(trim(LIS_ac70Id)//"+"//&
+        trim(LIS_forecastrunId)//char(0),ac70_f2t)
+   call registerlsmrun(trim(LIS_ac70Id)//char(0),ac70_main)
+   call registerlsmrestart(trim(LIS_ac70Id)//char(0),ac70_readrst)
+   call registerlsmdynsetup(trim(LIS_ac70Id)//char(0),ac70_dynsetup)
+   call registerlsmwrst(trim(LIS_ac70Id)//char(0),ac70_writerst)
+   call registerlsmfinalize(trim(LIS_ac70Id)//char(0),ac70_finalize)
+   call registerlsmreset(trim(LIS_ac70Id)//char(0),ac70_reset)
 #endif
 
 end subroutine LIS_lsm_plugin

@@ -149,6 +149,10 @@ subroutine read_S1_sigmaVVSMLAI(n,k,OBS_State,OBS_Pert_State)
            if(dt.ge.0.and.dt.lt.LIS_rc%ts) then 
               obsl(LIS_obs_domain(n,k)%gindex(c,r)) = & 
                    S1_sigma_struc(n)%sigma(c,r)
+           ! necessary for daily AC70 time step
+           else if (LIS_rc%ts .eq. 86400.0) then
+              obsl(LIS_obs_domain(n,k)%gindex(c,r)) = & 
+                   S1_sigma_struc(n)%sigma(c,r)
            endif
            
         endif

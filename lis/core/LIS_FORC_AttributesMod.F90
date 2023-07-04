@@ -42,6 +42,11 @@ module LIS_FORC_AttributesMod
   public :: LIS_FORC_Rainf
   public :: LIS_FORC_Snowf
   public :: LIS_FORC_CRainf
+  ! MB: AC70
+  public :: LIS_FORC_PREC_ac
+  public :: LIS_FORC_TMIN_ac
+  public :: LIS_FORC_TMAX_ac
+  public :: LIS_FORC_ETo_ac
 
   public :: LIS_FORC_Forc_Hgt
   public :: LIS_FORC_Ch
@@ -107,6 +112,11 @@ module LIS_FORC_AttributesMod
   type(forc_attrib_type)   :: LIS_FORC_Rainf
   type(forc_attrib_type)   :: LIS_FORC_Snowf
   type(forc_attrib_type)   :: LIS_FORC_CRainf
+  ! MB: AC70
+  type(forc_attrib_type)   :: LIS_FORC_PREC_ac
+  type(forc_attrib_type)   :: LIS_FORC_TMIN_ac
+  type(forc_attrib_type)   :: LIS_FORC_TMAX_ac
+  type(forc_attrib_type)   :: LIS_FORC_ETo_ac
 
   type(forc_attrib_type)   :: LIS_FORC_Forc_Hgt
   type(forc_attrib_type)   :: LIS_FORC_Ch

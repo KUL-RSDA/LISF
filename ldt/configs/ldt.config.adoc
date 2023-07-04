@@ -98,6 +98,7 @@ Surface model types:  "LSM"
 |RDHM.3.5.6 |Sacramento+snow17
 |GeoWRSI.2 |GeoWRSI, v2.0
 |SiB2 |SiB v2
+|Aquacrop.7.0 | Aquacrop 7.0
 ifdef::devonly[]
 |FASST |FASST
 |CABLE |CABLE

@@ -1825,6 +1825,24 @@ module LDT_soilsMod
               9))
     endif
 
+  ! Attributes serving AquaCrop only (at this time):
+    if (LDT_rc%lsm.eq."Aquacrop.7.0") then
+    ! Number of soil types:
+      if( LDT_rc%soil_classification(1) == "STATSGO" ) then
+         call LDT_verify(nf90_put_att(ftn,NF90_GLOBAL,"NUMBER_SOILTYPES", &
+              19))
+      elseif( LDT_rc%soil_classification(1) == "Special" ) then
+         call LDT_verify(nf90_put_att(ftn,NF90_GLOBAL,"NUMBER_SOILTYPES", &
+              14))
+      elseif( LDT_rc%soil_classification(1) == "ISRIC" ) then
+         call LDT_verify(nf90_put_att(ftn,NF90_GLOBAL,"NUMBER_SOILTYPES", &
+              13))
+      else
+         call LDT_verify(nf90_put_att(ftn,NF90_GLOBAL,"NUMBER_SOILTYPES", &
+              19))
+      endif
+    endif
+
 #endif
   end subroutine Soils_writeHeader_LIS
 

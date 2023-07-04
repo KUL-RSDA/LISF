@@ -811,6 +811,17 @@ if($use_crtm == 1 || $use_cmem == 1 || $use_wcm == 1) {
         }
 }
 
+# MB: AquaCrop
+if(defined($ENV{LIS_LIB_AC70})){
+    $sys_ac70_path = $ENV{LIS_LIB_AC70};
+    #$inc = "/include/";
+    #$lib = "/lib/";
+    $inc = "";
+    $lib = "";
+    $inc_ac70=$sys_ac70_path.$inc;
+    $lib_ac70=$sys_ac70_path.$lib;
+}
+
 print "Use LIS-LAPACK? (1-yes, 0-no, default=0): ";
 $use_lapack=<stdin>;
 $use_lapack=~s/ *#.*$//;
@@ -1048,6 +1059,13 @@ if($use_lapack == 1){
    $lib_paths= $lib_paths." -L\$(LIB_LAPACK)";
 }
 
+if(defined($ENV{LIS_LIB_AC70})){
+   $fflags77 = $fflags77." -I\$(INC_AC70)";
+   $fflags = $fflags." -I\$(INC_AC70)";
+   $ldflags = $ldflags." -L\$(LIB_AC70) -laquacrop";
+   $lib_paths= $lib_paths." -L\$(LIB_AC70)";
+}
+
 if($use_mkllapack == 1){
    #Changed to be able to use mkl Wendy Sharples
    $ldflags = $ldflags." -L\$(LIB_LAPACK) -lmkl_rt";
@@ -1138,6 +1156,8 @@ printf conf_file "%s%s\n","INC_PROF_UTIL   = $inc_crtm_prof";
 printf conf_file "%s%s\n","LIB_PROF_UTIL   = $lib_crtm_prof";
 printf conf_file "%s%s\n","INC_CMEM        = $inc_cmem";
 printf conf_file "%s%s\n","LIB_CMEM        = $lib_cmem";
+printf conf_file "%s%s\n","INC_AC70        = $inc_ac70";
+printf conf_file "%s%s\n","LIB_AC70        = $lib_ac70";
 printf conf_file "%s%s\n","LIB_LAPACK      = $lib_lapack";
 printf conf_file "%s%s\n","CFLAGS          = $cflags";
 printf conf_file "%s%s\n","FFLAGS77        = $fflags77";

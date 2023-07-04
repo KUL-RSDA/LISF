@@ -70,6 +70,7 @@ module LIS_pluginIndices
    character*50, public,  parameter :: LIS_noah36Id    = "Noah.3.6"
    character*50, public,  parameter :: LIS_noah39Id    = "Noah.3.9"
    character*50, public,  parameter :: LIS_noahmp36Id  = "NoahMP.3.6"
+   character*50, public,  parameter :: LIS_ac70Id      = "Aquacrop.7.0"
    character*50, public,  parameter :: LIS_noahmp401Id = "Noah-MP.4.0.1"
    character*50, public,  parameter :: LIS_ruc37Id     = "RUC.3.7"
    character*50, public,  parameter :: LIS_clm2Id      = "CLM.2"
@@ -135,6 +136,7 @@ module LIS_pluginIndices
    character*50, public,  parameter :: LIS_gldasId           = "GLDAS"
    character*50, public,  parameter :: LIS_gfsId             = "GFS"
    character*50, public,  parameter :: LIS_merra2Id          = "MERRA2"
+   character*50, public,  parameter :: LIS_merra2_acId          = "MERRA2_AC"
 
    character*50, public,  parameter :: LIS_cmapId            = "CMAP"
    character*50, public,  parameter :: LIS_chirps2Id         = "CHIRPS2"

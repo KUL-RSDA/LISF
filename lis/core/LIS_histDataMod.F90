@@ -150,6 +150,12 @@ module LIS_histDataMod
   public :: LIS_MOC_TOTSOILCARB
   public :: LIS_MOC_TOTLIVBIOM
   
+  ! MB: AC70 
+  public :: LIS_MOC_PREC_ac
+  public :: LIS_MOC_TMIN_ac 
+  public :: LIS_MOC_TMAX_ac 
+  public :: LIS_MOC_ETo_ac 
+  
   public :: LIS_MOC_WINDFORC  
   public :: LIS_MOC_RAINFFORC 
   public :: LIS_MOC_SNOWFFORC 
@@ -174,7 +180,12 @@ module LIS_histDataMod
   public :: LIS_MOC_COSZENFORC  
   public :: LIS_MOC_ALBEDOFORC  
   public :: LIS_MOC_PARDRFORC  
-  public :: LIS_MOC_PARDFFORC  
+  public :: LIS_MOC_PARDFFORC 
+  ! MB: AC70 
+  public :: LIS_MOC_PREC_ac_FORC 
+  public :: LIS_MOC_TMIN_ac_FORC 
+  public :: LIS_MOC_TMAX_ac_FORC 
+  public :: LIS_MOC_ETo_ac_FORC 
 !<for vic>
   public :: LIS_MOC_SNOWFLAGFORC
   public :: LIS_MOC_DENSITYFORC
@@ -429,7 +440,24 @@ module LIS_histDataMod
   public ::   LIS_MOC_CHB2    
   public ::   LIS_MOC_FPICE   
   ! end Noahmp
- 
+
+  ! AC70
+  public :: LIS_MOC_AC70SOILMOIST 
+  public :: LIS_MOC_AC70BIOMASS
+  public :: LIS_MOC_CCiprev
+  public :: LIS_MOC_WCMV1V2
+  public :: LIS_MOC_AC70FC
+  public :: LIS_MOC_AC70Irrigation
+  public :: LIS_MOC_AC70StressTot_Temp
+  public :: LIS_MOC_AC70StressTot_Sto
+  public :: LIS_MOC_AC70RootZoneWC_Actual
+  public :: LIS_MOC_AC70RootZoneWC_WP
+  public :: LIS_MOC_AC70RootZoneWC_FC
+  public :: LIS_MOC_AC70Tact
+  public :: LIS_MOC_AC70Eact
+  public :: LIS_MOC_AC70RootingDepth
+  public :: LIS_MOC_AC70CCiActual
+  
   ! RUC 
   public :: LIS_MOC_QVG
   public :: LIS_MOC_QCG
@@ -633,6 +661,16 @@ module LIS_histDataMod
    ! CLSM FORCING VARIABLES
    integer :: LIS_MOC_PARDRFORC  = -9999
    integer :: LIS_MOC_PARDFFORC  = -9999
+
+   ! AC70 FORCING VARIABLES
+   integer :: LIS_MOC_PREC_ac_FORC  = -9999
+   integer :: LIS_MOC_TMIN_ac_FORC  = -9999
+   integer :: LIS_MOC_TMAX_ac_FORC  = -9999
+   integer :: LIS_MOC_ETo_ac_FORC  = -9999
+   integer :: LIS_MOC_PREC_ac  = -9999
+   integer :: LIS_MOC_TMIN_ac  = -9999
+   integer :: LIS_MOC_TMAX_ac  = -9999
+   integer :: LIS_MOC_ETo_ac  = -9999
 
    ! PARAMETER OUTPUT - EXPERIMENTAL (USE W/WRF-WPS)
    integer :: LIS_MOC_LANDMASK   = -9999
@@ -918,6 +956,23 @@ module LIS_histDataMod
     integer ::  LIS_MOC_CHB2    = -9999
     integer ::  LIS_MOC_FPICE   = -9999
 !  <- end Noah MP  ->
+
+!  <- AC70 ->
+   integer :: LIS_MOC_AC70SOILMOIST  = -9999
+   integer :: LIS_MOC_AC70BIOMASS  = -9999
+   integer :: LIS_MOC_CCiprev  = -9999
+   integer :: LIS_MOC_WCMV1V2  = -9999
+   integer :: LIS_MOC_AC70FC  = -9999
+   integer :: LIS_MOC_AC70Irrigation  = -9999
+   integer :: LIS_MOC_AC70StressTot_Temp  = -9999
+   integer :: LIS_MOC_AC70StressTot_Sto  = -9999
+   integer :: LIS_MOC_AC70RootZoneWC_Actual  = -9999
+   integer :: LIS_MOC_AC70RootZoneWC_WP  = -9999
+   integer :: LIS_MOC_AC70RootZoneWC_FC  = -9999
+   integer :: LIS_MOC_AC70Tact  = -9999
+   integer :: LIS_MOC_AC70Eact  = -9999
+   integer :: LIS_MOC_AC70RootingDepth  = -9999
+   integer :: LIS_MOC_AC70CCiActual  = -9999
 
 !   <- RUC -> 
    integer :: LIS_MOC_QVG = -9999
@@ -2676,6 +2731,70 @@ contains
             model_patch=.true.)
     endif
 
+    ! MB: AC70
+
+    !call ESMF_ConfigFindLabel(modelSpecConfig,"PREC_ac:",rc=rc)
+    !call get_moc_attributes(modelSpecConfig, LIS_histData(n)%head_lsm_list, &
+    !     "PREC_ac",&
+    !     "precipitation_rate",&
+    !     "precipitation rate",rc)
+    !if ( rc == 1 ) then
+    !   call register_dataEntry(LIS_MOC_LSM_COUNT,LIS_MOC_PREC_ac,&
+    !        LIS_histData(n)%head_lsm_list,&
+    !        n,1,ntiles,(/"mm/d"/),&
+    !        1,(/"-"/),1,1,1,&
+    !        model_patch=.true.)
+    !endif
+
+    call ESMF_ConfigFindLabel(modelSpecConfig,"PREC_ac_f:",rc=rc)
+    call get_moc_attributes(modelSpecConfig, LIS_histData(n)%head_lsm_list, &
+         "PREC_ac_f",&
+         "Rainfall_ac Rate mm/day",&
+         "Rainfall_ac Rate",rc)
+    if ( rc == 1 ) then
+       call register_dataEntry(LIS_MOC_LSM_COUNT,LIS_MOC_PREC_ac_FORC,&
+            LIS_histData(n)%head_lsm_list,&
+            n,1,ntiles,(/"-"/),1,(/"-"/),1,1,1,&
+            model_patch=.true.)
+    endif
+
+    call ESMF_ConfigFindLabel(modelSpecConfig,"TMIN_ac_f:",rc=rc)
+    call get_moc_attributes(modelSpecConfig, LIS_histData(n)%head_lsm_list, &
+         "TMIN_ac_f",&
+         "min temperature degC",&
+         "min temperature_ac",rc)
+    if ( rc == 1 ) then
+       call register_dataEntry(LIS_MOC_LSM_COUNT,LIS_MOC_TMIN_ac_FORC,&
+            LIS_histData(n)%head_lsm_list,&
+            n,1,ntiles,(/"C"/),1,(/"-"/),1,1,1,&
+            model_patch=.true.)
+    endif
+
+    call ESMF_ConfigFindLabel(modelSpecConfig,"TMAX_ac_f:",rc=rc)
+    call get_moc_attributes(modelSpecConfig, LIS_histData(n)%head_lsm_list, &
+         "TMAX_ac_f",&
+         "max temperature degC",&
+         "max temperature_ac",rc)
+    if ( rc == 1 ) then
+       call register_dataEntry(LIS_MOC_LSM_COUNT,LIS_MOC_TMAX_ac_FORC,&
+            LIS_histData(n)%head_lsm_list,&
+            n,1,ntiles,(/"C"/),1,(/"-"/),1,1,1,&
+            model_patch=.true.)
+    endif
+
+    call ESMF_ConfigFindLabel(modelSpecConfig,"ETo_ac_f:",rc=rc)
+    call get_moc_attributes(modelSpecConfig, LIS_histData(n)%head_lsm_list, &
+         "ETo_ac_f",&
+         "potential evaporation mm/day",&
+         "potential evaporation_ac",rc)
+    if ( rc == 1 ) then
+       call register_dataEntry(LIS_MOC_LSM_COUNT,LIS_MOC_ETo_ac_FORC,&
+            LIS_histData(n)%head_lsm_list,&
+            n,1,ntiles,(/"mm/d"/),1,(/"-"/),1,1,1,&
+            model_patch=.true.)
+    endif
+    ! MB: AC70 
+
     call ESMF_ConfigFindLabel(modelSpecConfig,"SWdown_f:",rc=rc)
     call get_moc_attributes(modelSpecConfig, LIS_histData(n)%head_lsm_list, &
          "SWdown_f",&
@@ -3052,7 +3171,7 @@ contains
     call get_moc_attributes(modelSpecConfig, LIS_histData(n)%head_lsm_list, &
          "PET_f",&
          "potential_evaporation",&
-         "potential evaporation",rc)
+         "potential_evaporation",rc)
     if ( rc == 1 ) then
        call register_dataEntry(LIS_MOC_LSM_COUNT,LIS_MOC_PETFORC,&
             LIS_histData(n)%head_lsm_list,&
@@ -4476,6 +4595,189 @@ contains
             model_patch=.true.)
     endif
     
+    ! MB: AC70
+    call ESMF_ConfigFindLabel(modelSpecConfig,"AC70SoilMoist:",rc=rc)
+    call get_moc_attributes(modelSpecConfig, LIS_histData(n)%head_lsm_list, &
+         "AC70SoilMoist",&
+         "ac70soil_moisture_content",&
+         "ac70soil moisture content",rc)
+    if ( rc == 1 ) then
+       call register_dataEntry(LIS_MOC_LSM_COUNT,LIS_MOC_AC70SOILMOIST,&
+            LIS_histData(n)%head_lsm_list,&
+            n,2,ntiles,(/"m3/m3","kg/m2"/),1,(/"-"/),1,grib_depthlvl,0,&
+            model_patch=.true.)
+    endif
+
+    call ESMF_ConfigFindLabel(modelSpecConfig,"AC70BIOMASS:",rc=rc)
+    call get_moc_attributes(modelSpecConfig, LIS_histData(n)%head_lsm_list, &
+         "AC70BIOMASS",&
+         "AC70_BIOMASS",&
+         "AC70 Biomass",rc)
+    if ( rc == 1 ) then
+       call register_dataEntry(LIS_MOC_LSM_COUNT,LIS_MOC_AC70BIOMASS,&
+            LIS_histData(n)%head_lsm_list,&
+            n,1,ntiles,(/"-"/),1,(/"-"/),1,1,1,&
+            model_patch=.true.)
+    endif
+
+    call ESMF_ConfigFindLabel(modelSpecConfig,"CCiprev:",rc=rc)
+    call get_moc_attributes(modelSpecConfig, LIS_histData(n)%head_lsm_list, &
+         "CCiprev",&
+         "CCiprev",&
+         "CCiprev",rc)
+    if ( rc == 1 ) then
+       call register_dataEntry(LIS_MOC_LSM_COUNT,LIS_MOC_CCiprev,&
+            LIS_histData(n)%head_lsm_list,&
+            n,1,ntiles,(/"-"/),1,(/"-"/),1,1,1,&
+            model_patch=.true.)
+    endif
+
+    call ESMF_ConfigFindLabel(modelSpecConfig,"WCMV1V2:",rc=rc)
+    call get_moc_attributes(modelSpecConfig, LIS_histData(n)%head_lsm_list, &
+         "WCMV1V2",&
+         "WCMV1V2",&
+         "WCMV1V2",rc)
+    if ( rc == 1 ) then
+       call register_dataEntry(LIS_MOC_LSM_COUNT,LIS_MOC_WCMV1V2,&
+            LIS_histData(n)%head_lsm_list,&
+            n,1,ntiles,(/"-"/),1,(/"-"/),1,1,1,&
+            model_patch=.true.)
+    endif
+
+    call ESMF_ConfigFindLabel(modelSpecConfig,"AC70FC:",rc=rc)
+    call get_moc_attributes(modelSpecConfig, LIS_histData(n)%head_lsm_list, &
+         "AC70FC",&
+         "AC70FC",&
+         "AC70FC",rc)
+    if ( rc == 1 ) then
+       call register_dataEntry(LIS_MOC_LSM_COUNT,LIS_MOC_AC70FC,&
+            LIS_histData(n)%head_lsm_list,&
+            n,1,ntiles,(/"-"/),1,(/"-"/),1,1,1,&
+            model_patch=.true.)
+    endif
+
+    call ESMF_ConfigFindLabel(modelSpecConfig,"AC70Irrigation:",rc=rc)
+    call get_moc_attributes(modelSpecConfig, LIS_histData(n)%head_lsm_list, &
+         "AC70Irrigation",&
+         "AC70_Irrigation",&
+         "AC70 Irrigation",rc)
+    if ( rc == 1 ) then
+       call register_dataEntry(LIS_MOC_LSM_COUNT,LIS_MOC_AC70Irrigation,&
+            LIS_histData(n)%head_lsm_list,&
+            n,1,ntiles,(/"-"/),1,(/"-"/),1,1,1,&
+            model_patch=.true.)
+    endif
+
+    call ESMF_ConfigFindLabel(modelSpecConfig,"AC70StressTot_Temp:",rc=rc)
+    call get_moc_attributes(modelSpecConfig, LIS_histData(n)%head_lsm_list, &
+         "AC70StressTot_Temp",&
+         "AC70_StressTot_Temp",&
+         "AC70 StressTot_Temp",rc)
+    if ( rc == 1 ) then
+       call register_dataEntry(LIS_MOC_LSM_COUNT,LIS_MOC_AC70StressTot_Temp,&
+            LIS_histData(n)%head_lsm_list,&
+            n,1,ntiles,(/"-"/),1,(/"-"/),1,1,1,&
+            model_patch=.true.)
+    endif
+
+    call ESMF_ConfigFindLabel(modelSpecConfig,"AC70StressTot_Sto:",rc=rc)
+    call get_moc_attributes(modelSpecConfig, LIS_histData(n)%head_lsm_list, &
+         "AC70StressTot_Sto",&
+         "AC70_StressTot_Sto",&
+         "AC70 StressTot_Sto",rc)
+    if ( rc == 1 ) then
+       call register_dataEntry(LIS_MOC_LSM_COUNT,LIS_MOC_AC70StressTot_Sto,&
+            LIS_histData(n)%head_lsm_list,&
+            n,1,ntiles,(/"-"/),1,(/"-"/),1,1,1,&
+            model_patch=.true.)
+    endif
+
+    call ESMF_ConfigFindLabel(modelSpecConfig,"AC70RootZoneWC_Actual:",rc=rc)
+    call get_moc_attributes(modelSpecConfig, LIS_histData(n)%head_lsm_list, &
+         "AC70RootZoneWC_Actual",&
+         "AC70_RootZoneWC_Actual",&
+         "AC70 RootZoneWC_Actual",rc)
+    if ( rc == 1 ) then
+       call register_dataEntry(LIS_MOC_LSM_COUNT,LIS_MOC_AC70RootZoneWC_Actual,&
+            LIS_histData(n)%head_lsm_list,&
+            n,1,ntiles,(/"-"/),1,(/"-"/),1,1,1,&
+            model_patch=.true.)
+    endif
+
+    call ESMF_ConfigFindLabel(modelSpecConfig,"AC70RootZoneWC_WP:",rc=rc)
+    call get_moc_attributes(modelSpecConfig, LIS_histData(n)%head_lsm_list, &
+         "AC70RootZoneWC_WP",&
+         "AC70_RootZoneWC_WP",&
+         "AC70 RootZoneWC_WP",rc)
+    if ( rc == 1 ) then
+       call register_dataEntry(LIS_MOC_LSM_COUNT,LIS_MOC_AC70RootZoneWC_WP,&
+            LIS_histData(n)%head_lsm_list,&
+            n,1,ntiles,(/"-"/),1,(/"-"/),1,1,1,&
+            model_patch=.true.)
+    endif
+
+    call ESMF_ConfigFindLabel(modelSpecConfig,"AC70RootZoneWC_FC:",rc=rc)
+    call get_moc_attributes(modelSpecConfig, LIS_histData(n)%head_lsm_list, &
+         "AC70RootZoneWC_FC",&
+         "AC70_RootZoneWC_FC",&
+         "AC70 RootZoneWC_FC",rc)
+    if ( rc == 1 ) then
+       call register_dataEntry(LIS_MOC_LSM_COUNT,LIS_MOC_AC70RootZoneWC_FC,&
+            LIS_histData(n)%head_lsm_list,&
+            n,1,ntiles,(/"-"/),1,(/"-"/),1,1,1,&
+            model_patch=.true.)
+    endif
+
+    call ESMF_ConfigFindLabel(modelSpecConfig,"AC70Tact:",rc=rc)
+    call get_moc_attributes(modelSpecConfig, LIS_histData(n)%head_lsm_list, &
+         "AC70Tact",&
+         "AC70_Tact",&
+         "AC70 Tact",rc)
+    if ( rc == 1 ) then
+       call register_dataEntry(LIS_MOC_LSM_COUNT,LIS_MOC_AC70Tact,&
+            LIS_histData(n)%head_lsm_list,&
+            n,1,ntiles,(/"-"/),1,(/"-"/),1,1,1,&
+            model_patch=.true.)
+    endif
+
+    call ESMF_ConfigFindLabel(modelSpecConfig,"AC70Eact:",rc=rc)
+    call get_moc_attributes(modelSpecConfig, LIS_histData(n)%head_lsm_list, &
+         "AC70Eact",&
+         "AC70_Eact",&
+         "AC70 Eact",rc)
+    if ( rc == 1 ) then
+       call register_dataEntry(LIS_MOC_LSM_COUNT,LIS_MOC_AC70Eact,&
+            LIS_histData(n)%head_lsm_list,&
+            n,1,ntiles,(/"-"/),1,(/"-"/),1,1,1,&
+            model_patch=.true.)
+    endif
+
+    call ESMF_ConfigFindLabel(modelSpecConfig,"AC70RootingDepth:",rc=rc)
+    call get_moc_attributes(modelSpecConfig, LIS_histData(n)%head_lsm_list, &
+         "AC70RootingDepth",&
+         "AC70_RootingDepth",&
+         "AC70 RootingDepth",rc)
+    if ( rc == 1 ) then
+       call register_dataEntry(LIS_MOC_LSM_COUNT,LIS_MOC_AC70RootingDepth,&
+            LIS_histData(n)%head_lsm_list,&
+            n,1,ntiles,(/"-"/),1,(/"-"/),1,1,1,&
+            model_patch=.true.)
+    endif
+
+    call ESMF_ConfigFindLabel(modelSpecConfig,"AC70CCiActual:",rc=rc)
+    call get_moc_attributes(modelSpecConfig, LIS_histData(n)%head_lsm_list, &
+         "AC70CCiActual",&
+         "AC70_CCiActual",&
+         "AC70 CCiActual",rc)
+    if ( rc == 1 ) then
+       call register_dataEntry(LIS_MOC_LSM_COUNT,LIS_MOC_AC70CCiActual,&
+            LIS_histData(n)%head_lsm_list,&
+            n,1,ntiles,(/"-"/),1,(/"-"/),1,1,1,&
+            model_patch=.true.)
+    endif
+
+    ! MB: AC70
+
     Call ESMF_ConfigFindLabel(modelSpecConfig, "StemMass:", rc = rc)
     Call get_moc_attributes(modelSpecConfig, LIS_histData(n)%head_lsm_list, &
          "StemMass", &
@@ -5488,7 +5790,7 @@ contains
     call get_moc_attributes(modelSpecConfig, LIS_histData(n)%head_lsm_list, &
          "e0",&
          "potential_evaporation",&
-         "potential evaporation",rc)
+         "potential_evaporation",rc)
     if ( rc == 1 ) then
        call register_dataEntry(LIS_MOC_LSM_COUNT,LIS_MOC_E0, &
             LIS_histData(n)%head_lsm_list,&
@@ -6143,6 +6445,10 @@ end subroutine get_moc_attributes
        cfunit = "km day-1"
     elseif(unit.eq."J/kg") then 
        cfunit = "J kg-1"
+    elseif(unit.eq."mm/d") then 
+       cfunit = "mm d-1"
+    elseif(unit.eq."t/ha") then 
+       cfunit = "t ha-1"
     else
        cfunit = unit
     endif
