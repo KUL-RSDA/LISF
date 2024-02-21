@@ -254,6 +254,10 @@ subroutine LIS_DAobs_plugin
    use SMOSNESDISsm_Mod,        only : SMOSNESDISsm_setup
 #endif
 
+#if ( defined DA_OBS_SMOS_L2SM )
+   use SMOSL2sm_Mod,            only: SMOSL2sm_setup
+#endif
+
 #if 0
     use WindSatsm_Mod,           only : WindSatsm_setup
     use WindSatCsm_Mod,          only : WindSatCsm_setup
@@ -261,7 +265,7 @@ subroutine LIS_DAobs_plugin
     use SYN_LBAND_TB_Mod,        only : SYN_LBAND_TB_setup
     use ASCAT_TUWsm_Mod,         only : ASCAT_TUWsm_setup
     use GCOMW_AMSR2L3sm_Mod,     only : GCOMW_AMSR2L3sm_setup
-    use SMOSL2sm_Mod,            only : SMOSL2sm_setup
+    ! use SMOSL2sm_Mod,            only : SMOSL2sm_setup
 #endif
 
 #if ( defined DA_OBS_GRACE )
@@ -404,6 +408,10 @@ subroutine LIS_DAobs_plugin
    external read_SMOSNESDISsm, write_SMOSNESDISsmobs
 #endif
 
+#if ( defined DA_OBS_SMOS_L2SM )
+   external read_SMOSL2sm,write_SMOSL2smobs
+#endif 
+
 #if 0 
    external read_ANSASWEsnow, write_ANSASWEsnowobs
 #endif
@@ -474,7 +482,7 @@ subroutine LIS_DAobs_plugin
     external read_SYN_LBAND_TB, write_SYN_LBAND_TB
     external read_ASCAT_TUWsm, write_ASCAT_TUWsmobs
     external read_GCOMW_AMSR2L3sm,  write_GCOMW_AMSR2L3smobs
-   external read_SMOSL2sm,write_SMOSL2smobs
+   !external read_SMOSL2sm,write_SMOSL2smobs
 #endif
 
 #if ( defined DA_OBS_GRACE )
@@ -886,6 +894,13 @@ subroutine LIS_DAobs_plugin
         write_SMOSNESDISsmobs)
 #endif
 
+#if ( defined DA_OBS_SMOS_L2SM )
+   call registerdaobsclass(trim(LIS_SMOSL2smobsId),"LSM")
+   call registerdaobssetup(trim(LIS_SMOSL2smobsId)//char(0),SMOSL2sm_setup)
+   call registerreaddaobs(trim(LIS_SMOSL2smobsId)//char(0),read_SMOSL2sm)
+   call registerwritedaobs(trim(LIS_SMOSL2smobsId)//char(0),write_SMOSL2smobs)
+#endif
+
 #if 0
    call registerdaobssetup(trim(LIS_ASCAT_TUWsmobsId)//char(0), &
         ASCAT_TUWsm_setup)
@@ -902,9 +917,9 @@ subroutine LIS_DAobs_plugin
         write_GCOMW_AMSR2L3smobs)
 
 
-   call registerdaobssetup(trim(LIS_SMOSL2smobsId)//char(0),SMOSL2sm_setup)
-   call registerreaddaobs(trim(LIS_SMOSL2smobsId)//char(0),read_SMOSL2sm)
-   call registerwritedaobs(trim(LIS_SMOSL2smobsId)//char(0),write_SMOSL2smobs)
+  ! call registerdaobssetup(trim(LIS_SMOSL2smobsId)//char(0),SMOSL2sm_setup)
+  ! call registerreaddaobs(trim(LIS_SMOSL2smobsId)//char(0),read_SMOSL2sm)
+  ! call registerwritedaobs(trim(LIS_SMOSL2smobsId)//char(0),write_SMOSL2smobs)
 #endif
 
 #if ( defined DA_OBS_GRACE )
