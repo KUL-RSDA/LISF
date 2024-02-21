@@ -14,9 +14,12 @@
 !
 ! !REVISION HISTORY:
 !  16 Dec 14    Sujay Kumar; Initial specification
-!
+!  09 Jan 24    Sara Modanesi; Updated subroutines to activate the DA component and ...
+!               read ncfiles instead of .DBL format
 ! !INTERFACE: 
-subroutine read_SMOSL2sm(n, OBS_State, OBS_Pert_State)
+
+!check SM09012024 added the k in the function
+subroutine read_SMOSL2sm(n, k, OBS_State, OBS_Pert_State)
 ! !USES: 
   use ESMF
   use LIS_mpiMod
@@ -24,6 +27,7 @@ subroutine read_SMOSL2sm(n, OBS_State, OBS_Pert_State)
   use LIS_logMod
   use LIS_timeMgrMod
   use LIS_dataAssimMod
+  use LIS_DAobservationsMod
   use map_utils
   use LIS_pluginIndices
   use LIS_constantsMod, only : LIS_CONST_PATH_LEN
@@ -32,6 +36,7 @@ subroutine read_SMOSL2sm(n, OBS_State, OBS_Pert_State)
   implicit none
 ! !ARGUMENTS: 
   integer, intent(in) :: n 
+  integer, intent(in) :: k !SM09012024
   type(ESMF_State)    :: OBS_State
   type(ESMF_State)    :: OBS_Pert_State
 !
@@ -65,23 +70,24 @@ subroutine read_SMOSL2sm(n, OBS_State, OBS_Pert_State)
   integer                :: yr,mo,da,hr,mn,ss
   character*8            :: yyyymmdd
   character(len=LIS_CONST_PATH_LEN) :: list_files
-  integer                :: gid(LIS_rc%ngrid(n))
-  integer                :: assimflag(LIS_rc%ngrid(n))
-  real                   :: obs_unsc(LIS_rc%ngrid(n))
+  ! SM09012024 added LIS_rc%obs_nigrid(k) instead LIS_rc%ngrid(n) and modified with LIS_rc%obs_lnc(k) and LIS_rc%obs_lnr(k)
+  integer                :: gid(LIS_rc%obs_ngrid(k))
+  integer                :: assimflag(LIS_rc%obs_ngrid(k))
+  real                   :: obs_unsc(LIS_rc%obs_ngrid(k))
   logical                :: data_update
   logical                :: data_upd_flag(LIS_npes)
   logical                :: data_upd_flag_local
   logical                :: data_upd
-  real                   :: smobs(LIS_rc%lnc(n)*LIS_rc%lnr(n))
-  real                   :: sm_current(LIS_rc%lnc(n),LIS_rc%lnr(n))
+  real                   :: smobs(LIS_rc%obs_lnc(k)*LIS_rc%obs_lnr(k))
+  real                   :: sm_current(LIS_rc%obs_lnc(k),LIS_rc%obs_lnr(k))
   real                   :: lon
   real                   :: lhour
   real                   :: gmt
   integer                :: zone
   integer                :: fnd
   real                   :: smvalue
-  real                   :: model_delta(LIS_rc%ngrid(n))
-  real                   :: obs_delta(LIS_rc%ngrid(n))
+  real                   :: model_delta(LIS_rc%obs_ngrid(k))
+  real                   :: obs_delta(LIS_rc%obs_ngrid(k))
   type(ESMF_Time)        :: acTime
 
   integer                :: ts_check,yr_t,mo_t,da_t, hr_t, mn_t,ss_t
@@ -122,10 +128,10 @@ subroutine read_SMOSL2sm(n, OBS_State, OBS_Pert_State)
 ! dump the list of files for the current date to a file (note that
 ! we assume a flat organization of the files under the SMOS observation
 ! directory. 
-
+     !SM19012024
      write(yyyymmdd,'(i4.4,2i2.2)') LIS_rc%yr, LIS_rc%mo, LIS_rc%da
      list_files = 'ls '//trim(SMOSL2sm_struc(n)%odir)//'/*'//trim(yyyymmdd)&
-          //"*.DBL > SMOS_filelist."//&
+          //"*.nc > SMOS_filelist."//&
           fproc(1)//fproc(2)//fproc(3)//fproc(4)//".dat"
      call system(trim(list_files))
 
@@ -179,7 +185,7 @@ subroutine read_SMOSL2sm(n, OBS_State, OBS_Pert_State)
            obsTime = (obsStartTime + dt)
 
            if((obsTime.gt.prevTime).and.(obsTime.le.currTime)) then 
-              call read_SMOSL2_data(n, smos_filename)
+              call read_SMOSL2_data(n,k, smos_filename)
            endif
         endif
      enddo
@@ -203,9 +209,9 @@ subroutine read_SMOSL2sm(n, OBS_State, OBS_Pert_State)
   call LIS_verify(status, 'ESMF_TimeSet failed in readSMOSL2smObs (1)')
   call ESMF_TimeIntervalSet(lis_dt, s=nint(LIS_rc%ts))
   call ESMF_TimeIntervalSet(zero_dt, s=0)
-  
-  do r=1,LIS_rc%lnr(n)
-     do c=1,LIS_rc%lnc(n)
+  !SM09012024 changed LIS_rc%lnr(n) with LIS_rc%obs_lnr(k). Same for LIS_rc%lnc(n) 
+  do r=1,LIS_rc%obs_lnr(k)
+     do c=1,LIS_rc%obs_lnc(k)
         if(LIS_domain(n)%gindex(c,r).ne.-1) then 
            dt = (currTime - SMOSL2sm_struc(n)%smtime(c,r))
            if(dt.ge.zero_dt.and.dt.lt.lis_dt) then 
@@ -225,17 +231,18 @@ subroutine read_SMOSL2sm(n, OBS_State, OBS_Pert_State)
 
   if(SMOSL2sm_struc(n)%scal.ne.0.and.fnd.ne.0) then        
      ! Store the unscaled obs (ie, before the rescaling)
-     do r =1,LIS_rc%lnr(n)
-        do c =1,LIS_rc%lnc(n)
+     !check SM09012024
+     do r =1,LIS_rc%obs_lnr(k)
+        do c =1,LIS_rc%obs_lnc(k)
            if (LIS_domain(n)%gindex(c,r) .ne. -1)then
               obs_unsc(LIS_domain(n)%gindex(c,r)) = &
                    sm_current(c,r)
            end if
         end do
      end do
-
+     !SM09012024 added k in the function
      call LIS_rescale_with_CDF_matching(    &
-          n,                                   & 
+          n,k,                                   & 
           SMOSL2sm_struc(n)%nbins,         & 
           SMOSL2sm_struc(n)%ntimes,        & 
           MAX_SM_VALUE,                        & 
@@ -257,20 +264,20 @@ subroutine read_SMOSL2sm(n, OBS_State, OBS_Pert_State)
 
   call ESMF_FieldGet(smfield,localDE=0,farrayPtr=obsl,rc=status)
   call LIS_verify(status, 'Error: FieldGet')
-
+  !SM09012024
   obsl = LIS_rc%udef 
   if(fnd.ne.0) then 
-     do r=1, LIS_rc%lnr(n)
-        do c=1, LIS_rc%lnc(n)
+     do r=1, LIS_rc%obs_lnr(k)
+        do c=1, LIS_rc%obs_lnc(k)
            if(LIS_domain(n)%gindex(c,r).ne.-1) then 
               obsl(LIS_domain(n)%gindex(c,r))=sm_current(c,r)
            endif
         enddo
      enddo
   endif
-
+ !SM09012024
   call lsmdaqcobsstate(trim(LIS_rc%lsm)//"+"&
-       //trim(LIS_SMOSL2smobsId)//char(0),n, OBS_state)
+       //trim(LIS_SMOSL2smobsId)//char(0),n,k, OBS_state) !SM
 
 !-------------------------------------------------------------------------
 !  Retrieve back LSM-quality-controlled obs and store locally
@@ -282,9 +289,9 @@ subroutine read_SMOSL2sm(n, OBS_State, OBS_Pert_State)
 
   call ESMF_FieldGet(smField,localDE=0,farrayPtr=obsl,rc=status)
   call LIS_verify(status)
-
-  do r =1,LIS_rc%lnr(n)
-     do c =1,LIS_rc%lnc(n)
+  !SM09012024
+  do r =1,LIS_rc%obs_lnr(k)
+     do c =1,LIS_rc%obs_lnc(k)
         if (LIS_domain(n)%gindex(c,r) .ne. -1)then
            sm_current(c,r) = obsl(LIS_domain(n)%gindex(c,r))
         end if
@@ -325,9 +332,9 @@ subroutine read_SMOSL2sm(n, OBS_State, OBS_Pert_State)
 !-------------------------------------------------------------------------
 !  Depending on data update flag...
 !-------------------------------------------------------------------------     
-
+  !SM09012024 all the LIS_rc%ngrid(n) where changed to LIS_rc%obs_ngrid(k)
   if(data_upd) then 
-     do t=1,LIS_rc%ngrid(n)
+     do t=1,LIS_rc%obs_ngrid(k)
         gid(t) = t
         if(obsl(t).ne.-9999.0) then 
            assimflag(t) = 1
@@ -340,17 +347,17 @@ subroutine read_SMOSL2sm(n, OBS_State, OBS_Pert_State)
           .true. , rc=status)
      call LIS_verify(status)
 
-     if(LIS_rc%ngrid(n).gt.0) then 
+     if(LIS_rc%obs_ngrid(k).gt.0) then 
         call ESMF_AttributeSet(smField,"Grid Number",&
-             gid,itemCount=LIS_rc%ngrid(n),rc=status)
+             gid,itemCount=LIS_rc%obs_ngrid(k),rc=status)
         call LIS_verify(status)
 
         call ESMF_AttributeSet(smField,"Assimilation Flag",&
-             assimflag,itemCount=LIS_rc%ngrid(n),rc=status)
+             assimflag,itemCount=LIS_rc%obs_ngrid(k),rc=status)
         call LIS_verify(status)
 
         call ESMF_AttributeSet(smfield, "Unscaled Obs",&
-             obs_unsc, itemCount=LIS_rc%ngrid(n), rc=status)
+             obs_unsc, itemCount=LIS_rc%obs_ngrid(k), rc=status)
         call LIS_verify(status, 'Error in setting Unscaled Obs attribute')
      endif
   else
@@ -366,9 +373,16 @@ end subroutine read_SMOSL2sm
 ! \label{read_SMOSL2_data}
 !
 ! !INTERFACE:
-subroutine read_SMOSL2_data(n, fname)
+
+!SM01092024 'k' added + change of LIS_rc%obs_lnc(n) and LIS_rc%obs_lnr(n)
+!SM01092024 changed to read nc files + updated flags of SMOS obs (check confidence and science flags)
+subroutine read_SMOSL2_data(n, k, fname)
 ! 
-! !USES:   
+! !USES:  
+#if(defined USE_NETCDF3 || defined USE_NETCDF4)
+  use netcdf
+#endif
+
   use ESMF
   use LIS_coreMod
   use LIS_logMod
@@ -380,7 +394,8 @@ subroutine read_SMOSL2_data(n, fname)
 !
 ! !INPUT PARAMETERS: 
 ! 
-  integer                       :: n 
+  integer                       :: n
+  integer                       :: k 
   character (len=*)             :: fname
 
 ! !OUTPUT PARAMETERS:
@@ -400,6 +415,8 @@ subroutine read_SMOSL2_data(n, fname)
 !   \item vegetation optical thickness is $>$ 0.8
 !   \item data quality is reported to be poor
 !   \item when reported uncertainty is high
+!   SM01092023 
+!   \item considering confidence and science flags
 !  \end{itemize}
 !
 !  For grid points with multiple data values during a day, data at the
@@ -418,90 +435,231 @@ subroutine read_SMOSL2_data(n, fname)
 ! !REVISION HISTORY: 
 ! 
 !EOP
-  integer                          :: ftn
-  integer                          :: totpts
+  !integer                          :: ftn
+  integer                          :: nid
+  integer                          :: sm_ID,lat_ID,lon_ID,sm_dqx_ID,opt_thick_ID,tsurf_ID !totpts_ID
+  integer                          :: confidence_flags_ID, science_flags_ID
+  integer                          :: gqx_ID, grid_point_id_ID, acday_ID, acsec_ID, acms_ID, rfi_prob_ID
+  real, pointer                    :: sm(:), lat(:), lon(:), sm_dqx(:), opt_thick(:), tsurf(:), rfi_prob(:), gqx(:)
+  integer, pointer                 :: confidence_flags(:), science_flags(:)
+  integer                          :: lon_size, dimid
   integer                          :: i,c,r
   real                             :: col,row
-  integer                          :: grid_point_id
-  real                             :: lat,lon,alt,sm,sm_dqx
-  real                             :: opt_thick, opt_thick_dqx
-  real                             :: tsurf,tsurf_dqx,dummy(26)
-  integer*2                        :: conflags
-  character*1                      :: gqx,chi2,chi2p,rest_conf(36)
-  character*1                      :: science(6)
-  character*1                      :: proc(4),dgg_current(13),rfi_prob
-  integer                          :: acday,acsec,acms
+  integer, pointer                 :: grid_point_id(:)
+  integer, pointer                 :: acday(:),acsec(:),acms(:)
   integer                          :: yr,mo,da,da1,hr,mn,ss
   logical                          :: file_exists
   integer                          :: stc, enc, str, enr, c1,r1
   integer                          :: status
   type(ESMF_Time)                  :: acTime
+  integer                          :: ios
+
+
+
+#if(defined USE_NETCDF3 || defined USE_NETCDF4)
 
   inquire(file=fname,exist=file_exists)
   
   if(file_exists) then 
+     write(LIS_logunit,*) 'Reading ',trim(fname)
+     ios = nf90_open(path=trim(fname),mode=NF90_NOWRITE,ncid=nid)
+     call LIS_verify(ios,'Error opening file '//trim(fname))
+     
+     ! variables (in_varid + dimensions)
+     ios = nf90_inq_varid(nid, 'Longitude',lon_ID)
+     call LIS_verify(ios, 'Error nf90_inq_varid: Longitude')
 
-     ftn = LIS_getNextUnitNumber()
-     write(LIS_logunit,*) 'Reading '//trim(fname)
-     open(ftn,file=fname,form='unformatted',access='stream',&
-          convert='little_endian')
-     read(ftn) totpts
+     ios=nf90_inq_dimid(nid,'n_grid_points',dimid)
+     call LIS_verify(ios, 'nf90_inq_dimid: Longitude')
 
-     do i=1,totpts
-        read(ftn)grid_point_id,lat,lon,alt,acday,acsec,acms
-        read(ftn)SM, SM_DQX, opt_thick,opt_thick_dqx,tsurf,tsurf_dqx,dummy 
-        read(ftn)conflags,gqx,chi2,chi2p,rest_conf  !41 bytes total
-        read(ftn)science  ! 6 bytes
-        read(ftn)proc     ! 4 bytes
-        read(ftn)dgg_current,rfi_prob   !  14 bytes total
+     ios = nf90_inquire_dimension(nid, dimid, len=lon_size)
+     call LIS_verify(ios, 'nf90_inquire_dimension: Longitude')
+     
+     !-latitude-!
+     ios = nf90_inq_varid(nid, 'Latitude',lat_ID)
+     call LIS_verify(ios, 'Error nf90_inq_varid: Latitude')
 
-        if((.not.isNaN(lat)).and.(.not.isNaN(lon)).and.&
-             abs(lat).lt.400.and.abs(lon).lt.400) then 
+     !-soil moisture-!
+     ios = nf90_inq_varid(nid, 'Soil_Moisture',sm_ID)
+     call LIS_verify(ios, 'Error nf90_inq_varid: Soil_Moisture')
 
-           call latlon_to_ij(LIS_domain(n)%lisproj,lat,lon,&
-                col,row)
-           c = nint(col)
-           r = nint(row)
-           stc = max(1,c-2)
-           enc = min(LIS_rc%lnc(n),c+2)
-           str = max(1,r-2)
-           enr = min(LIS_rc%lnr(n),r+2)
-           
-           do c1=stc,enc
-              do r1=str,enr
-                 if((sm.gt.0.001.and.sm.lt.1.00).and.&
-                      (sm_dqx.le.0.1).and.&            !high uncertainty
-                      (ichar(gqx).lt.10).and.&         !poor quality
-                      (ichar(rfi_prob).lt.50).and.&    !RFI
-                      (opt_thick.lt.0.8).and.&
-                      !             (tsurf.gt.273.15).and.&
-                      (c1.ge.1.and.c1.le.LIS_rc%lnc(n)).and.&
-                      (r1.ge.1.and.r1.le.LIS_rc%lnr(n))) then 
-                    
-                    if(SMOSL2sm_struc(n)%smobs(c1,r1).gt.0) then 
-                       !              print*, 'data already there',c,r
-                    else
-                       if(SMOSL2sm_struc(n)%smobs(c1,r1).eq.-9999.0) then !if data is not present already
-                          call SMOS_julhr_date( hr, da, mo, yr, acday*24 ) 
-                          call LIS_seconds2time(acsec,da1, hr, mn, ss)
-                          call ESMF_TimeSet(acTime, yy=yr,&
-                               mm = mo, dd=da, h = hr, &
-                               m = mn, s = ss, calendar = LIS_calendar,&
-                               rc=status)
-                          call LIS_verify(status, 'ESMF_TimeSet failed in read_SMOSL2_data (4)')
-                          if(acTime > SMOSL2sm_struc(n)%smTime(c1,r1)) then 
-                             SMOSL2sm_struc(n)%smTime(c1,r1) = acTime                       
-                             SMOSL2sm_struc(n)%smobs(c1,r1) = sm
-                          endif
-                       endif
-                    endif
-                 endif
-              enddo
-           enddo
+     !-soil moisture dqx-! 
+     ios = nf90_inq_varid(nid, 'Soil_Moisture_DQX',sm_dqx_ID)
+     call LIS_verify(ios, 'Error nf90_inq_varid: Soil_Moisture_DQX')
+
+     !-optical thickness-!
+     ios = nf90_inq_varid(nid, 'Optical_Thickness_Nad',opt_thick_ID)
+     call LIS_verify(ios, 'Error nf90_inq_varid: Optical_Thickness_Nad')
+
+     !-surface temperature-!
+     ios = nf90_inq_varid(nid, 'Surface_Temperature',tsurf_ID)
+     call LIS_verify(ios, 'Error nf90_inq_varid: Surface_Temperature')
+
+     !-GQX-!
+     ios = nf90_inq_varid(nid, 'GQX',gqx_ID)
+     call LIS_verify(ios, 'Error nf90_inq_varid: GQX')
+
+     !-grid points ID-!
+     ios = nf90_inq_varid(nid, 'Grid_Point_ID',grid_point_id_ID)
+     call LIS_verify(ios, 'Error nf90_inq_varid: Grid_Point_ID')
+
+     !-Days-!
+     ios = nf90_inq_varid(nid, 'Days',acday_ID)
+     call LIS_verify(ios, 'Error nf90_inq_varid: Days')
+
+     !-seconds-!
+     ios = nf90_inq_varid(nid, 'Seconds',acsec_ID)
+     call LIS_verify(ios, 'Error nf90_inq_varid: Seconds')
+
+     !-Microseconds-!
+     ios = nf90_inq_varid(nid, 'Microseconds',acms_ID)
+     call LIS_verify(ios, 'Error nf90_inq_varid: Microseconds')
+
+     !-RFI probability-!
+     ios = nf90_inq_varid(nid, 'RFI_Prob',rfi_prob_ID)
+     call LIS_verify(ios, 'Error nf90_inq_varid: RFI_Prob')
+
+     !-Confidence Flags-!
+     ios = nf90_inq_varid(nid, 'Confidence_Flags', confidence_flags_ID)
+     call LIS_verify(ios, 'Error nf90_inq_varid: Confidence_Flags')
+
+     !-Science Flags-!
+     ios=nf90_inq_varid(nid, 'Science_Flags', science_flags_ID)
+     call LIS_verify(ios, 'Error nf90_inq_varid: Science_Flags')
+
+     allocate(lat(lon_size))
+     ios = nf90_get_var(nid, lat_ID, lat)
+     call LIS_verify(ios, 'Error nf90_get_var: Latitude')
+
+     allocate(lon(lon_size))
+     ios = nf90_get_var(nid, lon_ID, lon)
+     call LIS_verify(ios, 'Error nf90_get_var: Longitude')
+
+     allocate(sm(lon_size))
+     ios = nf90_get_var(nid, sm_ID, sm)
+     call LIS_verify(ios, 'Error nf90_get_var: Soil_Moisture')
+
+     allocate(sm_dqx(lon_size))
+     ios = nf90_get_var(nid, sm_dqx_ID, sm_dqx)
+     call LIS_verify(ios, 'Error nf90_get_var: Soil_Moisture_DQX')
+
+     allocate(opt_thick(lon_size))
+     ios = nf90_get_var(nid, opt_thick_ID, opt_thick)
+     call LIS_verify(ios, 'Error nf90_get_var: Optical_Thickness_Nad')
+
+     allocate(tsurf(lon_size))
+     ios = nf90_get_var(nid, tsurf_ID, tsurf)
+     call LIS_verify(ios, 'Error nf90_get_var: Surface_Temperature')
+
+     allocate(gqx(lon_size))
+     ios = nf90_get_var(nid, gqx_ID, gqx)
+     call LIS_verify(ios, 'Error nf90_get_var: GQX')
+
+     allocate(grid_point_id(lon_size))
+     ios = nf90_get_var(nid, grid_point_id_ID, grid_point_id)
+     call LIS_verify(ios, 'Error nf90_get_var: Grid_Point_ID')
+     
+     allocate(acday(lon_size))
+     ios = nf90_get_var(nid, acday_ID, acday)
+     call LIS_verify(ios, 'Error nf90_get_var: Days')
+
+     allocate(acsec(lon_size))
+     ios = nf90_get_var(nid, acsec_ID, acsec)
+     call LIS_verify(ios, 'Error nf90_get_var: Seconds')
+
+     allocate(acms(lon_size))
+     ios = nf90_get_var(nid, acms_ID, acms)
+     call LIS_verify(ios, 'Error nf90_get_var: Microseconds')
+
+     allocate(rfi_prob(lon_size))
+     ios = nf90_get_var(nid, rfi_prob_ID, rfi_prob)
+     call LIS_verify(ios, 'Error nf90_get_var: RFI_prob')
+
+     allocate(confidence_flags(lon_size))
+     ios = nf90_get_var(nid, confidence_flags_ID, confidence_flags)
+     call LIS_verify(ios, 'Error nf90_get_var: Confidence_Flags')
+
+     allocate(science_flags(lon_size))
+     ios = nf90_get_var(nid, science_flags_ID, science_flags)
+     call LIS_verify(ios, 'Error nf90_get_var: Science_Flags')
+
+     ! close file
+     ios = nf90_close(ncid=nid)
+     call LIS_verify(ios,'Error closing file '//trim(fname))
+  
+     do i=1, size(lon,1) !totpts
+
+        if((.not.isNaN(lat(i))).and.(.not.isNaN(lon(i))).and.&
+             abs(lat(i)).lt.400.and.abs(lon(i)).lt.400) then
+          call latlon_to_ij(LIS_domain(n)%lisproj,lat(i),lon(i),&
+               col,row)
+
+          c = nint(col)
+          r = nint(row)
+          stc = max(1,c)
+          enc = min(LIS_rc%obs_lnc(k),c)
+          str = max(1,r)
+          enr = min(LIS_rc%obs_lnr(k),r)
+
+          do c1=stc,enc
+             do r1=str,enr
+                if((sm(i).gt.0.001.and.sm(i).lt.1.00).and.&
+                      (sm_dqx(i).le.0.1).and.&            !high uncertainty
+                      (gqx(i).lt.10).and.&         !poor quality
+                      (rfi_prob(i).lt.50).and.&    !RFI
+                      (opt_thick(i).lt.0.8).and.&
+                      (.not. btest(confidence_flags(i), 2)).and. &
+                      (.not. btest(confidence_flags(i), 4)).and. &
+                      (.not. btest(confidence_flags(i), 16)).and. &
+                      (.not. btest(confidence_flags(i), 32)).and. &
+                      (.not. btest(confidence_flags(i), 64)).and. &
+                      (.not. btest(science_flags(i), 32)).and. &
+                      (.not. btest(science_flags(i), 65536)).and. &
+                      (.not. btest(science_flags(i), 262144)).and. &
+                      (.not. btest(science_flags(i), 524288)).and. &
+                      (.not. btest(science_flags(i), 67108864)).and. &
+                      !             (tsurf(i).gt.273.15).and.&
+                      (c1.ge.1.and.c1.le.LIS_rc%obs_lnc(k)).and.&
+                      (r1.ge.1.and.r1.le.LIS_rc%obs_lnr(k))) then
+
+                   if(SMOSL2sm_struc(n)%smobs(c1,r1).gt.0) then
+                     !              print*, 'data already there',c,r
+                   else
+                      if(SMOSL2sm_struc(n)%smobs(c1,r1).eq.-9999.0) then !if data is not present already
+                         call SMOS_julhr_date( hr, da, mo, yr, acday(i)*24 ) 
+                         call LIS_seconds2time(acsec(i),da1, hr, mn, ss)
+                         call ESMF_TimeSet(acTime, yy=yr,&
+                              mm = mo, dd=da, h = hr, &
+                              m = mn, s = ss, calendar = LIS_calendar,&
+                              rc=status)
+                         call LIS_verify(status, 'ESMF_TimeSet failed in read_SMOSL2_data (4)')
+                         if(acTime > SMOSL2sm_struc(n)%smTime(c1,r1)) then 
+                            SMOSL2sm_struc(n)%smTime(c1,r1) = acTime                       
+                            SMOSL2sm_struc(n)%smobs(c1,r1) = sm (i)
+                         endif
+                      endif
+                   endif
+                endif 
+             enddo
+          enddo
         endif
-     enddo
-     call LIS_releaseUnitNumber(ftn)
-  endif  
+     enddo 
+  endif
+  deallocate(lat)
+  deallocate(lon)
+  deallocate(sm)
+  deallocate(sm_dqx)
+  deallocate(opt_thick)
+  deallocate(tsurf)
+  deallocate(gqx)
+  deallocate(grid_point_id)
+  deallocate(acday)
+  deallocate(acsec)
+  deallocate(acms)
+  deallocate(rfi_prob)
+  deallocate(confidence_flags)
+  deallocate(science_flags)
+#endif
 
 end subroutine read_SMOSL2_data
 
