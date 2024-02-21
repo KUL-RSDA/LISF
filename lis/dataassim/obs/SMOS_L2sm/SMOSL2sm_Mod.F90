@@ -18,7 +18,7 @@
 !   
 ! !REVISION HISTORY: 
 !  16 Dec 14    Sujay Kumar; Initial specification
-! 
+!  09 Jan 24    Sara Modanesi; updated subroutines to activate the DA component
 module SMOSL2sm_Mod
 ! !USES: 
   use ESMF
@@ -80,6 +80,8 @@ contains
     use LIS_dataAssimMod
     use LIS_perturbMod
     use LIS_logmod
+    !SM09012024
+    use LIS_DAobservationsMod
 
     implicit none 
 
@@ -91,8 +93,8 @@ contains
 ! !DESCRIPTION: 
 !   
 !   This routine completes the runtime initializations and 
-!   creation of data strctures required for handling LPRM 
-!   AMSR-E soil moisture data. 
+!   creation of data structures required for handling
+!   SMOS L2 sm data. 
 !  
 !   The arguments are: 
 !   \begin{description}
@@ -205,9 +207,10 @@ contains
        call ESMF_AttributeSet(OBS_State(n),"Data Assimilate Status",&
             .false., rc=status)
        call LIS_verify(status)
-       
+
+      !SM09012024 change LIS_rc%ngrid(n) with LIS_rc%obs_ngrid(k) 
        call ESMF_AttributeSet(OBS_State(n),"Number Of Observations",&
-            LIS_rc%ngrid(n),rc=status)
+            LIS_rc%obs_ngrid(k),rc=status)
        call LIS_verify(status)
        
     enddo
@@ -219,16 +222,19 @@ contains
 !   the perturbations. amsr-e 
 !   observations are in the grid space. Since there is only one layer
 !   being assimilated, the array size is LIS_rc%ngrid(n). 
-!   
+!   ----
+!   ----
+!   !SM09012024 the array size has been changed to LIS_rc%obs_ngrid(k)
+!   !and LIS_vecGrid(n) to LIS_obsvecGrid(n,k)
 !----------------------------------------------------------------------------
 
     do n=1,LIS_rc%nnest
        
        write(unit=temp,fmt='(i2.2)') 1
        read(unit=temp,fmt='(2a1)') vid
-
+       !SM09012024
        obsField(n) = ESMF_FieldCreate(arrayspec=realarrspec,&
-            grid=LIS_vecGrid(n),&
+            grid=LIS_obsvecGrid(n,k),&
             name="Observation"//vid(1)//vid(2),rc=status)
        call LIS_verify(status)
 
@@ -251,8 +257,9 @@ contains
           write(LIS_logunit,*) vname(i),varmin(i),varmax(i)
        enddo
        call LIS_releaseUnitNumber(ftn)  
-       
-       allocate(ssdev(LIS_rc%ngrid(n)))
+      
+       !SM09012024
+       allocate(ssdev(LIS_rc%obs_ngrid(k))) 
        
        if(trim(LIS_rc%perturb_obs(k)).ne."none") then 
           allocate(obs_pert%vname(1))
@@ -271,9 +278,13 @@ contains
 ! Set obs err to be uniform (will be rescaled later for each grid point). 
           ssdev = obs_pert%ssdev(1)
 
+          !SM09012024
           pertField(n) = ESMF_FieldCreate(arrayspec=pertArrSpec,&
-               grid=LIS_ensOnGrid(n),name="Observation"//vid(1)//vid(2),&
-               rc=status)
+               grid=LIS_obsensOnGrid(n,k),name="Observation"//vid(1)//vid(2),&
+               rc=status)   
+
+          
+            !   rc=status)
           call LIS_verify(status)
           
 ! initializing the perturbations to be zero 
@@ -284,12 +295,19 @@ contains
           call ESMF_AttributeSet(pertField(n),"Perturbation Type",&
                obs_pert%perttype(1), rc=status)
           call LIS_verify(status)
-
-          if(LIS_rc%ngrid(n).gt.0) then 
+          
+          !SM09012024
+          if(LIS_rc%obs_ngrid(k).gt.0) then
              call ESMF_AttributeSet(pertField(n),"Standard Deviation",&
-                  ssdev,itemCount=LIS_rc%ngrid(n),rc=status)
+                  ssdev,itemCount=LIS_rc%obs_ngrid(k),rc=status)
              call LIS_verify(status)
           endif
+
+          !if(LIS_rc%ngrid(n).gt.0) then ! original version 
+          !   call ESMF_AttributeSet(pertField(n),"Standard Deviation",&
+          !        ssdev,itemCount=LIS_rc%ngrid(n),rc=status)
+          !   call LIS_verify(status)
+          !endif
           
           call ESMF_AttributeSet(pertField(n),"Std Normal Max",&
                obs_pert%stdmax(1), rc=status)
@@ -325,67 +343,73 @@ contains
     
     do n=1,LIS_rc%nnest
        if(SMOSL2sm_struc(n)%scal.eq.1) then 
-          
-          allocate(ssdev(LIS_rc%ngrid(n)))
+         
+          !SM09012024
+          allocate(ssdev(LIS_rc%obs_ngrid(k)))
           ssdev = obs_pert%ssdev(1)
+     
 
-          call LIS_getCDFattributes(modelcdffile(n),&
+         ! allocate(ssdev(LIS_rc%ngrid(n)))
+         ! ssdev = obs_pert%ssdev(1)
+         !SM09012024: corrected getCDFattributes - added k in the subroutine and new LIS_rc%obs_ngrid(k) instead of LIS_rc%ngrid(n)
+          call LIS_getCDFattributes(k, modelcdffile(n),&
                SMOSL2sm_struc(n)%ntimes, ngrid)
           
           allocate(SMOSL2sm_struc(n)%model_xrange(&
-               LIS_rc%ngrid(n), SMOSL2sm_struc(n)%ntimes, &
+               LIS_rc%obs_ngrid(k), SMOSL2sm_struc(n)%ntimes, &
                SMOSL2sm_struc(n)%nbins))
           allocate(SMOSL2sm_struc(n)%obs_xrange(&
-               LIS_rc%ngrid(n), SMOSL2sm_struc(n)%ntimes, &
+               LIS_rc%obs_ngrid(k), SMOSL2sm_struc(n)%ntimes, &
                SMOSL2sm_struc(n)%nbins))
           allocate(SMOSL2sm_struc(n)%model_cdf(&
-               LIS_rc%ngrid(n), SMOSL2sm_struc(n)%ntimes, &
+               LIS_rc%obs_ngrid(k), SMOSL2sm_struc(n)%ntimes, &
                SMOSL2sm_struc(n)%nbins))
           allocate(SMOSL2sm_struc(n)%obs_cdf(&
-               LIS_rc%ngrid(n), SMOSL2sm_struc(n)%ntimes, &
+               LIS_rc%obs_ngrid(k), SMOSL2sm_struc(n)%ntimes, &
                SMOSL2sm_struc(n)%nbins))
 
-          allocate(SMOSL2sm_struc(n)%model_mu(LIS_rc%ngrid(n),&
+          allocate(SMOSL2sm_struc(n)%model_mu(LIS_rc%obs_ngrid(k),&
                SMOSL2sm_struc(n)%ntimes))
-          allocate(SMOSL2sm_struc(n)%model_sigma(LIS_rc%ngrid(n),&
+          allocate(SMOSL2sm_struc(n)%model_sigma(LIS_rc%obs_ngrid(k),&
                SMOSL2sm_struc(n)%ntimes))
-          allocate(SMOSL2sm_struc(n)%obs_mu(LIS_rc%ngrid(n),&
+          allocate(SMOSL2sm_struc(n)%obs_mu(LIS_rc%obs_ngrid(k),&
                SMOSL2sm_struc(n)%ntimes))
-          allocate(SMOSL2sm_struc(n)%obs_sigma(LIS_rc%ngrid(n),&
+          allocate(SMOSL2sm_struc(n)%obs_sigma(LIS_rc%obs_ngrid(k),&
                SMOSL2sm_struc(n)%ntimes))
 
 !----------------------------------------------------------------------------
 ! Read the model and observation CDF data
 !----------------------------------------------------------------------------
-          call LIS_readMeanSigmaData(n,&
+!SM09012024 added k in the function + from ngrid to LIS_rc%obs_ngrid(k)         
+          call LIS_readMeanSigmaData(n,k,&
                SMOSL2sm_struc(n)%ntimes, &
-               ngrid, &
+               LIS_rc%obs_ngrid(k), &
                modelcdffile(n), &
                "SoilMoist",&
                SMOSL2sm_struc(n)%model_mu,&
                SMOSL2sm_struc(n)%model_sigma)
 
-          call LIS_readMeanSigmaData(n,&
+          call LIS_readMeanSigmaData(n,k,&
                SMOSL2sm_struc(n)%ntimes, &
-               ngrid, &
+               LIS_rc%obs_ngrid(k), &
                obscdffile(n), &
                "SoilMoist",&
                SMOSL2sm_struc(n)%obs_mu,&
                SMOSL2sm_struc(n)%obs_sigma)
 
-          call LIS_readCDFdata(n,&
+          call LIS_readCDFdata(n,k,&
                SMOSL2sm_struc(n)%nbins,&
                SMOSL2sm_struc(n)%ntimes, &
-               ngrid, &
+               LIS_rc%obs_ngrid(k), &
                modelcdffile(n), &
                "SoilMoist",&
                SMOSL2sm_struc(n)%model_xrange,&
                SMOSL2sm_struc(n)%model_cdf)
 
-          call LIS_readCDFdata(n,&
+          call LIS_readCDFdata(n,k,&
                SMOSL2sm_struc(n)%nbins,&
                SMOSL2sm_struc(n)%ntimes, &
-               ngrid, &
+               LIS_rc%obs_ngrid(k), &
                obscdffile(n), &
                "SoilMoist",&
                SMOSL2sm_struc(n)%obs_xrange,&
@@ -398,8 +422,8 @@ contains
              else
                 jj = LIS_rc%mo
              endif
-
-             do t=1,LIS_rc%ngrid(n)
+             !SM09012024 changed LIS_rc%ngrid(n) with  LIS_rc%obs_ngrid(k)
+             do t=1,LIS_rc%obs_ngrid(k)
                 if(SMOSL2sm_struc(n)%obs_sigma(t,jj).gt.0) then 
                    ssdev(t) = ssdev(t)*SMOSL2sm_struc(n)%model_sigma(t,jj)/&
                         SMOSL2sm_struc(n)%obs_sigma(t,jj)
@@ -412,19 +436,20 @@ contains
              enddo
           endif
          
-          if(LIS_rc%ngrid(n).gt.0) then 
+          if(LIS_rc%obs_ngrid(k).gt.0) then 
              call ESMF_AttributeSet(pertField(n),"Standard Deviation",&
-                  ssdev,itemCount=LIS_rc%ngrid(n),rc=status)
+                  ssdev,itemCount=LIS_rc%obs_ngrid(k),rc=status)
              call LIS_verify(status)
           endif
 
           deallocate(ssdev)
        endif
     enddo
-
+    
+    !SM09012024: from LIS_rc%lnr(n) and LIS_rc%lnc(n) to LIS_rc%obs_lnc(k) and LIS_rc%obs_lnr(k)
     do n=1,LIS_rc%nnest
-       allocate(SMOSL2sm_struc(n)%smobs(LIS_rc%lnc(n),LIS_rc%lnr(n)))
-       allocate(SMOSL2sm_struc(n)%smtime(LIS_rc%lnc(n),LIS_rc%lnr(n)))
+       allocate(SMOSL2sm_struc(n)%smobs(LIS_rc%obs_lnc(k),LIS_rc%obs_lnr(k)))
+       allocate(SMOSL2sm_struc(n)%smtime(LIS_rc%obs_lnc(k),LIS_rc%obs_lnr(k)))
 
        call LIS_registerAlarm("SMOS L2 read alarm",&
             86400.0, 86400.0)
