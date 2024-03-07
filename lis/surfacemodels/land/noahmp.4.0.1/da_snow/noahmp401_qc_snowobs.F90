@@ -90,9 +90,10 @@ subroutine noahmp401_qc_snowobs(n,k,OBS_State)
 
   do t=1,LIS_rc%obs_ngrid(k)
      if(snowobs(t).ne.LIS_rc%udef) then
-        if(fveg_obs(t).gt.0.7) then
-           snowobs(t) = LIS_rc%udef
-        elseif(vegt_obs(t).le.4) then !forest types
+        !turning off fveg flag which is not well compatible with noahmp4 default vegetation options 
+        !if(fveg_obs(t).gt.0.7) then
+        !   snowobs(t) = LIS_rc%udef
+        if(vegt_obs(t).le.4) then !forest types
            snowobs(t) = LIS_rc%udef
         elseif(vegt_obs(t).eq.LIS_rc%glacierclass) then !TML: Eliminate Glaciers
            snowobs(t) = LIS_rc%udef

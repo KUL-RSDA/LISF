@@ -36,7 +36,7 @@ subroutine noahmp36_getsnwdpred(n, k, obs_pred)
   integer                :: t
 
   do t=1,LIS_rc%npatch(n,LIS_rc%lsm_index)
-     snwd(t) = noahmp36_struc(n)%noahmp36(t)%snowh*1000.0 !obs in mm
+     snwd(t) = noahmp36_struc(n)%noahmp36(t)%snowh !keep in meter, obs are read as meter data
   enddo
 
   call LIS_convertPatchSpaceToObsEnsSpace(n,k,&

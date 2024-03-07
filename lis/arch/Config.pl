@@ -15,6 +15,16 @@
 # Process environment and configure options
 #
 
+if(defined($ENV{VSC_SYSTEM})){
+   $vsc_tier_system = $ENV{VSC_SYSTEM};
+}
+else{
+   print "--------------ERROR---------------------\n";
+   print "VSC_SYSTEM env variable not defined in KUL_LIS_MODULES\n";
+   print "--------------ERROR---------------------\n";
+   exit 1;
+}
+
 if(defined($ENV{LIS_ARCH})){
    $sys_arch = $ENV{LIS_ARCH};
    # The Cray/Intel environment is almost identical to the Linux/Intel
@@ -165,9 +175,11 @@ if($opt_lev == -3) {
        $sys_c_opt .= " -Wunused-function -Wunused-parameter";
        $sys_c_opt .= " -Wunused-variable -Wwrite-strings";
        # Run-time flags
-       $sys_c_opt .= " -check=conversions,stack,uninit";
+       #EMK 20231109...Disabled several flags that are rejected by the new ICX
+       #compiler on Narwhal.
+       #$sys_c_opt .= " -check=conversions,stack,uninit";
        $sys_c_opt .= " -fp-stack-check -fp-trap=common -fp-trap-all=common";
-       $sys_c_opt .= " -ftrapuv";
+       #$sys_c_opt .= " -ftrapuv";
    }
    elsif($sys_arch eq "linux_pgi") {
       print "Optimization level $opt_lev is not defined for $sys_arch.\n";
@@ -188,7 +200,7 @@ if($opt_lev == -3) {
       #print "Using '-g'\n";
       #$sys_opt = "-g";
       $sys_opt = "-g -Wall -Wcharacter-truncation";
-      $sys_opt .= " -Wconversion-extra -Wextra -Wpedantic -Wrealloc-lhs";
+      $sys_opt .= " -Wconversion-extra -Wextra -Wrealloc-lhs";
       $sys_opt .= " -Wrealloc-lhs-all";
       # Run-time options
       $sys_opt .= " -ffpe-trap=invalid,zero,overflow";
@@ -392,12 +404,12 @@ else{
 }
 
 
-print "Use GRIBAPI/ECCODES? (0-neither, 1-gribapi, 2-eccodes, default=2): ";
+print "Use GRIBAPI/ECCODES? (0-neither, 1-gribapi, 2-eccodes, default=1): ";
 $use_gribapi=<stdin>;
 $use_gribapi=~s/ *#.*$//;
 chomp($use_gribapi);
 if($use_gribapi eq ""){
-   $use_gribapi=2;
+   $use_gribapi=1;
 }
 
 if($use_gribapi == 1) {
@@ -427,7 +439,18 @@ if($use_gribapi == 1) {
    }
    elsif(defined($ENV{LIS_JASPER})){
       $sys_jpeg2000_path = $ENV{LIS_JASPER};
-      $inc = "/include/";
+      if($vsc_tier_system eq "genius"){
+         $inc = "/include/jasper/";
+      }
+      elsif($vsc_tier_system eq "hortense") {
+         $inc = "/include/";
+      }
+      else{
+         print "--------------ERROR---------------------\n";
+	 print "VSC_SYSTEM not available in Config.pl\n";
+         print "--------------ERROR---------------------\n";
+	 exit 1;
+      }
       $lib = "/lib/";
       $inc_jpeg2000=$sys_jpeg2000_path.$inc;
       $lib_jpeg2000=$sys_jpeg2000_path.$lib;
@@ -630,7 +653,18 @@ if($use_hdf4 eq ""){
 if($use_hdf4 == 1) {
    if(defined($ENV{LIS_HDF4})){
       $sys_hdf4_path = $ENV{LIS_HDF4};
-      $inc = "/include/";
+      if($vsc_tier_system eq "genius"){
+         $inc = "/include/hdf/";
+      }
+      elsif($vsc_tier_system eq "hortense") {
+         $inc = "/include/";
+      }
+      else{
+         print "--------------ERROR---------------------\n";
+	 print "VSC_SYSTEM not available in Config.pl\n";
+         print "--------------ERROR---------------------\n";
+	 exit 1;
+      }
       $lib = "/lib/";
       $inc_hdf4=$sys_hdf4_path.$inc;
       $lib_hdf4=$sys_hdf4_path.$lib;
@@ -734,11 +768,11 @@ if($use_minpack == 1) {
 }
 
 
-print "Use LIS-WCM? (1-yes, 0-no, default=0): ";
+print "Use LIS-WCM? (1-yes, 0-no, default=1): ";
 $use_wcm=<stdin>;
 chomp($use_wcm);
 if($use_wcm eq ""){
-   $use_wcm=0;
+   $use_wcm=1;
 }
 
 print "Use LIS-CRTM? (1-yes, 0-no, default=0): ";
@@ -811,7 +845,7 @@ if($use_crtm == 1 || $use_cmem == 1 || $use_wcm == 1) {
         }
 }
 
-print "Use LIS-LAPACK? (1-yes, 0-no, default=0): ";
+print "Use LIS-LAPACK? (0-no, 1-mkl, 2-lapack/blas, 3-lapack/refblas, default=0): ";
 $use_lapack=<stdin>;
 $use_lapack=~s/ *#.*$//;
 chomp($use_lapack);
@@ -819,7 +853,7 @@ if($use_lapack eq ""){
    $use_lapck=0;
 }
 
-if($use_lapack == 1) {
+if($use_lapack != 0) {
    if(defined($ENV{LIS_LAPACK})){
       $sys_lapack_path = $ENV{LIS_LAPACK};
       $lib = "/";
@@ -835,29 +869,30 @@ if($use_lapack == 1) {
    }
 }
 
-print "Use LIS-MKL-LAPACK? (1-yes, 0-no, default=0): ";
-$use_mkllapack=<stdin>;
-chomp($use_mkllapack);
-if($use_mkllapack eq ""){
-   $use_mkllapck=0;
+print "Use PETSc? (1-yes, 0-no, default=0): ";
+$use_petsc=<stdin>;
+chomp($use_petsc);
+if($use_petsc eq ""){
+   $use_petsc=0;
 }
 
-if($use_mkllapack == 1) {
-   if(defined($ENV{LIS_MKL_LAPACK})){
-      $sys_lapack_path = $ENV{LIS_MKL_LAPACK};
-      $lib = "/";
-      $lib_lapack=$sys_lapack_path.$lib;
+if($use_petsc == 1) {
+   if(defined($ENV{LIS_PETSC})){
+      $sys_petsc_path = $ENV{LIS_PETSC};
+      $inc = "/include/";
+      $lib = "/lib/";
+      $inc_petsc=$sys_petsc_path.$inc;
+      $lib_petsc=$sys_petsc_path.$lib;
    }
    else {
       print "--------------ERROR---------------------\n";
-      print "Please specify the MKL-LAPACK path using\n";
-      print "the LIS_MKL_LAPACK variable.\n";
+      print "Please specify the PETSc path using\n";
+      print "the LIS_PETSC variable.\n";
       print "Configuration exiting ....\n";
       print "--------------ERROR---------------------\n";
       exit 1;
    }
 }
-
 
 if(defined($ENV{LIS_JPEG})){
    $libjpeg = "-L".$ENV{LIS_JPEG}."/lib"." -ljpeg";
@@ -881,6 +916,13 @@ if ($ENV{MPDECOMP2} eq '1') {
    $use_mpdecomp2 = 1;
 }
 
+if(defined($ENV{LIS_RPC})){
+   $librpc = $ENV{LIS_RPC};
+}
+else{
+   $librpc = "";
+}
+
 
 #
 # Compiler flags
@@ -888,9 +930,32 @@ if ($ENV{MPDECOMP2} eq '1') {
 
 if($sys_arch eq "linux_ifc") {
    $cflags = "-c ".$sys_omp." ".$sys_c_opt." -traceback -DIFC -DLINUX";
-   $fflags77= "-c ".$sys_omp." ".$sys_opt." -traceback -nomixed_str_len_arg -names lowercase ".$sys_endian." -assume byterecl ".$sys_par." -DHIDE_SHR_MSG -DNO_SHR_VMATH -DIFC -DLINUX -I\$(MOD_ESMF) ".$sys_par_d;
-   $fflags ="-c ".$sys_omp." ".$sys_opt." -u -traceback -fpe0 -nomixed_str_len_arg -names lowercase ".$sys_endian." -assume byterecl ".$sys_par." -DHIDE_SHR_MSG -DNO_SHR_VMATH -DIFC -DLINUX -I\$(MOD_ESMF) ".$sys_par_d;
-   $ldflags= $sys_omp." -L\$(LIB_ESMF) -lesmf -lstdc++ -limf -lrt";
+   if($vsc_tier_system eq "genius"){
+      $fflags77= "-c ".$sys_omp." ".$sys_opt." -traceback -nomixed_str_len_arg -names lowercase ".$sys_endian." -assume byterecl ".$sys_par." -DHIDE_SHR_MSG -DNO_SHR_VMATH -DIFC -DLINUX -I\$(MOD_ESMF) ".$sys_par_d;
+      $fflags ="-c ".$sys_omp." ".$sys_opt." -u -traceback -fpe0 -nomixed_str_len_arg -names lowercase ".$sys_endian." -assume byterecl ".$sys_par." -DHIDE_SHR_MSG -DNO_SHR_VMATH -DIFC -DLINUX -I\$(MOD_ESMF) ".$sys_par_d;
+   }
+   elsif($vsc_tier_system eq "hortense") {
+      $fflags77= "-c ".$sys_omp." ".$sys_opt." -traceback -nomixed-str-len-arg -names lowercase ".$sys_endian." -assume byterecl ".$sys_par." -DHIDE_SHR_MSG -DNO_SHR_VMATH -DIFC -DLINUX -I\$(MOD_ESMF) ".$sys_par_d;
+      $fflags ="-c ".$sys_omp." ".$sys_opt." -u -traceback -fpe0 -nomixed-str-len-arg -names lowercase ".$sys_endian." -assume byterecl ".$sys_par." -DHIDE_SHR_MSG -DNO_SHR_VMATH -DIFC -DLINUX -I\$(MOD_ESMF) ".$sys_par_d;
+   }
+   else{
+      print "--------------ERROR---------------------\n";
+      print "VSC_SYSTEM not available in Config.pl\n";
+      print "--------------ERROR---------------------\n";
+      exit 1;
+   }
+   if($vsc_tier_system eq "genius"){
+      $ldflags= $sys_omp." -L\$(LIB_ESMF) -lesmf -lstdc++ -limf -lrt -lmkl -lsz -ltirpc";
+   }
+   elsif($vsc_tier_system eq "hortense") {
+      $ldflags= $sys_omp." -L\$(LIB_ESMF) -lesmf -lstdc++ -limf -lrt -lmkl -lsz -ltirpc -qopenmp";
+   }
+   else{
+      print "--------------ERROR---------------------\n";
+      print "VSC_SYSTEM not available in Config.pl\n";
+      print "--------------ERROR---------------------\n";
+      exit 1;
+   }
    $lib_flags= "-lesmf -lstdc++ -limf -lrt";
    $lib_paths= "-L\$(LIB_ESMF)";
 }
@@ -998,10 +1063,16 @@ if($use_hdfeos == 1){
 if($use_hdf4 == 1){
    $fflags77 = $fflags77." -I\$(INC_HDF4)";
    $fflags = $fflags." -I\$(INC_HDF4)";
-   $ldflags = $ldflags." -L\$(LIB_HDF4) -lmfhdf -ldf ".$libjpeg." -lz";
+   $ldflags = $ldflags." -L\$(LIB_HDF4) -lmfhdf -ldf ".$libjpeg." -lz ".$librpc;
    $lib_flags= $lib_flags." -lmfhdf -ldf ".$libjpeg." -lz";
    $lib_paths= $lib_paths." -L\$(LIB_HDF4)"
 }
+
+if($use_petsc == 1){
+   $fflags = $fflags." -I\$(INC_PETSC)";
+   $ldflags = $ldflags." -L\$(LIB_PETSC) -lpetsc -lm -ldl";
+}
+
 if($use_hdf5 == 1){
    $fflags77 = $fflags77." -I\$(INC_HDF5)";
    $fflags = $fflags." -I\$(INC_HDF5)";
@@ -1043,14 +1114,19 @@ if($use_minpack == 1){
 }
 
 if($use_lapack == 1){
+   $ldflags = $ldflags." -L\$(LIB_LAPACK) -lmkl_rt";
+   $lib_flags= $lib_flags." -lmkl_rt";
+   $lib_paths= $lib_paths." -L\$(LIB_LAPACK)";
+}
+elsif($use_lapack == 2){
    $ldflags = $ldflags." -L\$(LIB_LAPACK) -llapack -lblas";
    $lib_flags= $lib_flags." -llapack -lblas";
    $lib_paths= $lib_paths." -L\$(LIB_LAPACK)";
 }
-
-if($use_mkllapack == 1){
-   #Changed to be able to use mkl Wendy Sharples
-   $ldflags = $ldflags." -L\$(LIB_LAPACK) -lmkl_rt";
+elsif($use_lapack == 3){
+   $ldflags = $ldflags." -L\$(LIB_LAPACK) -llapack -lrefblas";
+   $lib_flags= $lib_flags." -llapack -lrefblas";
+   $lib_paths= $lib_paths." -L\$(LIB_LAPACK)";
 }
 
 if($use_esmf_trace == 1){
@@ -1139,6 +1215,8 @@ printf conf_file "%s%s\n","LIB_PROF_UTIL   = $lib_crtm_prof";
 printf conf_file "%s%s\n","INC_CMEM        = $inc_cmem";
 printf conf_file "%s%s\n","LIB_CMEM        = $lib_cmem";
 printf conf_file "%s%s\n","LIB_LAPACK      = $lib_lapack";
+printf conf_file "%s%s\n","INC_PETSC       = $inc_petsc";
+printf conf_file "%s%s\n","LIB_PETSC       = $lib_petsc";
 printf conf_file "%s%s\n","CFLAGS          = $cflags";
 printf conf_file "%s%s\n","FFLAGS77        = $fflags77";
 printf conf_file "%s%s\n","FFLAGS          = $fflags";
@@ -1219,21 +1297,12 @@ else{
    printf misc_file "%s\n","#undef RTMS ";
 }
 
-
-if($use_lapack == 1) {
-   printf misc_file "%s\n","#define LAPACK ";
+if($use_petsc == 1) {
+   printf misc_file "%s\n","#define PETSc ";
 }
 else{
-   printf misc_file "%s\n","#undef LAPACK ";
+   printf misc_file "%s\n","#undef PETSc ";
 }
-
-if($use_mkllapack == 1) {
-   printf misc_file "%s\n","#define MKL_LAPACK ";
-}
-else{
-   printf misc_file "%s\n","#undef MKL_LAPACK ";
-}
-
 
 printf misc_file "%s\n","#undef INC_WATER_PTS";
 printf misc_file "%s\n","#undef COUPLED";

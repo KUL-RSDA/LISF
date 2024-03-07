@@ -95,6 +95,18 @@ subroutine LIS_lsmrtm_plugin
 #endif
 #endif
 
+#if ( defined SM_NOAHMP_4_0_1 )
+#if ( defined RM_RTM_FORWARD )
+   external NoahMP401_f2t
+#endif
+#if ( defined RTMS_CMEM )
+   external noahmp401_sfc2cmem3
+#endif
+#if ( defined RTMS_WCM )
+   external noahmp401_sfc2wcm
+#endif
+#endif
+
 #if ( defined SM_MOSAIC )
 #if ( defined RM_RTM_FORWARD )
    external mos_f2t
@@ -187,6 +199,18 @@ subroutine LIS_lsmrtm_plugin
 #if ( defined RTMS_WCM)
    call registerlsm2rtm(trim(LIS_wcmRTMId)//"+"//&
         trim(LIS_noahmp36Id)//char(0), noahmp36_sfc2wcm)
+#endif
+#endif
+
+#if ( defined SM_NOAHMP_4_0_1 )
+#if ( defined RM_RTM_FORWARD )
+   call registerlsmf2t(trim(LIS_noahmp401Id)//"+"&
+        //trim(LIS_RTMforwardId)//char(0),NoahMP401_f2t)
+#endif
+
+#if ( defined RTMS_WCM)
+   call registerlsm2rtm(trim(LIS_wcmRTMId)//"+"//&
+        trim(LIS_noahmp401Id)//char(0), noahmp401_sfc2wcm)
 #endif
 #endif
 

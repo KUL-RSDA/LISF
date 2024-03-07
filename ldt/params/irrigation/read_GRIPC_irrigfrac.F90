@@ -243,9 +243,9 @@
        ! Estimate 2-D fraction for just irrigation:
          if( isum > 0. ) then
           ! Irrigated layer only:
-            irrigfrac(nc,nr) = (irrigfrac_cnt(nc,nr,2) / isum) * 100.   
-          ! Irrigated + rice patty layers:
-!            irrigfrac(nc,nr) = ((irrigfrac_cnt(nc,nr,2)+irrigfrac_cnt(nc,nr,3)) / isum) * 100.
+            !irrigfrac(nc,nr) = (irrigfrac_cnt(nc,nr,2) / isum) * 100.   
+          ! Irrigated + rice paddy layers:
+            irrigfrac(nc,nr) = ((irrigfrac_cnt(nc,nr,2)+irrigfrac_cnt(nc,nr,3)) / isum) * 100.
          else
             irrigfrac(nc,nr) = 0.
          endif

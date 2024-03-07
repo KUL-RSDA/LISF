@@ -18,6 +18,7 @@ module LDT_DAmetricsMod
 !
 ! !REVISION HISTORY:
 !  02 Oct 2008: Sujay Kumar; Initial version
+!  2 Dec 2021:   Mahdi Navari; modified to compute CDF for precipitation
 !
   use ESMF
   use LDT_DAmetricsDataMod
@@ -91,12 +92,18 @@ contains
          LDT_DAobsData(n)%snowdepth_obs,LDT_DAmetrics%snowdepth)
     call registerMetricsEntry(LDT_DA_MOC_SOILMOIST,nsize,&
          LDT_DAobsData(n)%soilmoist_obs,LDT_DAmetrics%soilmoist)
+    call registerMetricsEntry(LDT_DA_MOC_SOILTEFF,nsize,&
+         LDT_DAobsData(n)%teff_obs,LDT_DAmetrics%teff)  !Effective soil temperature (Y.Kwon)
     call registerMetricsEntry(LDT_DA_MOC_TWS,nsize,&
          LDT_DAobsData(n)%tws_obs,LDT_DAmetrics%tws)
     call registerMetricsEntry(LDT_DA_MOC_VOD,nsize,&
          LDT_DAobsData(n)%vod_obs,LDT_DAmetrics%vod)
     call registerMetricsEntry(LDT_DA_MOC_LAI,nsize,&
          LDT_DAobsData(n)%lai_obs,LDT_DAmetrics%lai)
+    call registerMetricsEntry(LDT_DA_MOC_TOTALPRECIP,nsize,&
+         LDT_DAobsData(n)%totalprecip_obs,LDT_DAmetrics%totalprecip)
+    call registerMetricsEntry(LDT_DA_MOC_GVF,nsize,&
+         LDT_DAobsData(n)%gvf_obs,LDT_DAmetrics%gvf)   !Y.Kwon
 !------------------------------------------------------------------------
 ! the generation of the obsgrid only doesn't require a pass through the
 ! data
@@ -140,8 +147,15 @@ contains
             'east_west',LDT_rc%gnc(n),dimID(1)))
        call LDT_verify(nf90_def_dim(LDT_rc%ftn_DAobs_domain,&
             'north_south',LDT_rc%gnr(n),dimID(2)))
-       call LDT_verify(nf90_def_dim(LDT_rc%ftn_DAobs_domain,'ntimes',&
-            LDT_rc%cdf_ntimes,dimID(3)))
+
+       !Y.Kwon
+       if(LDT_rc%daily_interp_switch.eq.0) then
+          call LDT_verify(nf90_def_dim(LDT_rc%ftn_DAobs_domain,'ntimes',&
+               LDT_rc%cdf_ntimes,dimID(3)))
+       elseif(LDT_rc%daily_interp_switch.eq.1) then
+          call LDT_verify(nf90_def_dim(LDT_rc%ftn_DAobs_domain,'ntimes',&
+               24,dimID(3)))
+       endif
        
        call LDT_verify(nf90_def_dim(LDT_rc%ftn_DAobs_domain,'east_west_b',&
             LDT_rc%gnc_buf(n),bdimID(1)))
@@ -568,47 +582,114 @@ contains
 
     if(metrics%selectOpt.eq.1) then 
        if(LDT_rc%comp_cdf.eq.1) then 
-          allocate(metrics%mask(nsize,LDT_rc%cdf_ntimes, obs%vlevels))
-          allocate(metrics%maxval(nsize, LDT_rc%cdf_ntimes,obs%vlevels))
-          allocate(metrics%minval(nsize, LDT_rc%cdf_ntimes,obs%vlevels))
-          metrics%mask = LDT_rc%udef
-          metrics%maxval = -1000000.0
-          metrics%minval =  1000000.0
-          allocate(metrics%count_drange_total(nsize, LDT_rc%cdf_ntimes,&
-               obs%vlevels))
-          metrics%count_drange_total = 0
+          if(LDT_rc%daily_interp_switch.eq.0) then  !Y.Kwon
+             allocate(metrics%mask(nsize,LDT_rc%cdf_ntimes, obs%vlevels))
+             allocate(metrics%maxval(nsize, LDT_rc%cdf_ntimes,obs%vlevels))
+             allocate(metrics%minval(nsize, LDT_rc%cdf_ntimes,obs%vlevels))
+             metrics%mask = LDT_rc%udef
+             metrics%maxval = -1000000.0
+             metrics%minval =  1000000.0
+             allocate(metrics%count_drange_total(nsize, LDT_rc%cdf_ntimes,&
+                  obs%vlevels))
+             metrics%count_drange_total = 0
 
-          allocate(metrics%cdf_bincounts(nsize,&
-               LDT_rc%cdf_ntimes, obs%vlevels,LDT_rc%cdf_nbins))
-          allocate(metrics%delta(nsize,LDT_rc%cdf_ntimes,obs%vlevels))
-          allocate(metrics%xrange(nsize,&
-               LDT_rc%cdf_ntimes, obs%vlevels,LDT_rc%cdf_nbins))
-          allocate(metrics%cdf(nsize,&
-               LDT_rc%cdf_ntimes, obs%vlevels,LDT_rc%cdf_nbins))
+             allocate(metrics%cdf_bincounts(nsize,&
+                  LDT_rc%cdf_ntimes, obs%vlevels,LDT_rc%cdf_nbins))
+             allocate(metrics%delta(nsize,LDT_rc%cdf_ntimes,obs%vlevels))
+             allocate(metrics%xrange(nsize,&
+                  LDT_rc%cdf_ntimes, obs%vlevels,LDT_rc%cdf_nbins))
+             allocate(metrics%cdf(nsize,&
+                  LDT_rc%cdf_ntimes, obs%vlevels,LDT_rc%cdf_nbins))
+
+             if(LDT_rc%write_strat_cdfs.eq.1) then
+                if(LDT_rc%group_cdfs.eq.1 .and. LDT_rc%strat_cdfs.eq.0) then
+                   allocate(metrics%strat_xrange(LDT_rc%group_cdfs_nbins,&
+                        LDT_rc%cdf_ntimes, obs%vlevels,LDT_rc%cdf_nbins))
+                   allocate(metrics%strat_cdf(LDT_rc%group_cdfs_nbins,&
+                        LDT_rc%cdf_ntimes, obs%vlevels,LDT_rc%cdf_nbins))
+                        LDT_rc%stratified_cdfs_nbins = LDT_rc%group_cdfs_nbins
+                elseif(LDT_rc%group_cdfs.eq.0 .and. LDT_rc%strat_cdfs.eq.1 ) then
+                   allocate(metrics%strat_xrange(LDT_rc%strat_cdfs_nbins,&
+                        LDT_rc%cdf_ntimes, obs%vlevels,LDT_rc%cdf_nbins))
+                   allocate(metrics%strat_cdf(LDT_rc%strat_cdfs_nbins,&
+                        LDT_rc%cdf_ntimes, obs%vlevels,LDT_rc%cdf_nbins))
+                        LDT_rc%stratified_cdfs_nbins = LDT_rc%strat_cdfs_nbins
+                elseif(LDT_rc%group_cdfs.eq.1 .and. LDT_rc%strat_cdfs.eq.1 ) then
+                   allocate(metrics%strat_xrange(LDT_rc%group_cdfs_nbins*&
+                        LDT_rc%strat_cdfs_nbins,&
+                        LDT_rc%cdf_ntimes, obs%vlevels,LDT_rc%cdf_nbins))
+                   allocate(metrics%strat_cdf(LDT_rc%group_cdfs_nbins*&
+                        LDT_rc%strat_cdfs_nbins,&
+                        LDT_rc%cdf_ntimes, obs%vlevels,LDT_rc%cdf_nbins))
+                        LDT_rc%stratified_cdfs_nbins = LDT_rc%group_cdfs_nbins*&
+                                                    LDT_rc%strat_cdfs_nbins
+                endif
+                metrics%strat_xrange = 0
+                metrics%strat_cdf = 0
+             endif
           
-          metrics%cdf_bincounts = 0 
-          metrics%delta = 0 
-          metrics%xrange = 0 
-          metrics%cdf = 0 
+             metrics%cdf_bincounts = 0 
+             metrics%delta = 0 
+             metrics%xrange = 0 
+             metrics%cdf = 0 
 
-          allocate(metrics%sx_mu(nsize, LDT_rc%cdf_ntimes, obs%vlevels))
-          allocate(metrics%mu(nsize, LDT_rc%cdf_ntimes, obs%vlevels))
-          allocate(metrics%count_mu(nsize, LDT_rc%cdf_ntimes,obs%vlevels))
+             allocate(metrics%sx_mu(nsize, LDT_rc%cdf_ntimes, obs%vlevels))
+             allocate(metrics%mu(nsize, LDT_rc%cdf_ntimes, obs%vlevels))
+             allocate(metrics%count_mu(nsize, LDT_rc%cdf_ntimes,obs%vlevels))
 
-          metrics%sx_mu = 0 
-          metrics%mu = 0 
-          metrics%count_mu = 0 
+             metrics%sx_mu = 0 
+             metrics%mu = 0 
+             metrics%count_mu = 0 
 
-          allocate(metrics%sx_sigma(nsize, LDT_rc%cdf_ntimes,obs%vlevels))
-          allocate(metrics%sxx_sigma(nsize, LDT_rc%cdf_ntimes,obs%vlevels))
-          allocate(metrics%sigma(nsize, LDT_rc%cdf_ntimes,obs%vlevels))
-          allocate(metrics%count_sigma(nsize, LDT_rc%cdf_ntimes,obs%vlevels))
+             allocate(metrics%sx_sigma(nsize, LDT_rc%cdf_ntimes,obs%vlevels))
+             allocate(metrics%sxx_sigma(nsize, LDT_rc%cdf_ntimes,obs%vlevels))
+             allocate(metrics%sigma(nsize, LDT_rc%cdf_ntimes,obs%vlevels))
+             allocate(metrics%count_sigma(nsize, LDT_rc%cdf_ntimes,obs%vlevels))
 
-          metrics%sx_sigma = 0 
-          metrics%sxx_sigma = 0 
-          metrics%sigma = 0 
-          metrics%count_sigma = 0           
+             metrics%sx_sigma = 0 
+             metrics%sxx_sigma = 0 
+             metrics%sigma = 0 
+             metrics%count_sigma = 0           
 
+          !-----------------------------------Y.Kwon
+          elseif(LDT_rc%daily_interp_switch.eq.1) then
+             allocate(metrics%sx_mu_6am(nsize,24,obs%vlevels))
+             allocate(metrics%sx_mu_6pm(nsize,24,obs%vlevels))
+             allocate(metrics%mu_6am(nsize, LDT_rc%cdf_ntimes, obs%vlevels))
+             allocate(metrics%mu_6pm(nsize, LDT_rc%cdf_ntimes, obs%vlevels))
+             allocate(metrics%count_mu_6am(nsize,24,obs%vlevels))
+             allocate(metrics%count_mu_6pm(nsize,24,obs%vlevels))
+             allocate(metrics%mask_6am(nsize,24, obs%vlevels))
+             allocate(metrics%mask_6pm(nsize,24, obs%vlevels))
+
+             metrics%sx_mu_6am = 0
+             metrics%sx_mu_6pm = 0
+             metrics%mu_6am = 0
+             metrics%mu_6pm = 0
+             metrics%count_mu_6am = 0
+             metrics%count_mu_6pm = 0
+             metrics%mask_6am = LDT_rc%udef
+             metrics%mask_6pm = LDT_rc%udef
+
+             allocate(metrics%sx_sigma_6am(nsize, 24,obs%vlevels))
+             allocate(metrics%sx_sigma_6pm(nsize, 24,obs%vlevels))
+             allocate(metrics%sxx_sigma_6am(nsize, 24,obs%vlevels))
+             allocate(metrics%sxx_sigma_6pm(nsize, 24,obs%vlevels))
+             allocate(metrics%sigma_6am(nsize, LDT_rc%cdf_ntimes,obs%vlevels))
+             allocate(metrics%sigma_6pm(nsize, LDT_rc%cdf_ntimes,obs%vlevels))
+             allocate(metrics%count_sigma_6am(nsize, 24,obs%vlevels))
+             allocate(metrics%count_sigma_6pm(nsize, 24,obs%vlevels))
+
+             metrics%sx_sigma_6am = 0
+             metrics%sx_sigma_6pm = 0
+             metrics%sxx_sigma_6am = 0
+             metrics%sxx_sigma_6pm = 0
+             metrics%sigma_6am = 0
+             metrics%sigma_6pm = 0
+             metrics%count_sigma_6am = 0
+             metrics%count_sigma_6pm = 0
+          endif
+          !-----------------------------------Y.Kwon
        endif
     endif
 
@@ -639,14 +720,21 @@ contains
     integer       :: n 
 
     if(LDT_rc%computeFlag) then 
-       if(LDT_rc%comp_cdf.eq.1) then           
-          if(pass.eq.1) then 
-             call LDT_diagnoseDrange(n)
-             call LDT_diagnoseMu(n)
-             call LDT_diagnoseSigma(n)
-          endif
-          if(pass.eq.2) then 
-             call LDT_diagnoseCDF(n)
+       if(LDT_rc%comp_cdf.eq.1) then          
+          if(LDT_rc%daily_interp_switch.eq.0) then  !Y.Kwon
+             if(pass.eq.1) then
+                call LDT_diagnoseDrange(n)
+                call LDT_diagnoseMu(n)
+                call LDT_diagnoseSigma(n)
+             endif
+             if(pass.eq.2) then
+                call LDT_diagnoseCDF(n)
+             endif
+          elseif(LDT_rc%daily_interp_switch.eq.1) then  !Y.Kwon
+             if(pass.eq.1) then
+                call LDT_diagnoseMu(n)
+                call LDT_diagnoseSigma(n)
+             endif
           endif
        endif
        
@@ -677,7 +765,7 @@ contains
 
     implicit none
 
-    character(len=LDT_CONST_PATH_LEN) :: fname_cdf
+    character(len=LDT_CONST_PATH_LEN) :: fname_cdf, fname_strat_cdf
     character(len=LDT_CONST_PATH_LEN) :: fname_domain
     integer       :: pass
     integer       :: rc
@@ -687,13 +775,20 @@ contains
 
     if(LDT_rc%computeFlag) then 
        if(LDT_rc%comp_cdf.eq.1) then           
-          if(pass.eq.1) then 
-             call LDT_computeDrange(n)          
-             call LDT_computeMu(n)
-             call LDT_computeSigma(n)
-          endif
-          if(pass.eq.2) then 
-             call LDT_computeCDF(n)
+          if(LDT_rc%daily_interp_switch.eq.0) then   !Y.Kwon
+             if(pass.eq.1) then
+                call LDT_computeDrange(n)
+                call LDT_computeMu(n)
+                call LDT_computeSigma(n)
+             endif
+             if(pass.eq.2) then
+                call LDT_computeCDF(n)
+             endif
+          elseif(LDT_rc%daily_interp_switch.eq.1) then  !Y.Kwon
+             if(pass.eq.1) then
+                call LDT_computeMu(n)
+                call LDT_computeSigma(n)
+             endif
           endif
        endif
        
@@ -717,6 +812,14 @@ contains
                 write(LDT_logunit,*) 'Writing CDF domain file ',trim(fname_domain)
                 iret=nf90_create(path=trim(fname_domain),cmode=nf90_clobber,&
                      ncid=LDT_rc%ftn_DAobs_domain)
+             
+                if(LDT_rc%write_strat_cdfs.eq.1) then
+                   fname_strat_cdf = trim(LDT_rc%odir)//'/stratified_'//&
+                        trim(LDT_rc%dapreprocfile)//'.nc'
+                   write(LDT_logunit,*) 'Writing stratified CDF file ',trim(fname_strat_cdf)
+                   iret=nf90_create(path=trim(fname_strat_cdf),cmode=nf90_clobber,&
+                        ncid=LDT_rc%ftn_strat_cdf)
+                endif
              endif
 #endif
 #if (defined USE_NETCDF4)
@@ -731,7 +834,16 @@ contains
                 write(LDT_logunit,*) 'Writing CDF domain file ',trim(fname_domain)
                 iret=nf90_create(path=trim(fname_domain),cmode=nf90_netcdf4,&
                      ncid=LDT_rc%ftn_DAobs_domain)
+
+                if(LDT_rc%write_strat_cdfs.eq.1) then
+                   fname_strat_cdf = trim(LDT_rc%odir)//'/stratified_'//&
+                        trim(LDT_rc%dapreprocfile)//'.nc'
+                   write(LDT_logunit,*) 'Writing stratified CDF file ',trim(fname_strat_cdf)
+                   iret=nf90_create(path=trim(fname_strat_cdf),cmode=nf90_netcdf4,&
+                        ncid=LDT_rc%ftn_strat_cdf)
+                endif
              endif
+
 #endif
              
              call outputFinalMetrics(n,pass)
@@ -741,6 +853,10 @@ contains
                 write(LDT_logunit,*) 'Successfully wrote CDF file ',trim(fname_cdf)
                 iret=nf90_close(LDT_rc%ftn_DAobs_domain)
                 write(LDT_logunit,*) 'Successfully wrote CDF file ',trim(fname_domain)
+                if(LDT_rc%write_strat_cdfs.eq.1) then
+                   iret=nf90_close(LDT_rc%ftn_strat_cdf)
+                   write(LDT_logunit,*) 'Successfully wrote geolocation independent stratified CDF file ',trim(fname_strat_cdf)
+                endif
              endif
              
 #endif
@@ -775,7 +891,7 @@ contains
 !EOP
     integer               :: index
     integer               :: c,r
-    integer               :: dimID(4)
+    integer               :: dimID(4), dimID_strat(4)
     integer               :: bdimID(3)
     character(len=8)      :: date
     character(len=10)     :: time
@@ -837,6 +953,52 @@ contains
             LDT_DAobsDataPtr(1,index)%dataEntryPtr)
     enddo
 
+
+! geolocation independent stratified CDF
+    if(LDT_rc%write_strat_cdfs.eq.1) then
+#if (defined USE_NETCDF3 || defined USE_NETCDF4) 
+       call LDT_verify(nf90_def_dim(LDT_rc%ftn_strat_cdf,'n_strat_bins',&
+            LDT_rc%stratified_cdfs_nbins,dimID_strat(1)),'nf90_def_dim failed for n_strat_bins')
+       call LDT_verify(nf90_def_dim(LDT_rc%ftn_strat_cdf,'ntimes',&
+            LDT_rc%cdf_ntimes,dimID_strat(2)),'nf90_def_dim failed for ntimes')
+       call LDT_verify(nf90_def_dim(LDT_rc%ftn_strat_cdf,'nbins',&
+            LDT_rc%cdf_nbins,dimID_strat(4)),'nf90_def_dim failed for nbins')
+
+       call LDT_verify(nf90_put_att(LDT_rc%ftn_strat_cdf,NF90_GLOBAL,&
+            "missing_value", -9999.0))
+       call LDT_verify(nf90_put_att(LDT_rc%ftn_strat_cdf,NF90_GLOBAL,&
+            "temporal_resolution_CDF", LDT_rc%cdf_ntimes))
+       call LDT_verify(nf90_put_att(LDT_rc%ftn_strat_cdf,NF90_GLOBAL,&
+            "title", &
+            "Land Data Toolkit (LDT) output"))
+       call LDT_verify(nf90_put_att(LDT_rc%ftn_strat_cdf,NF90_GLOBAL,&
+            "institution", &
+            "NASA GSFC Hydrological Sciences Laboratory"))
+       call LDT_verify(nf90_put_att(LDT_rc%ftn_strat_cdf,NF90_GLOBAL,&
+            "history", &
+            "created on date: "//date(1:4)//"-"//date(5:6)//"-"//&
+            date(7:8)//"T"//time(1:2)//":"//time(3:4)//":"//time(5:10)))
+       !call LDT_verify(nf90_put_att(LDT_rc%ftn_cdf,NF90_GLOBAL,"references", &
+       !    "Arsenault_etal_GMD_2018, Kumar_etal_EMS_2006"))
+       call LDT_verify(nf90_put_att(LDT_rc%ftn_strat_cdf,NF90_GLOBAL,"comment", &
+           "website: http://lis.gsfc.nasa.gov/"))
+#endif
+       do index=1,LDT_DA_MOC_COUNT
+          call writeFinalSingleStratifiedCDFEntryHeader(LDT_DAmetricsPtr(index)%dataEntryPtr,&
+               LDT_DAobsDataPtr(1,index)%dataEntryPtr, dimID_strat)
+       enddo
+
+#if (defined USE_NETCDF3 || defined USE_NETCDF4) 
+       call LDT_verify(nf90_enddef(LDT_rc%ftn_strat_cdf))
+#endif
+
+       do index=1,LDT_DA_MOC_COUNT
+          call writeFinalSingleStratifiedCDFEntry(pass,LDT_DAmetricsPtr(index)%dataEntryPtr,&
+               LDT_DAobsDataPtr(1,index)%dataEntryPtr)
+       enddo
+
+    endif
+
 !domain file
 #if (defined USE_NETCDF3 || defined USE_NETCDF4) 
 
@@ -844,8 +1006,14 @@ contains
          'east_west',LDT_rc%gnc(n),dimID(1)))
     call LDT_verify(nf90_def_dim(LDT_rc%ftn_DAobs_domain,&
          'north_south',LDT_rc%gnr(n),dimID(2)))
-    call LDT_verify(nf90_def_dim(LDT_rc%ftn_DAobs_domain,'ntimes',&
-         LDT_rc%cdf_ntimes,dimID(3)))
+
+    if(LDT_rc%daily_interp_switch.eq.0) then     !Y.Kwon
+       call LDT_verify(nf90_def_dim(LDT_rc%ftn_DAobs_domain,'ntimes',&
+            LDT_rc%cdf_ntimes,dimID(3)))
+    elseif(LDT_rc%daily_interp_switch.eq.1) then  !Y.Kwon
+       call LDT_verify(nf90_def_dim(LDT_rc%ftn_DAobs_domain,'ntimes',&
+            24,dimID(3)))
+    endif
     
     call LDT_verify(nf90_def_dim(LDT_rc%ftn_DAobs_domain,'east_west_b',&
          LDT_rc%gnc_buf(n),bdimID(1)))
@@ -1251,43 +1419,43 @@ contains
        call LDT_verify(nf90_def_dim(LDT_rc%ftn_cdf,trim(vname),&
             obs%vlevels,dimID(3)))
        
-
-       call LDT_verify(nf90_def_var(LDT_rc%ftn_cdf,&
-            trim(obs%standard_name)//'_xrange',&
-            nf90_float, dimids = dimID, varid=obs%varID(1)))
+       if(LDT_rc%daily_interp_switch.eq.0) then  !Y.Kwon
+          call LDT_verify(nf90_def_var(LDT_rc%ftn_cdf,&
+               trim(obs%standard_name)//'_xrange',&
+               nf90_float, dimids = dimID, varid=obs%varID(1)))
 
 #if (defined USE_NETCDF4) 
-       call LDT_verify(nf90_def_var_deflate(LDT_rc%ftn_cdf,&
-            obs%varID(1), shuffle, deflate, deflate_level),&
-            'nf90_def_var_deflate failed in LDT_DAmetricsMod')
+          call LDT_verify(nf90_def_var_deflate(LDT_rc%ftn_cdf,&
+               obs%varID(1), shuffle, deflate, deflate_level),&
+               'nf90_def_var_deflate failed in LDT_DAmetricsMod')
 #endif
 
-       call LDT_verify(nf90_def_var(LDT_rc%ftn_cdf,&
-            trim(obs%standard_name)//'_mu',&
-            nf90_float, dimids = dimID(1:3), varid=obs%varID(2)))
+          call LDT_verify(nf90_def_var(LDT_rc%ftn_cdf,&
+               trim(obs%standard_name)//'_mu',&
+               nf90_float, dimids = dimID(1:3), varid=obs%varID(2)))
 
 #if (defined USE_NETCDF4) 
-       call LDT_verify(nf90_def_var_deflate(LDT_rc%ftn_cdf,&
-            obs%varID(2), shuffle, deflate, deflate_level),&
-            'nf90_def_var_deflate failed in LDT_DAmetricsMod')
+          call LDT_verify(nf90_def_var_deflate(LDT_rc%ftn_cdf,&
+               obs%varID(2), shuffle, deflate, deflate_level),&
+               'nf90_def_var_deflate failed in LDT_DAmetricsMod')
 #endif
-       call LDT_verify(nf90_def_var(LDT_rc%ftn_cdf,&
-            trim(obs%standard_name)//'_sigma',&
-            nf90_float, dimids = dimID(1:3), varid=obs%varID(3)))
+          call LDT_verify(nf90_def_var(LDT_rc%ftn_cdf,&
+               trim(obs%standard_name)//'_sigma',&
+               nf90_float, dimids = dimID(1:3), varid=obs%varID(3)))
 
 #if (defined USE_NETCDF4) 
-       call LDT_verify(nf90_def_var_deflate(LDT_rc%ftn_cdf,&
-            obs%varID(3), shuffle, deflate, deflate_level),&
-            'nf90_def_var_deflate failed in LDT_DAmetricsMod')
+          call LDT_verify(nf90_def_var_deflate(LDT_rc%ftn_cdf,&
+               obs%varID(3), shuffle, deflate, deflate_level),&
+               'nf90_def_var_deflate failed in LDT_DAmetricsMod')
 #endif
-       call LDT_verify(nf90_def_var(LDT_rc%ftn_cdf,&
-            trim(obs%standard_name)//'_CDF',&
-            nf90_float, dimids = dimID, varid=obs%varID(4)))
+          call LDT_verify(nf90_def_var(LDT_rc%ftn_cdf,&
+               trim(obs%standard_name)//'_CDF',&
+               nf90_float, dimids = dimID, varid=obs%varID(4)))
 
 #if (defined USE_NETCDF4) 
-       call LDT_verify(nf90_def_var_deflate(LDT_rc%ftn_cdf,&
-            obs%varID(4), shuffle, deflate, deflate_level),&
-            'nf90_def_var_deflate failed in LDT_DAmetricsMod')
+          call LDT_verify(nf90_def_var_deflate(LDT_rc%ftn_cdf,&
+               obs%varID(4), shuffle, deflate, deflate_level),&
+               'nf90_def_var_deflate failed in LDT_DAmetricsMod')
 #endif
 
 !       call LDT_verify(nf90_def_var(LDT_rc%ftn_cdf,&
@@ -1300,10 +1468,141 @@ contains
 !            'nf90_def_var_deflate failed in LDT_DAmetricsMod')
 !#endif
 
+!----------------------------------------------------------Y.Kwon
+       elseif(LDT_rc%daily_interp_switch.eq.1) then
+          call LDT_verify(nf90_def_var(LDT_rc%ftn_cdf,&
+               trim(obs%standard_name)//'_mu_6am',&
+               nf90_float, dimids = dimID(1:3), varid=obs%varID(1)))
+
+#if (defined USE_NETCDF4) 
+          call LDT_verify(nf90_def_var_deflate(LDT_rc%ftn_cdf,&
+               obs%varID(1), shuffle, deflate, deflate_level),&
+               'nf90_def_var_deflate failed in LDT_DAmetricsMod')
+#endif
+
+          call LDT_verify(nf90_def_var(LDT_rc%ftn_cdf,&
+               trim(obs%standard_name)//'_mu_6pm',&
+               nf90_float, dimids = dimID(1:3), varid=obs%varID(2)))
+
+#if (defined USE_NETCDF4) 
+          call LDT_verify(nf90_def_var_deflate(LDT_rc%ftn_cdf,&
+               obs%varID(2), shuffle, deflate, deflate_level),&
+               'nf90_def_var_deflate failed in LDT_DAmetricsMod')
+#endif
+
+          call LDT_verify(nf90_def_var(LDT_rc%ftn_cdf,&
+               trim(obs%standard_name)//'_sigma_6am',&
+               nf90_float, dimids = dimID(1:3), varid=obs%varID(3)))
+
+#if (defined USE_NETCDF4) 
+          call LDT_verify(nf90_def_var_deflate(LDT_rc%ftn_cdf,&
+               obs%varID(3), shuffle, deflate, deflate_level),&
+               'nf90_def_var_deflate failed in LDT_DAmetricsMod')
+#endif
+
+          call LDT_verify(nf90_def_var(LDT_rc%ftn_cdf,&
+               trim(obs%standard_name)//'_sigma_6pm',&
+               nf90_float, dimids = dimID(1:3), varid=obs%varID(4)))
+
+#if (defined USE_NETCDF4) 
+          call LDT_verify(nf90_def_var_deflate(LDT_rc%ftn_cdf,&
+               obs%varID(4), shuffle, deflate, deflate_level),&
+               'nf90_def_var_deflate failed in LDT_DAmetricsMod')
+#endif
+
+          call LDT_verify(nf90_def_var(LDT_rc%ftn_cdf,&
+               'grid_col',&
+               nf90_int, dimids = dimID(1), varid=obs%varID(5)))
+
+#if (defined USE_NETCDF4) 
+          call LDT_verify(nf90_def_var_deflate(LDT_rc%ftn_cdf,&
+               obs%varID(5), shuffle, deflate, deflate_level),&
+               'nf90_def_var_deflate failed in LDT_DAmetricsMod')
+#endif
+
+          call LDT_verify(nf90_def_var(LDT_rc%ftn_cdf,&
+               'grid_row',&
+               nf90_int, dimids = dimID(1), varid=obs%varID(6)))
+
+#if (defined USE_NETCDF4) 
+          call LDT_verify(nf90_def_var_deflate(LDT_rc%ftn_cdf,&
+               obs%varID(6), shuffle, deflate, deflate_level),&
+               'nf90_def_var_deflate failed in LDT_DAmetricsMod')
+#endif
+
+       endif
+!----------------------------------------------------Y.Kwon
     endif
 #endif
     
   end subroutine writeFinalSingleEntryHeader
+
+!BOP
+! !ROUTINE: writeFinalSingleStratifiedCDFEntryHeader
+! \label{writeFinalSingleStratifiedCDFEntryHeader}
+! 
+! !INTERFACE:   
+  subroutine writeFinalSingleStratifiedCDFEntryHeader(metrics, obs, dimID)
+! !USES: 
+    use LDT_coreMod,    only  : LDT_rc
+    use LDT_historyMod, only  : LDT_writevar_gridded
+
+    implicit none
+! !ARGUMENTS: 
+    type(DAmetricsEntry)      :: metrics
+    type(LDT_DAmetadataEntry) :: obs
+    integer                 :: dimID(4)
+!
+! !DESCRIPTION: 
+!  This routine writes the specified set of statistics for a 
+!  single variable at the end of the analysis. 
+!EOP
+
+    integer    :: k
+    integer    :: varid1, varid2
+    integer    :: i,c,r
+    integer    :: n
+    character*100 :: vname
+    integer :: shuffle, deflate, deflate_level
+
+#if (defined USE_NETCDF3 || defined USE_NETCDF4)
+    n = 1
+    shuffle = NETCDF_shuffle
+    deflate = NETCDF_deflate
+    deflate_level =NETCDF_deflate_level
+
+    if(obs%selectOpt.eq.1.and.metrics%selectOpt.eq.1) then
+       vname = trim(obs%standard_name)//'_levels'
+       call LDT_verify(nf90_def_dim(LDT_rc%ftn_strat_cdf,trim(vname),&
+            obs%vlevels,dimID(3)))
+
+       if(LDT_rc%write_strat_cdfs.eq.1) then
+          call LDT_verify(nf90_def_var(LDT_rc%ftn_strat_cdf,&
+               trim(obs%standard_name)//'_xrange_stratified',&
+               nf90_float, dimids = dimID, varid=obs%varID(1)))
+
+#if (defined USE_NETCDF4) 
+          call LDT_verify(nf90_def_var_deflate(LDT_rc%ftn_strat_cdf,&
+               obs%varID(1), shuffle, deflate, deflate_level),&
+               'nf90_def_var_deflate failed in LDT_DAmetricsMod')
+#endif
+
+          call LDT_verify(nf90_def_var(LDT_rc%ftn_strat_cdf,&
+               trim(obs%standard_name)//'_CDF_stratified',&
+               nf90_float, dimids = dimID, varid=obs%varID(4)))
+
+#if (defined USE_NETCDF4) 
+          call LDT_verify(nf90_def_var_deflate(LDT_rc%ftn_strat_cdf,&
+               obs%varID(4), shuffle, deflate, deflate_level),&
+               'nf90_def_var_deflate failed in LDT_DAmetricsMod')
+#endif
+       endif
+
+    endif
+#endif
+
+  end subroutine writeFinalSingleStratifiedCDFEntryHeader
+
 
 
 !BOP
@@ -1313,7 +1612,7 @@ contains
 ! !INTERFACE:   
   subroutine writeFinalSingleEntry(pass,metrics, obs)
 ! !USES: 
-    use LDT_coreMod,    only  : LDT_rc
+    use LDT_coreMod,    only  : LDT_rc, LDT_domain
     use LDT_historyMod, only  : LDT_writevar_gridded
 
     implicit none
@@ -1335,29 +1634,109 @@ contains
     n = 1
     if(obs%selectOpt.eq.1.and.metrics%selectOpt.eq.1) then 
        
-       if(pass.eq.2.and.LDT_rc%comp_cdf.eq.1) then 
-          call LDT_writevar_gridded(n,LDT_rc%ftn_cdf,&
-               metrics%xrange, LDT_rc%cdf_ntimes, &
-               obs%vlevels, LDT_rc%cdf_nbins,&
-               obs%varID(1))
-          call LDT_writevar_gridded(n,LDT_rc%ftn_cdf,&
-               metrics%mu, LDT_rc%cdf_ntimes, obs%vlevels, &
-               obs%varID(2))
-          call LDT_writevar_gridded(n,LDT_rc%ftn_cdf,&
-               metrics%sigma, LDT_rc%cdf_ntimes,obs%vlevels,  &
-               obs%varID(3))
-          call LDT_writevar_gridded(n,LDT_rc%ftn_cdf,&
-               metrics%cdf, LDT_rc%cdf_ntimes, &
-               obs%vlevels, LDT_rc%cdf_nbins,&
-               obs%varID(4))
-!          call LDT_writevar_gridded(n,LDT_rc%ftn_cdf,&
-!               float(metrics%cdf_bincounts), LDT_rc%cdf_ntimes, &
-!               obs%vlevels, LDT_rc%cdf_nbins,&
-!               obs%varID(5))
+       if(pass.eq.2.and.LDT_rc%comp_cdf.eq.1) then
+
+          if(LDT_rc%daily_interp_switch.eq.0) then  !Y.Kwon
+             call LDT_writevar_gridded(n,LDT_rc%ftn_cdf,&
+                  metrics%xrange, LDT_rc%cdf_ntimes, &
+                  obs%vlevels, LDT_rc%cdf_nbins,&
+                  obs%varID(1))
+             call LDT_writevar_gridded(n,LDT_rc%ftn_cdf,&
+                  metrics%mu, LDT_rc%cdf_ntimes, obs%vlevels, &
+                  obs%varID(2))
+             call LDT_writevar_gridded(n,LDT_rc%ftn_cdf,&
+                  metrics%sigma, LDT_rc%cdf_ntimes,obs%vlevels,  &
+                  obs%varID(3))
+             call LDT_writevar_gridded(n,LDT_rc%ftn_cdf,&
+                  metrics%cdf, LDT_rc%cdf_ntimes, &
+                  obs%vlevels, LDT_rc%cdf_nbins,&
+                  obs%varID(4))
+!             call LDT_writevar_gridded(n,LDT_rc%ftn_cdf,&
+!                  float(metrics%cdf_bincounts), LDT_rc%cdf_ntimes, &
+!                  obs%vlevels, LDT_rc%cdf_nbins,&
+!                  obs%varID(5))
+
+          !----------------------------------------------Y.Kwon
+          elseif(LDT_rc%daily_interp_switch.eq.1) then
+             call LDT_writevar_gridded(n,LDT_rc%ftn_cdf,&
+                  metrics%mu_6am, LDT_rc%cdf_ntimes, obs%vlevels, &
+                  obs%varID(1))
+             call LDT_writevar_gridded(n,LDT_rc%ftn_cdf,&
+                  metrics%mu_6pm, LDT_rc%cdf_ntimes, obs%vlevels, &
+                  obs%varID(2))
+             call LDT_writevar_gridded(n,LDT_rc%ftn_cdf,&
+                  metrics%sigma_6am, LDT_rc%cdf_ntimes,obs%vlevels,  &
+                  obs%varID(3))
+             call LDT_writevar_gridded(n,LDT_rc%ftn_cdf,&
+                  metrics%sigma_6pm, LDT_rc%cdf_ntimes,obs%vlevels,  &
+                  obs%varID(4))
+             call LDT_writevar_gridded(n,LDT_rc%ftn_cdf,&
+                  LDT_domain(n)%grid%col,  &
+                  obs%varID(5))
+             call LDT_writevar_gridded(n,LDT_rc%ftn_cdf,&
+                  LDT_domain(n)%grid%row,  &
+                  obs%varID(6))
+          endif
+          !---------------------------------------------Y.Kwon
        endif
     endif
 
   end subroutine writeFinalSingleEntry
+
+!BOP
+! !ROUTINE: writeFinalSingleStratifiedCDFEntry
+! \label{writeFinalSingleStratifiedCDFEntry}
+! 
+! !INTERFACE:   
+  subroutine writeFinalSingleStratifiedCDFEntry(pass,metrics, obs)
+! !USES: 
+    use LDT_coreMod,    only  : LDT_rc
+    use LDT_historyMod, only  : LDT_writevar_gridded
+
+    implicit none
+! !ARGUMENTS: 
+    integer                 :: pass
+    type(DAmetricsEntry)      :: metrics
+    type(LDT_DAmetadataEntry) :: obs
+!
+! !DESCRIPTION: 
+!  This routine writes the specified set of statistics for a 
+!  single variable at the end of the analysis. 
+!EOP
+
+    integer    :: k
+    integer    :: varid, varid2
+    integer    :: i,c,r
+    integer    :: n
+    integer       :: iret
+
+    n = 1
+    if(obs%selectOpt.eq.1.and.metrics%selectOpt.eq.1) then
+
+       if(pass.eq.2.and.LDT_rc%comp_cdf.eq.1) then
+! MN: The LDT_writevar_gridded is not generic it assumes the 
+! first dimension of CDF related vaialbes is LDT_rc%glbngrid(n)
+! But for geolocation independent CDFs the first dimension is
+! LDT_rc%stratified_cdfs_nbins 
+#if(defined USE_NETCDF3 || defined USE_NETCDF4) 
+          if(LDT_rc%write_strat_cdfs.eq.1) then
+             iret = nf90_put_var(LDT_rc%ftn_strat_cdf,obs%varID(1),metrics%strat_xrange,(/1,1,1,1/),&
+             (/LDT_rc%stratified_cdfs_nbins,LDT_rc%cdf_ntimes, &
+               obs%vlevels, LDT_rc%cdf_nbins/))
+             call LDT_verify(iret, 'nf90_put_var failed in writevar_gridded_real_4d')
+
+             iret = nf90_put_var(LDT_rc%ftn_strat_cdf,obs%varID(4),metrics%strat_cdf,(/1,1,1,1/),&
+             (/LDT_rc%stratified_cdfs_nbins, LDT_rc%cdf_ntimes, &
+               obs%vlevels, LDT_rc%cdf_nbins/))
+             call LDT_verify(iret, 'nf90_put_var failed in writevar_gridded_real_4d')
+          endif
+#endif
+
+       endif
+    endif
+
+  end subroutine writeFinalSingleStratifiedCDFEntry
+
 
 !BOP
 ! !ROUTINE: writeFinalSingleDomainEntryHeader
@@ -1399,15 +1778,40 @@ contains
        call LDT_verify(nf90_def_dim(LDT_rc%ftn_DAobs_domain,trim(vname),&
             obs%vlevels,dimID(4)))
 
-       call LDT_verify(nf90_def_var(LDT_rc%ftn_DAobs_domain,&
-            trim(obs%standard_name)//'_domain',&
-            nf90_float, dimids = dimID, varid=obs%varID(1)))
+       if(LDT_rc%daily_interp_switch.eq.0) then          !Y.Kwon
+          call LDT_verify(nf90_def_var(LDT_rc%ftn_DAobs_domain,&
+               trim(obs%standard_name)//'_domain',&
+               nf90_float, dimids = dimID, varid=obs%varID(1)))
 
 #if (defined USE_NETCDF4) 
-       call LDT_verify(nf90_def_var_deflate(LDT_rc%ftn_DAobs_domain,&
-            obs%varID(1), shuffle, deflate, deflate_level),&
-            'nf90_def_var_deflate failed in LDT_DAmetricsMod')
+          call LDT_verify(nf90_def_var_deflate(LDT_rc%ftn_DAobs_domain,&
+               obs%varID(1), shuffle, deflate, deflate_level),&
+               'nf90_def_var_deflate failed in LDT_DAmetricsMod')
 #endif
+
+!---------------------------------------------------------------Y.Kwon
+       elseif(LDT_rc%daily_interp_switch.eq.1) then
+          call LDT_verify(nf90_def_var(LDT_rc%ftn_DAobs_domain,&
+               trim(obs%standard_name)//'_domain_6am',&
+               nf90_float, dimids = dimID, varid=obs%varID(1)))
+
+#if (defined USE_NETCDF4) 
+          call LDT_verify(nf90_def_var_deflate(LDT_rc%ftn_DAobs_domain,&
+               obs%varID(1), shuffle, deflate, deflate_level),&
+               'nf90_def_var_deflate failed in LDT_DAmetricsMod')
+#endif
+
+          call LDT_verify(nf90_def_var(LDT_rc%ftn_DAobs_domain,&
+               trim(obs%standard_name)//'_domain_6pm',&
+               nf90_float, dimids = dimID, varid=obs%varID(2)))
+
+#if (defined USE_NETCDF4) 
+          call LDT_verify(nf90_def_var_deflate(LDT_rc%ftn_DAobs_domain,&
+               obs%varID(2), shuffle, deflate, deflate_level),&
+               'nf90_def_var_deflate failed in LDT_DAmetricsMod')
+#endif
+       endif
+!---------------------------------------------------------------Y.Kwon
     endif
 #endif
     
@@ -1445,11 +1849,24 @@ contains
        
        if(pass.eq.2.and.LDT_rc%comp_cdf.eq.1) then 
           do k=1,obs%vlevels
-             do j=1,LDT_rc%cdf_ntimes
-                call LDT_writevar_gridded(n,LDT_rc%ftn_DAobs_domain,&
-                     metrics%mask(:,j,k), obs%varID(1), dim1=k,&
-                     dim2=j,wopt = "2d gridspace" )
-             enddo
+             if(LDT_rc%daily_interp_switch.eq.0) then         !Y.Kwon
+                do j=1,LDT_rc%cdf_ntimes
+                   call LDT_writevar_gridded(n,LDT_rc%ftn_DAobs_domain,&
+                        metrics%mask(:,j,k), obs%varID(1), dim1=k,&
+                        dim2=j,wopt = "2d gridspace" )
+                enddo
+             !-----------------------------------------------Y.Kwon
+             elseif(LDT_rc%daily_interp_switch.eq.1) then
+                do j=1,24
+                   call LDT_writevar_gridded(n,LDT_rc%ftn_DAobs_domain,&
+                        metrics%mask_6am(:,j,k), obs%varID(1), dim1=k,&
+                        dim2=j,wopt = "2d gridspace" )
+                   call LDT_writevar_gridded(n,LDT_rc%ftn_DAobs_domain,&
+                        metrics%mask_6pm(:,j,k), obs%varID(2), dim1=k,&
+                        dim2=j,wopt = "2d gridspace" )
+                enddo
+             endif
+             !-----------------------------------------------Y.Kwon
           enddo
        endif
     endif

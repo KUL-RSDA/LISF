@@ -372,7 +372,10 @@ subroutine read_S1_SNWD_data(n, k, fname, snwd_ip)
      do r=1,LIS_rc%obs_lnr(k)
         do c=1,LIS_rc%obs_lnc(k)
            if(nsnwd_ip(c,r).ne.0) then
-              snwd_ip(c,r) = 1000*snwd_ip(c,r)/nsnwd_ip(c,r) ! to mm
+              !snwd_ip(c,r) = 1000*snwd_ip(c,r)/nsnwd_ip(c,r) ! to mm
+              !Sentinel-1 SD bias correction factor 1.0/0.85 if wanted 
+              ! is implemented here, now disabled
+              snwd_ip(c,r) = 1.0*snwd_ip(c,r)/nsnwd_ip(c,r) ! NoahMP4 snow DA wants it in meter
            else
               snwd_ip(c,r) = LIS_rc%udef
            endif

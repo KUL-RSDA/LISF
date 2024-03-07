@@ -116,7 +116,7 @@ if($opt_lev == -3) {
     }
     elsif($sys_arch eq "Darwin_gfortran" || $sys_arch eq "linux_gfortran") {
 	$sys_opt = "-g -Wall -Wcharacter-truncation";
-	$sys_opt .= " -Wconversion-extra -Wextra -Wpedantic -Wrealloc-lhs";
+	$sys_opt .= " -Wconversion-extra -Wextra -Wrealloc-lhs";
 	$sys_opt .= " -Wrealloc-lhs-all";
 	# Run-time options
 	$sys_opt .= " -ffpe-trap=invalid,zero,overflow";
@@ -520,16 +520,23 @@ else{
    $libjpeg = "-ljpeg";
 }
 
+if(defined($ENV{LVT_RPC})){
+   $librpc = $ENV{LVT_RPC};
+}
+else{
+   $librpc = "";
+}
+
 if($sys_arch eq "linux_ifc") {
    if ($use_endian == 1 ) {
       $cflags = "-c ".$sys_c_opt." -traceback -DIFC";
-      $fflags77= "-c ".$sys_opt." -traceback -nomixed_str_len_arg -names lowercase -convert little_endian -assume byterecl ".$sys_par." -DIFC -I\$(MOD_ESMF) ";
-      $fflags =" -c ".$sys_opt." -u -traceback -fpe0  -nomixed_str_len_arg -names lowercase -convert little_endian -assume byterecl ".$sys_par."-DIFC -I\$(MOD_ESMF) ";
+      $fflags77= "-c ".$sys_opt." -traceback -nomixed-str-len-arg -names lowercase -convert little_endian -assume byterecl ".$sys_par." -DIFC -I\$(MOD_ESMF) ";
+      $fflags =" -c ".$sys_opt." -u -traceback -fpe0  -nomixed-str-len-arg -names lowercase -convert little_endian -assume byterecl ".$sys_par."-DIFC -I\$(MOD_ESMF) ";
    }
    else {
       $cflags = "-c ".$sys_c_opt." -traceback -DIFC";
-      $fflags77= "-c ".$sys_opt." -traceback -nomixed_str_len_arg -names lowercase -convert big_endian -assume byterecl ".$sys_par." -DIFC -I\$(MOD_ESMF) ";
-      $fflags =" -c ".$sys_opt." -u -traceback -fpe0  -nomixed_str_len_arg -names lowercase -convert big_endian -assume byterecl ".$sys_par."-DIFC -I\$(MOD_ESMF) ";
+      $fflags77= "-c ".$sys_opt." -traceback -nomixed-str-len-arg -names lowercase -convert big_endian -assume byterecl ".$sys_par." -DIFC -I\$(MOD_ESMF) ";
+      $fflags =" -c ".$sys_opt." -u -traceback -fpe0  -nomixed-str-len-arg -names lowercase -convert big_endian -assume byterecl ".$sys_par."-DIFC -I\$(MOD_ESMF) ";
    }
    $ldflags= " -L\$(LIB_ESMF) -lesmf -lstdc++ -limf -lm -lrt ";
 }
@@ -611,7 +618,7 @@ if($use_hdfeos == 1){
 if($use_hdf4 == 1){
    $fflags77 = $fflags77." -I\$(INC_HDF4) ";
    $fflags = $fflags." -I\$(INC_HDF4) ";
-   $ldflags = $ldflags." -L\$(LIB_HDF4) -lmfhdf -ldf ".$libjpeg." -lz ";
+   $ldflags = $ldflags." -L\$(LIB_HDF4) -lmfhdf -ldf ".$libjpeg." -lz ".$librpc;
 }
 if($use_hdf5 == 1){
    $fflags77 = $fflags77." -I\$(INC_HDF5) ";

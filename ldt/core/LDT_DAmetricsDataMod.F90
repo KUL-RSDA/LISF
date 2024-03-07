@@ -18,6 +18,7 @@ module LDT_DAmetricsDataMod
 ! 
 ! !REVISION HISTORY:
 !  02 Oct 2008: Sujay Kumar; Initial version
+!  28 Feb 2022: Mahdi navari modified to save stratified CDFs
 !
 ! !USES:  
   use ESMF
@@ -36,6 +37,9 @@ module LDT_DAmetricsDataMod
      real,    allocatable :: delta(:,:,:)
      real,    allocatable :: xrange(:,:,:,:)
      real,    allocatable :: cdf(:,:,:,:)
+     real,    allocatable :: strat_xrange(:,:,:,:)
+     real,    allocatable :: strat_cdf(:,:,:,:)
+
 
      real,    allocatable :: sx_mu(:,:,:)
      real,    allocatable :: mu(:,:,:)
@@ -45,6 +49,18 @@ module LDT_DAmetricsDataMod
      real,    allocatable :: sxx_sigma(:,:,:)
      real,    allocatable :: sigma(:,:,:)
      integer, allocatable :: count_sigma(:,:,:)
+
+     !-----------------------------------------------Y.Kwon
+     real,    allocatable :: sx_mu_6am(:,:,:), sx_mu_6pm(:,:,:)
+     real,    allocatable :: mu_6am(:,:,:), mu_6pm(:,:,:)
+     integer, allocatable :: count_mu_6am(:,:,:), count_mu_6pm(:,:,:)
+
+     real,    allocatable :: sx_sigma_6am(:,:,:), sx_sigma_6pm(:,:,:)
+     real,    allocatable :: sxx_sigma_6am(:,:,:), sxx_sigma_6pm(:,:,:)
+     real,    allocatable :: sigma_6am(:,:,:), sigma_6pm(:,:,:)
+     integer, allocatable :: count_sigma_6am(:,:,:), count_sigma_6pm(:,:,:)
+     real,    allocatable :: mask_6am(:,:,:), mask_6pm(:,:,:)
+     !-----------------------------------------------Y.Kwon
 
      integer          :: selectOpt
      character*20     :: standard_name
@@ -168,6 +184,8 @@ module LDT_DAmetricsDataMod
      type(DAmetricsEntry) :: slope
      type(DAmetricsEntry) :: lai
      type(DAmetricsEntry) :: sai
+     type(DAmetricsEntry) :: gvf      !Y.Kwon
+     type(DAmetricsEntry) :: teff     !Y.Kwon
      type(DAmetricsEntry) :: irrigtype
      type(DAmetricsEntry) :: irrigfrac
      type(DAmetricsEntry) :: snfralbedo

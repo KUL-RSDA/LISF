@@ -18,6 +18,7 @@ module LDT_DAobservationsMod
 !
 ! !REVISION HISTORY: 
 !  02 Oct 2008    Sujay Kumar  Initial Specification
+!  2 Dec 2021:   Mahdi Navari; modified to compute CDF for precipitation
 ! 
 ! !USES:       
 
@@ -66,9 +67,12 @@ contains
        call default_init_obsEntry(LDT_DAobsData(i)%swe_obs, "SWE")
        call default_init_obsEntry(LDT_DAobsData(i)%snowdepth_obs, "SnowDepth")
        call default_init_obsEntry(LDT_DAobsData(i)%soilmoist_obs, "SoilMoist")
+       call default_init_obsEntry(LDT_DAobsData(i)%teff_obs, "SoilTeff")   !Y.Kwon
        call default_init_obsEntry(LDT_DAobsData(i)%tws_obs, "TWS")
        call default_init_obsEntry(LDT_DAobsData(i)%vod_obs, "VOD")
        call default_init_obsEntry(LDT_DAobsData(i)%lai_obs, "LAI")
+       call default_init_obsEntry(LDT_DAobsData(i)%gvf_obs, "GVF")   !Y.Kwon
+       call default_init_obsEntry(LDT_DAobsData(i)%totalprecip_obs, "TotalPrecip")
     enddo
 
     call daobservationsetup(trim(LDT_rc%obs_src)//char(0))

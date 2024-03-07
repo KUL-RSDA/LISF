@@ -11,6 +11,16 @@
 #-------------------------END NOTICE -- DO NOT EDIT-----------------------
 # 6 Jan 2012: Sujay Kumar, Initial Specification
 
+if(defined($ENV{VSC_SYSTEM})){
+   $vsc_tier_system = $ENV{VSC_SYSTEM};
+}
+else{
+   print "--------------ERROR---------------------\n";
+   print "VSC_SYSTEM env variable not defined in KUL_LDT_MODULES\n";
+   print "--------------ERROR---------------------\n";
+   exit 1;
+}
+
 #Find the architecture
 
 if(defined($ENV{LDT_ARCH})){
@@ -134,7 +144,7 @@ if($opt_lev == -3) {
     }
     elsif($sys_arch eq "Darwin_gfortran" || $sys_arch eq "linux_gfortran") {
 	$sys_opt = "-g -Wall -Wcharacter-truncation";
-	$sys_opt .= " -Wconversion-extra -Wextra -Wpedantic -Wrealloc-lhs";
+	$sys_opt .= " -Wconversion-extra -Wextra -Wrealloc-lhs";
 	$sys_opt .= " -Wrealloc-lhs-all";
 	# Run-time options
 	$sys_opt .= " -ffpe-trap=invalid,zero,overflow";
@@ -224,11 +234,11 @@ else{
 }
 
 
-print "Use GRIBAPI/ECCODES? (0-neither, 1-gribapi, 2-eccodes, default=2): ";
+print "Use GRIBAPI/ECCODES? (0-neither, 1-gribapi, 2-eccodes, default=1): ";
 $use_gribapi=<stdin>;
 chomp($use_gribapi);
 if($use_gribapi eq ""){
-   $use_gribapi=2;
+   $use_gribapi=1;
 }
 
 if($use_gribapi == 1) {
@@ -407,7 +417,18 @@ if($use_hdf4 eq "\n"){
 if($use_hdf4 == 1) {
    if(defined($ENV{LDT_HDF4})){
       $sys_hdf4_path = $ENV{LDT_HDF4};
-      $inc = "/include/";
+      if($vsc_tier_system eq "genius"){
+         $inc = "/include/hdf/";
+      }
+      elsif($vsc_tier_system eq "hortense") {
+         $inc = "/include/";
+      }
+      else{
+         print "--------------ERROR---------------------\n";
+	 print "VSC_SYSTEM not available in Config.pl\n";
+         print "--------------ERROR---------------------\n";
+	 exit 1;
+      }
       $lib = "/lib/";
       $inc_hdf4=$sys_hdf4_path.$inc;
       $lib_hdf4=$sys_hdf4_path.$lib;
@@ -479,10 +500,10 @@ if($use_hdfeos == 1) {
    }
 }
 
-print "Enable GeoTIFF support? (1-yes, 0-no, default=1): ";
+print "Enable GeoTIFF support? (1-yes, 0-no, default=0): ";
 $enable_geotiff=<stdin>;
 if($enable_geotiff eq "\n"){
-   $enable_geotiff=1;
+   $enable_geotiff=0;
 }
 if($enable_geotiff == 1) {
     if(defined($ENV{LDT_GDAL})){
@@ -525,10 +546,10 @@ if($enable_geotiff == 1) {
 }
 
 # EMK...Add LIBGEOTIFF support for Air Force
-print "Enable LIBGEOTIFF support? (1-yes, 0-no, default=1): ";
+print "Enable LIBGEOTIFF support? (1-yes, 0-no, default=0): ";
 $enable_libgeotiff=<stdin>;
 if($enable_libgeotiff eq "\n"){
-    $enable_libgeotiff=1;
+    $enable_libgeotiff=0;
 }
 if($enable_libgeotiff == 1) {
     if(defined($ENV{LDT_LIBGEOTIFF})){
@@ -598,6 +619,13 @@ else{
    $libjpeg = "-ljpeg";
 }
 
+if(defined($ENV{LDT_RPC})){
+   $librpc = $ENV{LDT_RPC};
+}
+else{
+   $librpc = "";
+}
+
 if($sys_arch eq "linux_ifc") {
    if($use_omp == 1) {
       if($use_endian == 1) {
@@ -613,14 +641,60 @@ if($sys_arch eq "linux_ifc") {
    }
    else {
       if($use_endian == 1) {
-         $fflags77= "-c ".$sys_opt."-nomixed_str_len_arg -names lowercase -convert little_endian -assume byterecl ".$sys_par." -DIFC -I\$(MOD_ESMF) -DUSE_INCLUDE_MPI";
-         $fflags =" -c ".$sys_opt."-u -traceback -fpe0  -nomixed_str_len_arg -names lowercase -convert little_endian -assume byterecl ".$sys_par."-DIFC -I\$(MOD_ESMF) -DUSE_INCLUDE_MPI";
-         $ldflags= " -L\$(LIB_ESMF) -lesmf -lstdc++ -limf -lm -lrt -lz";
+         if($vsc_tier_system eq "genius"){
+            $fflags77= "-c ".$sys_opt."-nomixed_str_len_arg -names lowercase -convert little_endian -assume byterecl ".$sys_par." -DIFC -I\$(MOD_ESMF) -DUSE_INCLUDE_MPI";
+            $fflags =" -c ".$sys_opt."-u -traceback -fpe0  -nomixed_str_len_arg -names lowercase -convert little_endian -assume byterecl ".$sys_par."-DIFC -I\$(MOD_ESMF) -DUSE_INCLUDE_MPI";
+         }
+         elsif($vsc_tier_system eq "hortense") {
+            $fflags77= "-c ".$sys_opt."-nomixed-str-len-arg -names lowercase -convert little_endian -assume byterecl ".$sys_par." -DIFC -I\$(MOD_ESMF) -DUSE_INCLUDE_MPI";
+            $fflags =" -c ".$sys_opt."-u -traceback -fpe0  -nomixed-str-len-arg -names lowercase -convert little_endian -assume byterecl ".$sys_par."-DIFC -I\$(MOD_ESMF) -DUSE_INCLUDE_MPI";
+         }
+         else{
+            print "--------------ERROR---------------------\n";
+            print "VSC_SYSTEM not available in Config.pl\n";
+            print "--------------ERROR---------------------\n";
+            exit 1;
+         }
+         if($vsc_tier_system eq "genius"){
+            $ldflags= " -L\$(LIB_ESMF) -lesmf -lstdc++ -limf -lm -ltirpc -lrt -lmkl -lsz -lz";
+         }
+         elsif($vsc_tier_system eq "hortense") {
+            $ldflags= " -L\$(LIB_ESMF) -lesmf -lstdc++ -limf -lm -ltirpc -lrt -lmkl -lsz -lz -qopenmp";
+         }
+         else{
+            print "--------------ERROR---------------------\n";
+            print "VSC_SYSTEM not available in Config.pl\n";
+            print "--------------ERROR---------------------\n";
+            exit 1;
+         }
       }
       else {
-         $fflags77= "-c ".$sys_opt."-nomixed_str_len_arg -names lowercase -convert big_endian -assume byterecl ".$sys_par." -DIFC -I\$(MOD_ESMF) -DUSE_INCLUDE_MPI";
-         $fflags =" -c ".$sys_opt."-u -traceback -fpe0  -nomixed_str_len_arg -names lowercase -convert big_endian -assume byterecl ".$sys_par."-DIFC -I\$(MOD_ESMF) -DUSE_INCLUDE_MPI";
-         $ldflags= " -L\$(LIB_ESMF) -lesmf -lstdc++ -limf -lm -lrt -lz";
+         if($vsc_tier_system eq "genius"){
+            $fflags77= "-c ".$sys_opt."-nomixed_str_len_arg -names lowercase -convert big_endian -assume byterecl ".$sys_par." -DIFC -I\$(MOD_ESMF) -DUSE_INCLUDE_MPI";
+            $fflags =" -c ".$sys_opt."-u -traceback -fpe0  -nomixed_str_len_arg -names lowercase -convert big_endian -assume byterecl ".$sys_par."-DIFC -I\$(MOD_ESMF) -DUSE_INCLUDE_MPI";
+         }
+         elsif($vsc_tier_system eq "hortense") {
+            $fflags77= "-c ".$sys_opt."-nomixed-str-len-arg -names lowercase -convert big_endian -assume byterecl ".$sys_par." -DIFC -I\$(MOD_ESMF) -DUSE_INCLUDE_MPI";
+            $fflags =" -c ".$sys_opt."-u -traceback -fpe0  -nomixed-str-len-arg -names lowercase -convert big_endian -assume byterecl ".$sys_par."-DIFC -I\$(MOD_ESMF) -DUSE_INCLUDE_MPI";
+         }
+         else{
+            print "--------------ERROR---------------------\n";
+            print "VSC_SYSTEM not available in Config.pl\n";
+            print "--------------ERROR---------------------\n";
+            exit 1;
+         }
+         if($vsc_tier_system eq "genius"){
+            $ldflags= " -L\$(LIB_ESMF) -lesmf -lstdc++ -limf -lm -ltirpc -lrt -lmkl -lsz -lz";
+         }
+         elsif($vsc_tier_system eq "hortense") {
+            $ldflags= " -L\$(LIB_ESMF) -lesmf -lstdc++ -limf -lm -ltirpc -lrt -lmkl -lsz -lz -qopenmp";
+         }
+         else{
+            print "--------------ERROR---------------------\n";
+            print "VSC_SYSTEM not available in Config.pl\n";
+            print "--------------ERROR---------------------\n";
+            exit 1;
+         }
       }
    }
 
@@ -714,7 +788,7 @@ if($use_hdfeos == 1){
 if($use_hdf4 == 1){
    $fflags77 = $fflags77." -I\$(INC_HDF4) ";
    $fflags = $fflags." -I\$(INC_HDF4) ";
-   $ldflags = $ldflags." -L\$(LIB_HDF4) -lmfhdf -ldf ".$libjpeg." -lz ";
+   $ldflags = $ldflags." -L\$(LIB_HDF4) -lmfhdf -ldf ".$libjpeg." -lz ".$librpc;
 }
 if($use_hdf5 == 1){
    $fflags77 = $fflags77." -I\$(INC_HDF5) ";

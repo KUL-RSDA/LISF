@@ -1,0 +1,15 @@
+#!/bin/bash
+
+#PBS -N compile_ldt_hortense.sh
+#PBS -l walltime=00:59:59
+#PBS -l nodes=1:ppn=4
+#PBS -A 2022_203
+#PBS -m abe
+#PBS -o compile_ldt_hortense_log.txt
+#PBS -e compile_ldt_hortense_out.txt
+
+cd $PBS_O_WORKDIR
+ulimit -s unlimited
+source KUL_LDT_modules
+
+./compile -j 4

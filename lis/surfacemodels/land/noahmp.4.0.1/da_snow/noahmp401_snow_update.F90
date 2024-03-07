@@ -16,6 +16,9 @@
 !  14 Dec 2018: Yeosang Yoon; Modified code for NoahMP 4.0.1 and SNODEP
 !  15 May 2019: Yeosang Yoon; Modified for NoahMP 4.0.1 and LDTSI
 !  13 Dec 2019: Eric Kemp; Replaced LDTSI with SNOW
+!  05 Jun 2023: Justin Pflug; fixes for SnowModel-defined snow updates
+!  22 Feb 2024: Gabrielle De Lannoy: SWE updates changed to be in direction of snow depth changes as elsewhere in code 
+!  22 Feb 2024: Michel Bechtold: bug fix related to snow layer indexing 
 
 !
 ! !INTERFACE
@@ -25,6 +28,7 @@ subroutine noahmp401_snow_update(n, t, dsneqv, dsnowh)
   use NoahMP401_lsmMod
   use module_sf_noahmplsm_401
   use noahmp_tables_401
+  use LIS_logMod, only     : LIS_logunit
 
   implicit none
 ! 
@@ -35,6 +39,9 @@ subroutine noahmp401_snow_update(n, t, dsneqv, dsnowh)
 !  number of snow layers, snice, snliq, snow temperature 
 !  and snow thickness. 
 ! 
+!  The DA module "snow_update" is used to assimilate snow depth 
+!  and let SWE depend on it.
+
 ! !ARGUMENTS:
   integer, intent(in)  :: n
   integer, intent(in)  :: t
@@ -59,6 +66,7 @@ subroutine noahmp401_snow_update(n, t, dsneqv, dsnowh)
   integer :: snl_idx,i,j,iz
   integer :: iloc, jloc        ! needed, but not use
   real    :: smp,sneqv,snowh
+  real    :: snoden
   real    :: sneqv1,snowh1
   real    :: ponding1,ponding2
   integer :: newnode
@@ -137,6 +145,22 @@ subroutine noahmp401_snow_update(n, t, dsneqv, dsnowh)
   stc(1:nsoil) = &
        noahmp401_struc(n)%noahmp401(t)%tslb(1:nsoil)    
 
+  ! NMP snow density calculation
+  if(snowh.gt.0) then
+     snoden = sneqv/(snowh*1000)
+  else
+     snoden = 0.55
+  endif
+
+  ! allow snow update even in cases where changes opp. directions
+  ! alter SWE change to be in direction of snow depth change
+  if((dsneqv.gt.0.and.dsnowh.le.0).or.&
+          (dsneqv.lt.0.and.dsnowh.ge.0)) then
+     dsneqv = dsnowh*snoden*1000
+  ! set snow depth change to zero in instance where no SWE change
+  elseif(dsneqv.eq.0.and.dsnowh.ne.0) then
+     dsnowh = 0.
+  endif
 
   ! from snowfall routine
   ! creating a new layer
@@ -147,12 +171,12 @@ subroutine noahmp401_snow_update(n, t, dsneqv, dsnowh)
   
   newnode = 0 
 
-  if(isnow == 0 .and. snowh >= 0.025.and.&
-       (dsneqv.gt.0.and.dsnowh.gt.0))  then !mb: change limit
-     isnow    = -1
-     newnode  =  1
+  if(isnow.eq.0.and.dsneqv.gt.0.and.dsnowh.gt.0) then
+     if(snowh.ge.0.025) then
+        isnow    = -1
+        newnode  =  1
+     endif
      dzsnso(0)= snowh
-     snowh    = 0.
      stc(0)   = min(273.16, noahmp401_struc(n)%noahmp401(t)%sfctmp) 
      snice(0) = sneqv
      snliq(0) = 0.
@@ -168,23 +192,60 @@ subroutine noahmp401_snow_update(n, t, dsneqv, dsnowh)
   if(dsneqv.lt.0.and.dsnowh.lt.0) then
      snowh1 = snowh + dsnowh
      sneqv1 = sneqv + dsneqv
+! if dsneqv adjusted since dsneqv and dsnowh in opp. directions
+! can cause one or other snowh1 or sneqv1 to be negative
+     if(snowh1.gt.0.and.sneqv1.le.0) then
+        sneqv = snowh1*snoden*1000 - dsneqv
+        sneqv1 =sneqv + dsneqv
+! if SWE disappears, also make sure snow depth disappears
+     elseif(snowh.le.0) then
+        sneqv = -dsneqv
+        sneqv1 = sneqv + dsneqv
+        snowh = -dsnowh
+        snowh1 = snowh + dsnowh
+     endif
+! make sure snow layers currently exist in decrease case
+     if(dzsnso(0).eq.0) then
+        if(snowh.ge.0.025) then
+           isnow = -1
+        else
+           isnow = 0
+        endif
+        dzsnso(0)= snowh
+        stc(0)   = min(273.16, noahmp401_struc(n)%noahmp401(t)%sfctmp)
+        snice(0) = sneqv
+        snliq(0) = 0.
+     endif
      if(snowh1.ge.0.and.sneqv1.ge.0) then         
         snowh = snowh + dsnowh
         sneqv = sneqv + dsneqv
-! update dzsnso
-! how do you determine the thickness of a layer?
-        if(snowh.le.dzsnso(0)) then 
-           isnow = 0
-           dzsnso(-nsnow+1:(isnow-1)) = 0 
-           dzsnso(isnow) = snowh
-        elseif(snowh.le.(dzsnso(0)+dzsnso(-1))) then 
+! snow can no longer fill layer -1
+        if(snowh.le.(dzsnso(0)+1.e-7).and.snowh.ge.1.e-7) then 
            isnow = -1
-           dzsnso(-nsnow+1:(isnow-1)) = 0 
-           dzsnso(isnow) = snowh -dzsnso(isnow+1)
-        elseif(snowh.le.(dzsnso(0)+dzsnso(-1)+dzsnso(-2))) then 
+           dzsnso(-nsnow+1:(isnow)) = 0 
+           dzsnso(isnow+1) = snowh
+           snice(-nsnow+1:(isnow)) = 0
+           snice(isnow+1) = sneqv
+           snliq(-nsnow+1:isnow) = 0
+! snow can no longer fill layer -1 and -2
+        elseif(snowh.le.(dzsnso(0)+dzsnso(-1)+1.e-7).and.snowh.ge.1.e-7) then 
            isnow = -2
-           dzsnso(-nsnow+1:(isnow-2)) = 0 
-           dzsnso(isnow) = snowh -dzsnso(isnow+2)
+           dzsnso(-nsnow+1:isnow) = 0 
+           dzsnso(isnow+1) = snowh -dzsnso(0)
+           ! scale swe in layers by ratio of depth to pack
+           do snl_idx=-nsnow+1,0
+              snice(snl_idx) = sneqv*(dzsnso(snl_idx)/snowh)
+           enddo
+           snliq(-nsnow+1:isnow) = 0
+! all other cases
+        elseif(snowh.le.(dzsnso(0)+dzsnso(-1)+dzsnso(-2)+1.e-7).and.snowh.ge.1.e-7) then 
+           isnow = -3
+           dzsnso(isnow+1) = max(snowh -dzsnso(-1) -dzsnso(0), 1.e-7)
+           ! scale swe in layers by ratio of depth to pack
+           do snl_idx=-nsnow+1,0
+              snice(snl_idx) = sneqv*(dzsnso(snl_idx)/snowh)
+           enddo
+           snliq(-nsnow+1:isnow) = 0
         endif           
      endif
   endif
@@ -250,7 +311,7 @@ subroutine noahmp401_snow_update(n, t, dsneqv, dsnowh)
   snoflow = 0.0
   ponding1 = 0.0
   ponding2 = 0.0  
-
+  
   if(isnow < 0) &     ! when multi-layer
        call  compact (parameters, nsnow, nsoil, noahmp401_struc(n)%ts,     & !in
                      stc, snice, snliq, zsoil, imelt, ficeold, iloc, jloc, & !in

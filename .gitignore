@@ -4,4 +4,9 @@
 lis/runmodes/nuopc_cpl_mode/VERSION
 lis/runmodes/nuopc_cpl_mode/liblis_nuopc.a
 lis/LIS
-lis/make/*
+lis/make/*.o
+lis/make/*.mod
+lis/make/*.d
+lis/make/Filepath
+lis/make/LIS_misc.h
+lis/make/LIS_NetCDF_inc.h
