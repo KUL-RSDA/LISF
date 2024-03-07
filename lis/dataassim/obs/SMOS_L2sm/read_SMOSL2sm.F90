@@ -278,40 +278,46 @@ subroutine read_SMOSL2sm(n, k, OBS_State, OBS_Pert_State)
  !SM09012024
   call lsmdaqcobsstate(trim(LIS_rc%lsm)//"+"&
        //trim(LIS_SMOSL2smobsId)//char(0),n,k, OBS_state) !SM
-
+!SM check
 !-------------------------------------------------------------------------
 !  Retrieve back LSM-quality-controlled obs and store locally
 !-------------------------------------------------------------------------     
 
-  call ESMF_StateGet(OBS_State,"Observation01",smField,&
-       rc=status)
-  call LIS_verify(status)
+!  call ESMF_StateGet(OBS_State,"Observation01",smField,&
+!       rc=status)
+!  call LIS_verify(status)
 
-  call ESMF_FieldGet(smField,localDE=0,farrayPtr=obsl,rc=status)
-  call LIS_verify(status)
-  !SM09012024
-  do r =1,LIS_rc%obs_lnr(k)
-     do c =1,LIS_rc%obs_lnc(k)
-        if (LIS_domain(n)%gindex(c,r) .ne. -1)then
-           sm_current(c,r) = obsl(LIS_domain(n)%gindex(c,r))
-        end if
-     end do
-  end do
+!  call ESMF_FieldGet(smField,localDE=0,farrayPtr=obsl,rc=status)
+!  call LIS_verify(status)
+!  !SM09012024
+!  do r =1,LIS_rc%obs_lnr(k)
+!     do c =1,LIS_rc%obs_lnc(k)
+!        if (LIS_domain(n)%gindex(c,r) .ne. -1)then
+!           sm_current(c,r) = obsl(LIS_domain(n)%gindex(c,r))
+!        end if
+!     end do
+!  end do
 
 !-------------------------------------------------------------------------
 !  Set data update flag 
 !-------------------------------------------------------------------------     
 
-  fnd = 0 
+!  fnd = 0
+
+!SM check end
+
   data_upd_flag_local = .false.   
-  
-  do r =1,LIS_rc%lnr(n)
-     do c =1,LIS_rc%lnc(n)
-        if(sm_current(c,r).ne.LIS_rc%udef) then
-           fnd = 1
-        endif
-     enddo
-  enddo
+ 
+  call LIS_checkForValidObs(n, k, obsl, fnd, sm_current) 
+  !SM check start
+  !do r =1,LIS_rc%lnr(n)
+  !   do c =1,LIS_rc%lnc(n)
+  !      if(sm_current(c,r).ne.LIS_rc%udef) then
+  !         fnd = 1
+  !      endif
+  !   enddo
+  !enddo
+  !SM check end
 
   if(fnd.eq.0) then 
      data_upd_flag_local = .false. 
@@ -319,11 +325,13 @@ subroutine read_SMOSL2sm(n, k, OBS_State, OBS_Pert_State)
      data_upd_flag_local = .true. 
   endif
 
+
 #if (defined SPMD)
   call MPI_ALLGATHER(data_upd_flag_local,1, &
        MPI_LOGICAL, data_upd_flag(:),&
        1, MPI_LOGICAL, LIS_mpi_comm, status)
 #endif
+
   data_upd = .false.
   do p=1,LIS_npes
      data_upd = data_upd.or.data_upd_flag(p)
@@ -453,8 +461,8 @@ subroutine read_SMOSL2_data(n, k, fname)
   integer                          :: status
   type(ESMF_Time)                  :: acTime
   integer                          :: ios
-
-
+  logical                          :: cond1, cond2, cond3, cond4, cond5, cond6, cond7, cond8, cond9, cond10
+  logical                          :: cond11, cond12, cond13, cond14, cond15
 
 #if(defined USE_NETCDF3 || defined USE_NETCDF4)
 
@@ -600,27 +608,18 @@ subroutine read_SMOSL2_data(n, k, fname)
           enc = min(LIS_rc%obs_lnc(k),c)
           str = max(1,r)
           enr = min(LIS_rc%obs_lnr(k),r)
+          !SM04032024 added conditions for science and confidence flags          
+          cond1=(sm(i).gt.0.001.and.sm(i).lt.1.00).and.(sm_dqx(i).le.0.1).and.(gqx(i).lt.10).and.(rfi_prob(i).lt.50).and.(opt_thick(i).lt.0.8)
+          cond2=(.not. btest(confidence_flags(i), 1)).and.(.not. btest(confidence_flags(i), 2)).and.&
+                  (.not. btest(confidence_flags(i), 4)).and.(.not. btest(confidence_flags(i), 5)).and.(.not. btest(confidence_flags(i), 6))
+          cond3=(.not. btest(science_flags(i), 0)).and.(.not. btest(science_flags(i), 5)).and.(.not. btest(science_flags(i), 16)).and.&
+                  (.not. btest(science_flags(i),18)).and.(.not. btest(science_flags(i), 19)).and.&
+                  (.not. btest(science_flags(i), 26))
+          cond4=(c1.ge.1.and.c1.le.LIS_rc%obs_lnc(k)).and.(r1.ge.1.and.r1.le.LIS_rc%obs_lnr(k))
 
           do c1=stc,enc
              do r1=str,enr
-                if((sm(i).gt.0.001.and.sm(i).lt.1.00).and.&
-                      (sm_dqx(i).le.0.1).and.&            !high uncertainty
-                      (gqx(i).lt.10).and.&         !poor quality
-                      (rfi_prob(i).lt.50).and.&    !RFI
-                      (opt_thick(i).lt.0.8).and.&
-                      (.not. btest(confidence_flags(i), 2)).and. &
-                      (.not. btest(confidence_flags(i), 4)).and. &
-                      (.not. btest(confidence_flags(i), 16)).and. &
-                      (.not. btest(confidence_flags(i), 32)).and. &
-                      (.not. btest(confidence_flags(i), 64)).and. &
-                      (.not. btest(science_flags(i), 32)).and. &
-                      (.not. btest(science_flags(i), 65536)).and. &
-                      (.not. btest(science_flags(i), 262144)).and. &
-                      (.not. btest(science_flags(i), 524288)).and. &
-                      (.not. btest(science_flags(i), 67108864)).and. &
-                      !             (tsurf(i).gt.273.15).and.&
-                      (c1.ge.1.and.c1.le.LIS_rc%obs_lnc(k)).and.&
-                      (r1.ge.1.and.r1.le.LIS_rc%obs_lnr(k))) then
+                if (cond1 .and. cond2 .and. cond3 .and. cond4) then
 
                    if(SMOSL2sm_struc(n)%smobs(c1,r1).gt.0) then
                      !              print*, 'data already there',c,r
