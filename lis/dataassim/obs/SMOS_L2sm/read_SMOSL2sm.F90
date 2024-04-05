@@ -461,8 +461,7 @@ subroutine read_SMOSL2_data(n, k, fname)
   integer                          :: status
   type(ESMF_Time)                  :: acTime
   integer                          :: ios
-  logical                          :: cond1, cond2, cond3, cond4, cond5, cond6, cond7, cond8, cond9, cond10
-  logical                          :: cond11, cond12, cond13, cond14, cond15
+  logical                          :: cond1, cond2, cond3, cond4
 
 #if(defined USE_NETCDF3 || defined USE_NETCDF4)
 
@@ -615,10 +614,10 @@ subroutine read_SMOSL2_data(n, k, fname)
           cond3=(.not. btest(science_flags(i), 0)).and.(.not. btest(science_flags(i), 5)).and.(.not. btest(science_flags(i), 16)).and.&
                   (.not. btest(science_flags(i),18)).and.(.not. btest(science_flags(i), 19)).and.&
                   (.not. btest(science_flags(i), 26))
-          cond4=(c1.ge.1.and.c1.le.LIS_rc%obs_lnc(k)).and.(r1.ge.1.and.r1.le.LIS_rc%obs_lnr(k))
 
           do c1=stc,enc
              do r1=str,enr
+             cond4=(c1.ge.1.and.c1.le.LIS_rc%obs_lnc(k)).and.(r1.ge.1.and.r1.le.LIS_rc%obs_lnr(k))
                 if (cond1 .and. cond2 .and. cond3 .and. cond4) then
 
                    if(SMOSL2sm_struc(n)%smobs(c1,r1).gt.0) then
