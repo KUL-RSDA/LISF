@@ -228,18 +228,18 @@ subroutine read_SMOSL2sm(n, k, OBS_State, OBS_Pert_State)
   !-------------------------------------------------------------------------
   !  Transform data to the LSM climatology using a CDF-scaling approach
   !-------------------------------------------------------------------------     
-
-  if(SMOSL2sm_struc(n)%scal.ne.0.and.fnd.ne.0) then        
-     ! Store the unscaled obs (ie, before the rescaling)
-     !check SM09012024
-     do r =1,LIS_rc%obs_lnr(k)
-        do c =1,LIS_rc%obs_lnc(k)
-           if (LIS_domain(n)%gindex(c,r) .ne. -1)then
-              obs_unsc(LIS_domain(n)%gindex(c,r)) = &
-                   sm_current(c,r)
-           end if
-        end do
+  !SM03052024 This was modified to exclude the storing of unscaled obs from the if
+  !i.e. the store is done even if the rescaling is not called
+  do r =1,LIS_rc%obs_lnr(k)
+     do c =1,LIS_rc%obs_lnc(k)
+        if (LIS_domain(n)%gindex(c,r) .ne. -1)then
+           obs_unsc(LIS_domain(n)%gindex(c,r)) = &
+                sm_current(c,r)
+        end if
      end do
+  end do
+
+  if(SMOSL2sm_struc(n)%scal.ne.0.and.fnd.ne.0) then
      !SM09012024 added k in the function
      call LIS_rescale_with_CDF_matching(    &
           n,k,                                   & 
@@ -275,71 +275,32 @@ subroutine read_SMOSL2sm(n, k, OBS_State, OBS_Pert_State)
         enddo
      enddo
   endif
- !SM09012024
+
+   !-------------------------------------------------------------------------
+   !  Apply LSM based QC and screening of observations
+   !-------------------------------------------------------------------------
+  !SM05052024 modified based on the NASA_SMAPsm reader
   call lsmdaqcobsstate(trim(LIS_rc%lsm)//"+"&
-       //trim(LIS_SMOSL2smobsId)//char(0),n,k, OBS_state) !SM
-!SM check
-!-------------------------------------------------------------------------
-!  Retrieve back LSM-quality-controlled obs and store locally
-!-------------------------------------------------------------------------     
+       //trim(LIS_SMOSL2smobsId)//char(0),n,k, OBS_state) 
 
-!  call ESMF_StateGet(OBS_State,"Observation01",smField,&
-!       rc=status)
-!  call LIS_verify(status)
-
-!  call ESMF_FieldGet(smField,localDE=0,farrayPtr=obsl,rc=status)
-!  call LIS_verify(status)
-!  !SM09012024
-!  do r =1,LIS_rc%obs_lnr(k)
-!     do c =1,LIS_rc%obs_lnc(k)
-!        if (LIS_domain(n)%gindex(c,r) .ne. -1)then
-!           sm_current(c,r) = obsl(LIS_domain(n)%gindex(c,r))
-!        end if
-!     end do
-!  end do
-
-!-------------------------------------------------------------------------
-!  Set data update flag 
-!-------------------------------------------------------------------------     
-
-!  fnd = 0
-
-!SM check end
-
-  data_upd_flag_local = .false.   
- 
   call LIS_checkForValidObs(n, k, obsl, fnd, sm_current) 
-  !SM check start
-  !do r =1,LIS_rc%lnr(n)
-  !   do c =1,LIS_rc%lnc(n)
-  !      if(sm_current(c,r).ne.LIS_rc%udef) then
-  !         fnd = 1
-  !      endif
-  !   enddo
-  !enddo
-  !SM check end
 
-  if(fnd.eq.0) then 
-     data_upd_flag_local = .false. 
-  else
-     data_upd_flag_local = .true. 
-  endif
-
+   if (fnd .eq. 0) then
+      data_upd_flag_local = .false.
+   else
+      data_upd_flag_local = .true.
+   endif
 
 #if (defined SPMD)
-  call MPI_ALLGATHER(data_upd_flag_local,1, &
-       MPI_LOGICAL, data_upd_flag(:),&
-       1, MPI_LOGICAL, LIS_mpi_comm, status)
+   call MPI_ALLGATHER(data_upd_flag_local, 1, &
+                      MPI_LOGICAL, data_upd_flag(:), &
+                      1, MPI_LOGICAL, LIS_mpi_comm, status)
+   data_upd = any(data_upd_flag)
+#else
+   data_upd = data_upd_flag_local
 #endif
 
-  data_upd = .false.
-  do p=1,LIS_npes
-     data_upd = data_upd.or.data_upd_flag(p)
-  enddo
 
-!-------------------------------------------------------------------------
-!  Depending on data update flag...
-!-------------------------------------------------------------------------     
   !SM09012024 all the LIS_rc%ngrid(n) where changed to LIS_rc%obs_ngrid(k)
   if(data_upd) then 
      do t=1,LIS_rc%obs_ngrid(k)
