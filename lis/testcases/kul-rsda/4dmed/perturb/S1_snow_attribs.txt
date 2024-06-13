@@ -1,0 +1,5 @@
+#nfields
+1
+#varmin varmax
+S1 snow depth
+0.0   100

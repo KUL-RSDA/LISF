@@ -69,7 +69,7 @@ module NASASMAPsm_Mod
      character*3             :: release_number
      integer                :: nbins
      integer                :: ntimes
-
+     logical                :: vegetation_flag
      logical                :: cdf_read_mon  !(for reading monthly CDF when
                                              !LIS_rc%da > 1 but the first model time step,
                                              !e.g., 4/29 13:00:00)
@@ -228,6 +228,15 @@ contains
                                                                                          ! 1: read CDF for current month
       call ESMF_ConfigGetAttribute(LIS_config, NASASMAPsm_struc(n)%cdf_read_opt, rc=status)
       call LIS_verify(status, "SMAP(NASA) CDF read option: not defined")
+        enddo
+     
+        do n=1, LIS_rc%nnest
+          NASASMAPsm_struc(n)%vegetation_flag = .true.   
+               ! 0: also assimilate observations when VWC > 5 kg/m2 (but < 30 kg/m2)
+               ! 1: only assimilate observations when VWC < 5 kg/m2
+          call ESMF_ConfigFindLabel(LIS_config, "SMAP(NASA) soil moisture dense vegetation flag option:", rc=status)    
+          call ESMF_ConfigGetAttribute(LIS_config, NASASMAPsm_struc(n)%vegetation_flag, rc=status)
+          call LIS_verify(status, "SMAP(NASA) soil moisture dense vegetation flag option: not defined")
    enddo
 
    do n=1,LIS_rc%nnest
@@ -269,7 +278,7 @@ contains
             grid=LIS_obsvecGrid(n,k),&
             name="Observation"//vid(1)//vid(2),rc=status)
        call LIS_verify(status)
-
+     
 !Perturbations State
        write(LIS_logunit,*) '[INFO] Opening attributes for observations ',&
             trim(LIS_rc%obsattribfile(k))
@@ -305,7 +314,7 @@ contains
 
           call LIS_readPertAttributes(1,LIS_rc%obspertAttribfile(k),&
                obs_pert)
-
+     
 ! Set obs err to be uniform (will be rescaled later for each grid point). 
           ssdev = obs_pert%ssdev(1)
           NASASMAPsm_struc(n)%ssdev_inp = obs_pert%ssdev(1)

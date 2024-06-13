@@ -1,0 +1,5 @@
+#nfields vv
+1
+#varmin varmax
+sigma
+-20   0
