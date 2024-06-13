@@ -452,8 +452,9 @@ contains
        write(LIS_logunit,*) "[ERR] is not supported for irrigation. Stopping program ... "
        call LIS_endrun()
     end select
+    ! SM 13062024 allows to associate different land cover maps to CROPMAP classification   
   ! Assign default 32 UMD+CROPMAP for now, due to indexing for max root depth input files:
-    total_vegtypes = 13 + LIS_rc%numbercrops
+    !total_vegtypes = 13 + LIS_rc%numbercrops
 
     allocate(l_croptype(LIS_rc%lnc(n),LIS_rc%lnr(n)))
 
