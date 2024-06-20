@@ -87,7 +87,7 @@ module LIS_coreMod
 !
 ! !REVISION HISTORY:
 !  14 Nov 2002    Sujay Kumar  Initial Specification
-!  09 Feb 2023    Sara Modanesi addedd LIS_ensOnGrid spec.  
+!
 ! !USES:
   use ESMF
   use LIS_PRIV_rcMod
@@ -155,7 +155,6 @@ module LIS_coreMod
   public :: LIS_vecRoutingGrid
   public :: LIS_vecPatch
   public :: LIS_vecGrid
-  public :: LIS_ensOnGrid
   public :: LIS_routing
   public :: LIS_routing_gdeltas, LIS_routing_goffsets
 
@@ -227,7 +226,6 @@ module LIS_coreMod
   type(ESMF_Grid),     allocatable   :: LIS_vecPatch(:,:)
   type(ESMF_Grid),     allocatable   :: LIS_vecGrid(:)
   type(ESMF_Grid),     allocatable   :: LIS_vecRoutingGrid(:)
-  type(ESMF_Grid),     allocatable   :: LIS_ensOnGrid(:)
 
 !BOPI
 ! !ROUTINE: LIS_config_init
@@ -788,7 +786,6 @@ contains
     allocate(LIS_vecRoutingTile(nnest))
     allocate(LIS_vecPatch(nnest,nmodels))
     allocate(LIS_vecGrid(nnest))
-    allocate(LIS_ensOnGrid(nnest))
     allocate(LIS_vecRoutingGrid(nnest))
 
     LIS_ews_ind = 0
@@ -868,7 +865,6 @@ contains
     deallocate(LIS_vecTile)
     deallocate(LIS_vecPatch)
     deallocate(LIS_vecGrid)
-    deallocate(LIS_ensOnGrid)
 
     deallocate(LIS_npatches)
     deallocate(LIS_patch_offsets)
