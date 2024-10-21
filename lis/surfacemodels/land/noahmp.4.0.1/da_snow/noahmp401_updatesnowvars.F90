@@ -25,6 +25,7 @@ subroutine noahmp401_updatesnowvars(n, LSM_State, LSM_Incr_State)
 ! !USES:
   use ESMF
   use LIS_coreMod
+  use LIS_logMod
   use noahmp401_lsmMod
   use LIS_logMod,   only : LIS_logunit, LIS_verify
 
@@ -56,11 +57,6 @@ subroutine noahmp401_updatesnowvars(n, LSM_State, LSM_Incr_State)
   real, pointer          :: swe(:), sweincr(:)
   real, pointer          :: snod(:), snodincr(:)
   real                   :: swetmp, snodtmp,sndens
-  logical                :: update_flag(LIS_rc%ngrid(n))
-  real                   :: perc_violation(LIS_rc%ngrid(n))
-
-  real                   :: snodmean(LIS_rc%ngrid(n))
-  integer                :: nsnodmean(LIS_rc%ngrid(n))
  
   call ESMF_StateGet(LSM_State,"SWE",sweField,rc=status)
   call LIS_verify(status)
@@ -83,59 +79,6 @@ subroutine noahmp401_updatesnowvars(n, LSM_State, LSM_Incr_State)
   call ESMF_FieldGet(snodIncrField,localDE=0,farrayPtr=snodincr,rc=status)
   call LIS_verify(status)
 
-
-  update_flag    = .true.
-  perc_violation = 0.0
-  snodmean       = 0.0
-  nsnodmean      = 0
-
-  do t=1,LIS_rc%npatch(n,LIS_rc%lsm_index)
-
-     gid = LIS_domain(n)%gindex(&
-          LIS_surface(n,LIS_rc%lsm_index)%tile(t)%col,&
-          LIS_surface(n,LIS_rc%lsm_index)%tile(t)%row)
-
-     swetmp = swe(t) + sweincr(t)
-     snodtmp = snod(t) + snodincr(t)
-
-     if((snodtmp.lt.0 .or. swetmp.lt.0)) then
-        update_flag(gid) = .false.
-        perc_violation(gid) = perc_violation(gid) +1
-     endif
-
-  enddo
-
-  do gid=1,LIS_rc%ngrid(n)
-     perc_violation(gid) = perc_violation(gid) / real(LIS_rc%nensem(n))
-  enddo
-
-! For ensembles that are unphysical, compute the ensemble average after excluding them. This
-! is done only if the majority of the ensemble members are good (>80%)
-
-  do t=1,LIS_rc%npatch(n,LIS_rc%lsm_index)
-
-     gid = LIS_domain(n)%gindex(&
-          LIS_surface(n,LIS_rc%lsm_index)%tile(t)%col,&
-          LIS_surface(n,LIS_rc%lsm_index)%tile(t)%row)
-
-     if(.not.update_flag(gid)) then         ! false
-        if(perc_violation(gid).lt.0.2) then
-           if(snod(t)+snodincr(t).ge.0) then
-              snodmean(gid) = snodmean(gid) + snod(t)+snodincr(t)
-              nsnodmean(gid) = nsnodmean(gid) + 1
-           else
-             snodmean(gid) = 0.0
-           endif
-        endif
-     endif
-  enddo
-
-  do gid=1,LIS_rc%ngrid(n)
-     if(nsnodmean(gid).gt.0) then
-        snodmean(gid) = snodmean(gid) / real(nsnodmean(gid))
-     endif
-  enddo
-
 ! If the update is unphysical, simply set to the average of
 ! the good ensemble members. If all else fails, do not update.
 
@@ -143,7 +86,6 @@ subroutine noahmp401_updatesnowvars(n, LSM_State, LSM_Incr_State)
      gid = LIS_domain(n)%gindex(&
           LIS_surface(n,LIS_rc%lsm_index)%tile(t)%col,&
           LIS_surface(n,LIS_rc%lsm_index)%tile(t)%row)
-
 
      snodtmp = snod(t) + snodincr(t)
      swetmp  = swe(t) + sweincr(t)
@@ -154,21 +96,13 @@ subroutine noahmp401_updatesnowvars(n, LSM_State, LSM_Incr_State)
        sndens = noahmp401_struc(n)%noahmp401(t)%sneqv/noahmp401_struc(n)%noahmp401(t)%snowh
      endif
 
-     if(update_flag(gid)) then
-        snod(t) = snodtmp
-        swe(t) = swetmp
-     elseif(perc_violation(gid).lt.0.2) then
-       if(snodtmp.lt.0.0) then  ! average of the good ensemble members
-          snod(t) = snodmean(gid)
-          swe(t) =  snodmean(gid)*sndens
-       else
+      if((snodtmp.lt.0 .or. swetmp.lt.0)) then
+          snod(t) = 0
+          swe(t) = 0
+      else
           snod(t) = snodtmp
           swe(t) = swetmp
-       endif
-     else            ! do not update
-       snod(t) = noahmp401_struc(n)%noahmp401(t)%snowh
-       swe(t)  = noahmp401_struc(n)%noahmp401(t)%sneqv
-     end if
+      endif
 
   enddo
 
