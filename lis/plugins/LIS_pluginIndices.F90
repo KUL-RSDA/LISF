@@ -246,7 +246,6 @@ module LIS_pluginIndices
    character*50, public,  parameter :: LIS_SMMRSNWDsnowobsId   = "SMMR snow depth"
 ! Hans Lievens added S1
    character*50, public,  parameter :: LIS_S1_SNWD_obsId       = "S1 snow depth"
-   character*50, public,  parameter :: LIS_ML_SNWD_obsId       = "ML snow depth"
    character*50, public,  parameter :: LIS_S1_sigmaVVSM_obsId      = "S1 backscatter VVSM"
    character*50, public,  parameter :: LIS_S1_sigmaVVSMLAI_obsId      = "S1 backscatter VVSMLAI"
    character*50, public,  parameter :: LIS_S1_sigmaVHSM_obsId      = "S1 backscatter VHSM"
