@@ -222,6 +222,11 @@ subroutine LIS_DAobs_plugin
    use S1_SNWD_Mod,        only : S1_SNWD_setup
 #endif
 
+! Devon Dunmire added ML snow depth DA
+#if ( defined DA_OBS_ML_SNWD )
+   use ML_SNWD_Mod,        only : ML_SNWD_setup
+#endif
+
 #if ( defined DA_OBS_S1_sigmaVVSM )
    use S1_sigmaVVSM_Mod,       only : S1_sigmaVVSM_setup 
 #endif 
@@ -446,6 +451,11 @@ subroutine LIS_DAobs_plugin
 ! Hans Lievens added S1 snow depth obs
 #if ( defined DA_OBS_S1_SNWD )
    external read_S1_SNWD, write_S1_SNWDobs
+#endif
+
+! Devon Dunmire added ML snow depth obs
+#if ( defined DA_OBS_ML_SNWD )
+   external read_ML_SNWD, write_ML_SNWDobs
 #endif
 
 #if ( defined DA_OBS_S1_sigmaVVSM)    
@@ -754,6 +764,19 @@ subroutine LIS_DAobs_plugin
    call registerwritedaobs(trim(LIS_S1_SNWD_obsId)//char(0), &
         write_S1_SNWDobs)
 #endif
+
+! Devon Dunmire added ML snow depth case
+#if ( defined DA_OBS_ML_SNWD )
+!ML SNWD snow obs 
+   call registerdaobsclass(trim(LIS_ML_SNWD_obsId),"LSM")
+   call registerdaobssetup(trim(LIS_ML_SNWD_obsId)//char(0), &
+        ML_SNWD_setup)
+   call registerreaddaobs(trim(LIS_ML_SNWD_obsId)//char(0),  &
+        read_ML_SNWD)
+   call registerwritedaobs(trim(LIS_ML_SNWD_obsId)//char(0), &
+        write_ML_SNWDobs)
+#endif
+
 
 #if ( defined DA_OBS_S1_sigmaVVSM )
 !S1 backscatter obs VVSM
