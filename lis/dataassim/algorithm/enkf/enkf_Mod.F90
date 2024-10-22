@@ -294,15 +294,15 @@ contains
        Nobs = Nobjs*N_obs_size
        allocate(Observations(Nobs))
 
-       call generateObservations(n, k, Nobjs, Nobs, LIS_OBS_State(n,k), &
-            LIS_OBS_Pert_State(n,k),Observations)
-
 !----------------------------------------------------------------------------
 !  Retrieve Obs_pred : model's estimate of the observations
 !----------------------------------------------------------------------------
 
        allocate(Obs_pred(Nobs,N_ens))      
        call LIS_surfaceModel_DAGetObsPred(n,k,Obs_pred)
+
+       call generateObservations(n, k, Nobjs, Nobs, N_ens, Obs_pred, LIS_OBS_State(n,k), &
+            LIS_OBS_Pert_State(n,k),Observations)
 
 !----------------------------------------------------------------------------
 !  Retrieve Obs_pert : observation perturbations
@@ -527,15 +527,13 @@ contains
              
              Nobs = Nobjs*N_obs_size
              allocate(Observations(Nobs))
-             
-             call generateObservations(n, k,Nobjs, Nobs, LIS_OBS_State(n,k), &
-                  LIS_OBS_Pert_State(n,k),Observations)
-             
-             allocate(Obs_pred(Nobs,N_ens))               
-             
-             call LIS_surfaceModel_DAGetObsPred(n,k,Obs_pred)
 
-            
+             allocate(Obs_pred(Nobs,N_ens))               
+             call LIS_surfaceModel_DAGetObsPred(n,k,Obs_pred)
+             
+             call generateObservations(n, k,Nobjs, Nobs, N_ens, Obs_pred, LIS_OBS_State(n,k), &
+                  LIS_OBS_Pert_State(n,k),Observations)
+
              do i=1,Nobs
                 if(Observations(i)%assim) then
                    enkf_struc(n,k)%anlys_res(i) = Observations(i)%value - &
@@ -1371,7 +1369,7 @@ contains
 ! \label{generateObservations}
 ! 
 ! !INTERFACE: 
-  subroutine generateObservations(n, k, Nobjs, N_obs_size, LIS_OBS_State, &
+  subroutine generateObservations(n, k, Nobjs, N_obs_size, N_ens, Obs_pred, LIS_OBS_State, &
        LIS_OBS_Pert_State, Observations )
 ! !USES: 
 
@@ -1380,6 +1378,8 @@ contains
     integer,     intent(IN)        :: k
     integer,     intent(IN)        :: Nobjs
     integer,     intent(IN)        :: N_obs_size
+    integer,     intent(IN)        :: N_ens
+    real, intent(in), dimension(N_obs_size,N_ens) :: Obs_pred
     type(ESMF_State)               :: LIS_OBS_State
     type(ESMF_State)               :: LIS_OBS_Pert_State
     type(obs_type)                 :: Observations(N_obs_size)
@@ -1400,7 +1400,7 @@ contains
     integer                        :: gval,gsize
     integer                        :: count1
     character*100                  :: temp
-    integer                        :: i, t,g
+    integer                        :: i, t,g, j
     character*1                    :: vid(2)
     integer                        :: status
     type(ESMF_Field)               :: valfield
@@ -1417,6 +1417,7 @@ contains
     real                           :: std(N_obs_size)
     integer                        :: species(N_obs_size)
     integer                        :: assimflag(N_obs_size)
+    real                           :: pred_mean, pred_stddev, pred_sumsq
 
     count1 = 1
     typ    = 1
@@ -1477,11 +1478,27 @@ contains
        pertyp(count1:count1+(counts-1))  = pert_type
        if(pert_type.eq.0) then 
           std(count1:count1+(counts-1))     = obsstd(:)
-       elseif(pert_type.eq.1) then 
+
+       elseif(pert_type.eq.1) then ! form multiplicative observation error
           do g = count1,count1+(counts-1)
              if(value1(g).ne.-9999.0) then 
                 std(g) = obsstd(g)*value1(g)
-                if(std(g).eq.0) std(g) = 0.1
+
+                if(std(g).eq.0) then ! if observation std = 0, calculate std of model ensembles
+                   pred_mean = sum(Obs_pred(g,:)) / real(N_ens) 
+                   pred_sumsq = 0.0
+                   do j = 1, N_ens
+                       pred_sumsq = pred_sumsq + (Obs_pred(g,j) - pred_mean) ** 2
+                   end do
+                   pred_stddev = sqrt(pred_sumsq / (real(N_ens) - 1))
+                   std(g) = pred_stddev
+
+                   if(std(g).eq.0) then ! if model std also = 0, do not assimilate
+                       std(g) = -9999.0
+                   endif
+
+                endif
+                
              else
                 std(g) = -9999.0
              endif
@@ -1495,6 +1512,7 @@ contains
        deallocate(gid1)
        deallocate(obsassimflag)
        deallocate(obsstd)
+       
     enddo
 
 !----------------------------------------------------------------------------
@@ -1515,10 +1533,10 @@ contains
        Observations(t)%value = value(t)
        Observations(t)%std = std(t)
        Observations(t)%pert_type = pertyp(t)
-       if(assimflag(t).eq.1) then 
-          Observations(t)%assim = .true.
-       else
+       if(assimflag(t).eq.0 .OR. std(t).eq.-9999.0) then 
           Observations(t)%assim = .false.
+       else
+          Observations(t)%assim = .true.
        endif
     enddo
     

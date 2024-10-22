@@ -184,7 +184,15 @@ contains
        ! compute right hand side rhs = Zpert - H*y^f for system equation,
        
        do i=1,N_obs
-          rhs(i) = Observations(i)%value + Obs_err(i,n_e) - Obs_pred(i,n_e)
+          if(Observations(i)%pert_type.eq.0) then  ! additive observation error
+            rhs(i) = Observations(i)%value + Obs_err(i,n_e) - Obs_pred(i,n_e)
+          elseif(Observations(i)%pert_type.eq.1) then ! multiplicative observation error 
+            if(Observations(i)%value.eq.0) then ! if the observation = 0, multiply by model estimate instead
+              rhs(i) = Observations(i)%value + (Obs_pred_bar(i) * Obs_err(i,n_e)) - Obs_pred(i,n_e)
+            else
+              rhs(i) = Observations(i)%value + (Observations(i)%value * Obs_err(i,n_e)) - Obs_pred(i,n_e)
+            endif
+          endif
        end do
 
        ! solve W*b = Zpert - H*y^f
