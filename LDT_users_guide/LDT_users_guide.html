@@ -4,8 +4,8 @@
 <meta charset="UTF-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="generator" content="Asciidoctor 2.0.17">
-<title>Land Data Toolkit (LDT): LDT 7.4 Users&#8217; Guide</title>
+<meta name="generator" content="Asciidoctor 2.0.23">
+<title>Land Data Toolkit (LDT): LDT 7.5 Users Guide</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700">
 <style>
 /*! Asciidoctor default stylesheet | MIT License | https://asciidoctor.org */
@@ -84,10 +84,10 @@ code{font-family:"Droid Sans Mono","DejaVu Sans Mono",monospace;font-weight:400;
 ul,ol,dl{line-height:1.6;margin-bottom:1.25em;list-style-position:outside;font-family:inherit}
 ul,ol{margin-left:1.5em}
 ul li ul,ul li ol{margin-left:1.25em;margin-bottom:0}
-ul.square li ul,ul.circle li ul,ul.disc li ul{list-style:inherit}
-ul.square{list-style-type:square}
 ul.circle{list-style-type:circle}
 ul.disc{list-style-type:disc}
+ul.square{list-style-type:square}
+ul.circle ul:not([class]),ul.disc ul:not([class]),ul.square ul:not([class]){list-style:inherit}
 ol li ul,ol li ol{margin-left:1.25em;margin-bottom:0}
 dl dt{margin-bottom:.3125em;font-weight:bold}
 dl dd{margin-bottom:1.25em}
@@ -140,7 +140,7 @@ p a>code:hover{color:rgba(0,0,0,.9)}
 #content::before{content:none}
 #header>h1:first-child{color:rgba(0,0,0,.85);margin-top:2.25rem;margin-bottom:0}
 #header>h1:first-child+#toc{margin-top:8px;border-top:1px solid #dddddf}
-#header>h1:only-child,body.toc2 #header>h1:nth-last-child(2){border-bottom:1px solid #dddddf;padding-bottom:8px}
+#header>h1:only-child{border-bottom:1px solid #dddddf;padding-bottom:8px}
 #header .details{border-bottom:1px solid #dddddf;line-height:1.45;padding-top:.25em;padding-bottom:.25em;padding-left:.25em;color:rgba(0,0,0,.6);display:flex;flex-flow:row wrap}
 #header .details span:first-child{margin-left:-.125em}
 #header .details span.email a{color:rgba(0,0,0,.85)}
@@ -162,6 +162,7 @@ p a>code:hover{color:rgba(0,0,0,.9)}
 #toctitle{color:#7a2518;font-size:1.2em}
 @media screen and (min-width:768px){#toctitle{font-size:1.375em}
 body.toc2{padding-left:15em;padding-right:0}
+body.toc2 #header>h1:nth-last-child(2){border-bottom:1px solid #dddddf;padding-bottom:8px}
 #toc.toc2{margin-top:0!important;background:#f8f8f7;position:fixed;width:15em;left:0;top:0;border-right:1px solid #e7e7e9;border-top-width:0!important;border-bottom-width:0!important;z-index:1000;padding:1.25em 1em;height:100%;overflow:auto}
 #toc.toc2 #toctitle{margin-top:0;margin-bottom:.8rem;font-size:1.2em}
 #toc.toc2>ul{font-size:.9em;margin-bottom:0}
@@ -208,13 +209,10 @@ table.tableblock.fit-content>caption.title{white-space:nowrap;width:0}
 .admonitionblock>table td.content{padding-left:1.125em;padding-right:1.25em;border-left:1px solid #dddddf;color:rgba(0,0,0,.6);word-wrap:anywhere}
 .admonitionblock>table td.content>:last-child>:last-child{margin-bottom:0}
 .exampleblock>.content{border:1px solid #e6e6e6;margin-bottom:1.25em;padding:1.25em;background:#fff;border-radius:4px}
-.exampleblock>.content>:first-child{margin-top:0}
-.exampleblock>.content>:last-child{margin-bottom:0}
 .sidebarblock{border:1px solid #dbdbd6;margin-bottom:1.25em;padding:1.25em;background:#f3f3f2;border-radius:4px}
-.sidebarblock>:first-child{margin-top:0}
-.sidebarblock>:last-child{margin-bottom:0}
 .sidebarblock>.content>.title{color:#7a2518;margin-top:0;text-align:center}
-.exampleblock>.content>:last-child>:last-child,.exampleblock>.content .olist>ol>li:last-child>:last-child,.exampleblock>.content .ulist>ul>li:last-child>:last-child,.exampleblock>.content .qlist>ol>li:last-child>:last-child,.sidebarblock>.content>:last-child>:last-child,.sidebarblock>.content .olist>ol>li:last-child>:last-child,.sidebarblock>.content .ulist>ul>li:last-child>:last-child,.sidebarblock>.content .qlist>ol>li:last-child>:last-child{margin-bottom:0}
+.exampleblock>.content>:first-child,.sidebarblock>.content>:first-child{margin-top:0}
+.exampleblock>.content>:last-child,.exampleblock>.content>:last-child>:last-child,.exampleblock>.content .olist>ol>li:last-child>:last-child,.exampleblock>.content .ulist>ul>li:last-child>:last-child,.exampleblock>.content .qlist>ol>li:last-child>:last-child,.sidebarblock>.content>:last-child,.sidebarblock>.content>:last-child>:last-child,.sidebarblock>.content .olist>ol>li:last-child>:last-child,.sidebarblock>.content .ulist>ul>li:last-child>:last-child,.sidebarblock>.content .qlist>ol>li:last-child>:last-child{margin-bottom:0}
 .literalblock pre,.listingblock>.content>pre{border-radius:4px;overflow-x:auto;padding:1em;font-size:.8125em}
 @media screen and (min-width:768px){.literalblock pre,.listingblock>.content>pre{font-size:.90625em}}
 @media screen and (min-width:1280px){.literalblock pre,.listingblock>.content>pre{font-size:1em}}
@@ -330,7 +328,7 @@ a.image{text-decoration:none;display:inline-block}
 a.image object{pointer-events:none}
 sup.footnote,sup.footnoteref{font-size:.875em;position:static;vertical-align:super}
 sup.footnote a,sup.footnoteref a{text-decoration:none}
-sup.footnote a:active,sup.footnoteref a:active{text-decoration:underline}
+sup.footnote a:active,sup.footnoteref a:active,#footnotes .footnote a:first-of-type:active{text-decoration:underline}
 #footnotes{padding-top:.75em;padding-bottom:.75em;margin-bottom:.625em}
 #footnotes hr{width:20%;min-width:6.25em;margin:-.25em 0 .75em;border-width:1px 0 0}
 #footnotes .footnote{padding:0 .375em 0 .225em;line-height:1.3334;font-size:.875em;margin-left:1.2em;margin-bottom:.2em}
@@ -393,7 +391,7 @@ b.conum *{color:inherit!important}
 dt,th.tableblock,td.content,div.footnote{text-rendering:optimizeLegibility}
 h1,h2,p,td.content,span.alt,summary{letter-spacing:-.01em}
 p strong,td.content strong,div.footnote strong{letter-spacing:-.005em}
-p,blockquote,dt,td.content,span.alt,summary{font-size:1.0625rem}
+p,blockquote,dt,td.content,td.hdlist1,span.alt,summary{font-size:1.0625rem}
 p{margin-bottom:1.25rem}
 .sidebarblock p,.sidebarblock dt,.sidebarblock td.content,p.tableblock{font-size:1em}
 .exampleblock>.content{background:#fffef7;border-color:#e0e0dc;box-shadow:0 1px 4px #e0e0dc}
@@ -438,10 +436,10 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </head>
 <body class="book">
 <div id="header">
-<h1>Land Data Toolkit (LDT): LDT 7.4 Users&#8217; Guide</h1>
+<h1>Land Data Toolkit (LDT): LDT 7.5 Users Guide</h1>
 <div class="details">
-<span id="revnumber">version 2.0,</span>
-<span id="revdate">22 Jun 2022</span>
+<span id="revnumber">version 3.0,</span>
+<span id="revdate">10 Jan 2024</span>
 </div>
 <div id="toc" class="toc">
 <div id="toctitle">Table of Contents</div>
@@ -495,6 +493,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#ssec-usafsi">7.17. USAF Snow and Ice Analysis</a></li>
 <li><a href="#ssec-glacier-frac">7.18. Glacier Fraction</a></li>
 <li><a href="#_observation_simulator">7.19. Observation Simulator</a></li>
+<li><a href="#ssec-smap_e_opl">7.20. Operational 9-km enhanced SMAP soil moisture retrieval</a></li>
 </ul>
 </li>
 <li><a href="#sec-ldt_output_format">Appendix A: Description of output files from LDT</a>
@@ -531,6 +530,36 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </tr>
 </thead>
 <tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">2.5</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">LISF 557WW 7.5.18 release</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Aug 27, 2024</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">3.0</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">LISF Public 7.5.0 release</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Jan 10, 2024</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">2.4</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">LISF Public 7.4.3 release</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Oct 03, 2023</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">2.3</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">LISF 557WW 7.5.9 release</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Jul 05, 2023</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">2.2</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">LISF 557WW 7.5.8 release</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Jun 30, 2023</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">2.1</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">LISF 557WW 7.5.0 release</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Nov 30, 2022</p></td>
+</tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">2.0</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">LISF Public 7.4.0 release</p></td>
@@ -639,7 +668,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <h2 id="sec-intro">1. Introduction</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>This is the Users&#8217; Guide for the Land surface Data Toolkit (LDT). This document describes how to download and install the LDT software.  It also describes LDT&#8217;s run-time configuration options (the <em>ldt.config</em> file).</p>
+<p>This is the Users Guide for the Land surface Data Toolkit (LDT). This document describes how to download and install the LDT software.  It also describes LDT&#8217;s run-time configuration options (the <em>ldt.config</em> file).</p>
 </div>
 <div class="paragraph">
 <p>This document consists of 7 sections, described as follows:</p>
@@ -679,7 +708,59 @@ describes the various run-time configurations.</p>
 <div class="sect2">
 <h3 id="_whats_new">1.1. What&#8217;s New</h3>
 <div class="sect3">
-<h4 id="_version_7_4">1.1.1. Version 7.4</h4>
+<h4 id="_version_7_5">1.1.1. Version 7.5</h4>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Includes new runmode</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Operation Enhanced (9-km) SMAP soil moisture (SMAP_E_OPL)</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>Supports additional data assimilation observations</p>
+<div class="ulist">
+<ul>
+<li>
+<p>CDFS green vegetation fraction (CDFS_GVF)</p>
+</li>
+<li>
+<p>GEOS-FP effective soil temperature (GEOS_FP_TEFFobs)</p>
+</li>
+<li>
+<p>Precipitation output from a LIS run (LISlsmPrecipobs)</p>
+</li>
+<li>
+<p>Soil temperature output from a LIS run (LISlsmTEFFobs)</p>
+</li>
+<li>
+<p>Operational 9-km enhanced SMAP soil moisture retrieval (SMAP_E_OPLsm)</p>
+</li>
+<li>
+<p>VIIRS green vegetation fraction (VIIRS_GVF)</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>Supports additional parameters</p>
+<div class="ulist">
+<ul>
+<li>
+<p>SnowModel parameters</p>
+</li>
+</ul>
+</div>
+</li>
+</ol>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_version_7_4">1.1.2. Version 7.4</h4>
 <div class="olist arabic">
 <ol class="arabic">
 <li>
@@ -762,7 +843,7 @@ describes the various run-time configurations.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_version_7_3">1.1.2. Version 7.3</h4>
+<h4 id="_version_7_3">1.1.3. Version 7.3</h4>
 <div class="olist arabic">
 <ol class="arabic">
 <li>
@@ -859,7 +940,7 @@ describes the various run-time configurations.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_version_7_2">1.1.3. Version 7.2</h4>
+<h4 id="_version_7_2">1.1.4. Version 7.2</h4>
 <div class="olist arabic">
 <ol class="arabic">
 <li>
@@ -878,7 +959,7 @@ describes the various run-time configurations.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_version_7_1">1.1.4. Version 7.1</h4>
+<h4 id="_version_7_1">1.1.5. Version 7.1</h4>
 <div class="olist arabic">
 <ol class="arabic">
 <li>
@@ -927,7 +1008,7 @@ describes the various run-time configurations.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_version_7_0">1.1.5. Version 7.0</h4>
+<h4 id="_version_7_0">1.1.6. Version 7.0</h4>
 <div class="olist arabic">
 <ol class="arabic">
 <li>
@@ -1079,7 +1160,7 @@ All users are encouraged to go to <a href="https://lis.gsfc.nasa.gov">LISF&#8217
 <div class="sect2">
 <h3 id="sec_publicrelease">4.2. Public Release Source Code</h3>
 <div class="paragraph">
-<p>The LISF public release 7.4 source code is available both on <a href="https://lis.gsfc.nasa.gov">LISF&#8217;s web-site</a> under the &#8220;Source&#8221; menu and on GitHub under the NASA-LIS organization at <a href="https://github.com/NASA-LIS/LISF" class="bare">https://github.com/NASA-LIS/LISF</a> under the &#8220;Releases&#8221; link.</p>
+<p>The LISF public release 7.5 source code is available both on <a href="https://lis.gsfc.nasa.gov">LISF&#8217;s web-site</a> under the &#8220;Source&#8221; menu and on GitHub under the NASA-LIS organization at <a href="https://github.com/NASA-LIS/LISF" class="bare">https://github.com/NASA-LIS/LISF</a> under the &#8220;Releases&#8221; link.</p>
 </div>
 <div class="paragraph">
 <p>After downloading the LISF tar-file:</p>
@@ -1097,7 +1178,7 @@ All users are encouraged to go to <a href="https://lis.gsfc.nasa.gov">LISF&#8217
 </div>
 <div class="literalblock">
 <div class="content">
-<pre>% mv LISF_public_release_7.4.0.tar.gz TOPLEVELDIR</pre>
+<pre>% mv LISF_public_release_7.5.0.tar.gz TOPLEVELDIR</pre>
 </div>
 </div>
 </div>
@@ -1119,7 +1200,7 @@ All users are encouraged to go to <a href="https://lis.gsfc.nasa.gov">LISF&#8217
 </div>
 <div class="literalblock">
 <div class="content">
-<pre>% gzip -dc LISF_public_release_7.4.0.tar.gz | tar xf -</pre>
+<pre>% gzip -dc LISF_public_release_7.5.0.tar.gz | tar xf -</pre>
 </div>
 </div>
 </div>
@@ -1320,7 +1401,7 @@ The directory containing the LDT source code, <em>LISF/ldt</em>, will be referre
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>LDT_HDF4</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">path to HDF4 library</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">optional</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">optional (required to use HDFEOS2)</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>LDT_HDF5</code></p></td>
@@ -1351,6 +1432,26 @@ The directory containing the LDT source code, <em>LISF/ldt</em>, will be referre
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>LDT_JPEG</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">path to JPEG library</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">optional (use system libjpeg by default)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>LDT_LIBTIFF</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">path to TIFF library</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">optional (use system libtiff by default)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>LDT_LIBJBIG</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">path to JBIG library</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">optional (use system libjbig by default)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>LDT_LIBLZMA</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">path to LZMA library</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">optional (use system liblzma by default)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>LDT_RPC</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">path to RPC library</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">optional (use system RPC library by default)</p></td>
 </tr>
 </tbody>
 </table>
@@ -1601,6 +1702,10 @@ LIBGEOTIFF means GeoTIFF support provided by the GeoTIFF library.</p>
 <td class="tableblock halign-left valign-top"><p class="tableblock">&#8220;LISHydro preprocessing for WRFHydro&#8221;</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Preprocessing Option for WRFHydro</p></td>
 </tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">&#8220;OPL E SMAP soil moisture retrieval&#8221;</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Operational 9-km enhanced SMAP soil moisture retrieval</p></td>
+</tr>
 </tbody>
 </table>
 <div class="literalblock">
@@ -1745,6 +1850,10 @@ LIBGEOTIFF means GeoTIFF support provided by the GeoTIFF library.</p>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">CLSMF2.5</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Catchment, Fortuna 2.5</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">SnowModel</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">SnowModel</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">SAC.3.5.6</p></td>
@@ -2904,15 +3013,19 @@ Run domain resolution:                40</pre>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">MODIS_Native</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Terra-MODIS sensor-based IGBP land classification map, modified by NCEP. For more info, please see: <a href="http://www.ral.ucar.edu/research/land/technology/noahmp_lsm.php" class="bare">http://www.ral.ucar.edu/research/land/technology/noahmp_lsm.php</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Terra-MODIS sensor-based IGBP land classification map, modified by NCEP. For more info, please see: <a href="https://ral.ucar.edu/model/noah-multiparameterization-land-surface-model-noah-mp-lsm" class="bare">https://ral.ucar.edu/model/noah-multiparameterization-land-surface-model-noah-mp-lsm</a></p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">MODIS_LIS</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Similar dataset as &#8220;MODIS_Native&#8221; above but processed by LISF-team.</p></td>
 </tr>
 <tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">MCD12Q1</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Terra and Aqua combined MODIS landcover map, available at yearly intervals. Allows dynamic annual landcover maps in &#8220;Landcover file&#8221; option.</p></td>
+</tr>
+<tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">USGS_Native</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">The 24-category USGS native landcover map. See: <a href="http://www.ral.ucar.edu/research/land/technology/noahmp_lsm.php" class="bare">http://www.ral.ucar.edu/research/land/technology/noahmp_lsm.php</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The 24-category USGS native landcover map. See: <a href="https://ral.ucar.edu/model/noah-multiparameterization-land-surface-model-noah-mp-lsm" class="bare">https://ral.ucar.edu/model/noah-multiparameterization-land-surface-model-noah-mp-lsm</a></p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">USGS_LIS</p></td>
@@ -2937,6 +3050,14 @@ Run domain resolution:                40</pre>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">CLM45</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">CLM-4.5 landcover dataset.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">NALCMS_SM</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">SnowModel-based NALCMS landcover dataset.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">NALCMS_SM_IGBPNCEP</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">SnowModel-based NALCMS landcover dataset with IGBPNCEP-mapped classes.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">CONSTANT</p></td>
@@ -3013,6 +3134,12 @@ Acceptable values are:</p>
 </div>
 <div class="paragraph">
 <p><code>Landcover file:</code> specifies the location of the vegetation classification file.</p>
+</div>
+<div class="literalblock">
+<div class="title">Example <em>ldt.config</em> entry</div>
+<div class="content">
+<pre>Landcover file:               ./MODIS/MCD12Q1.006/2001/MCD12Q1.006_2001001.nc4</pre>
+</div>
 </div>
 <div class="paragraph">
 <p><code>Landcover map projection:</code> specifies the projection of the landcover map data.</p>
@@ -4667,6 +4794,10 @@ Soil color resolution (dy):        0.2500</pre>
 <td class="tableblock halign-left valign-top"><p class="tableblock">MERIT_1K</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">The MERIT elevation map, but processed by LISF-team to have a resolution &#8216;0.008333&#8217;. See: <a href="http://hydro.iis.u-tokyo.ac.jp/~yamadai/MERIT_DEM/index.html" class="bare">http://hydro.iis.u-tokyo.ac.jp/~yamadai/MERIT_DEM/index.html</a></p></td>
 </tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">NED_SM</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">SnowModel-based National Elevation Dataset (NED) topographic fields.</p></td>
+</tr>
 </tbody>
 </table>
 <div class="literalblock">
@@ -5955,6 +6086,216 @@ Bottom temperature resolution (dy):      0.2500</pre>
 </div>
 </div>
 <div class="paragraph">
+<p>Miguez-Macho and Fan (MMF) Groundwater Parameters</p>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Important</div>
+</td>
+<td class="content">
+Currently, Noah-MP.4.0.1 is the only land surface model that supports the MMF groundwater scheme.
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p><code>Process Noah-MP-4.0.1 MMF groundwater parameters:</code> specifies whether to process Noah-MP-4.0.1 MMF groundwater parameters. Acceptable values are:</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 50%;">
+<col style="width: 50%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Value</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">.false.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">do not process (default)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">.true.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">process</p></td>
+</tr>
+</tbody>
+</table>
+<div class="literalblock">
+<div class="title">Example <em>ldt.config</em> entry</div>
+<div class="content">
+<pre>Process Noah-MP-4.0.1 MMF groundwater parameters: .true.</pre>
+</div>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Note</div>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>The Noah-MP-4.0.1 parameters are only needed when running option "5" for the following lis.config entry when running LIS:</p>
+</div>
+<div class="paragraph">
+<p><code>Noah-MP.4.0.1 runoff and groundwater option: 5</code></p>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Important</div>
+</td>
+<td class="content">
+The MMF groundwater option (option 5) is not yet supported in LIS. Work on this feature is currently in progress.
+</td>
+</tr>
+</table>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p><code>MMF transmissivity dir:</code> specifies the location of the directory containing FDEPTH (transmissivity e-folding depth [m]) data on GEOGRID tiles.</p>
+</div>
+<div class="paragraph">
+<p><code>MMF climatological recharge dir:</code> specifies the location of the directory containing RECHARGE (climatological recharge [mm]) data on GEOGRID tiles.</p>
+</div>
+<div class="paragraph">
+<p><code>MMF riverbed elevation dir:</code> specifies the location of the directory containing RIVERBED (riverbed elevation [m]) data on GEOGRID tiles.</p>
+</div>
+<div class="paragraph">
+<p><code>MMF equilibrium water table depth dir:</code> specifies the location of the directory containing EQWTD (equilibrium water table depth [m]) data on GEOGRID tiles.</p>
+</div>
+<div class="paragraph">
+<p><code>MMF HGT_M dir:</code> specifies the location of the directory containing GMTED2010 (30-arc-second topography height [m from MSL]) data on GEOGRID tiles.</p>
+</div>
+<div class="literalblock">
+<div class="title">Example <em>ldt.config</em> entry</div>
+<div class="content">
+<pre>MMF transmissivity dir:                ./LS_PARAMETERS/noahmp401_parms/groundwater/f/
+MMF climatological recharge dir:       ./LS_PARAMETERS/noahmp401_parms/groundwater/recharge/
+MMF riverbed elevation dir:            ./LS_PARAMETERS/noahmp401_parms/groundwater/riverbed/
+MMF equilibrium water table depth dir: ./LS_PARAMETERS/noahmp401_parms/groundwater/wtd/
+MMF HGT_M dir:                         ./LS_PARAMETERS/noahmp401_parms/groundwater/topo_gmted2010_30s/</pre>
+</div>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Note</div>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>Spatial interpolation and gap filling parameters for each MMF variable are also required. See the config entries below.</p>
+</div>
+<div class="paragraph">
+<p><a href="https://www2.mmm.ucar.edu/wrf/users/docs/user_guide_v4/v4.3/users_guide_chap3.html#_Description_of_GEOGRID.TBL" target="_blank" rel="noopener">The WRF User&#8217;s Guide</a> (and <a href="https://github.com/wrf-model/WPS/blob/master/geogrid/GEOGRID.TBL.ARW.noahmp" target="_blank" rel="noopener">WPS/WPS-4.0.1/geogrid/GEOGRID.TBL.ARW.noahmp</a>) describe WPS&#8217;s MMF parameter preprocessing procedures from the GEOGRID grid to the model grid. WPS performing the entire interpolation process from aggregating to gap filling on the native GEOGRID space makes it fundamentally different to LDT because LDT first aggregates input data from the native grid to the model grid and then fills gaps on the model grid space. The current LDT implementation of MMF parameter preprocessing does not attempt to replicate the WPS interpolation procedures, instead, it uses existing LDT interpolation utilities to follow the WPS&#8217;s interpolation concept.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p><code>MMF map projection:</code> map projection parameter is always set to latlon for MMF parameters.</p>
+</div>
+<div class="paragraph">
+<p><code>MMF spatial transform:</code> spatial transform parameter is always set to average for MMF parameters.</p>
+</div>
+<div class="literalblock">
+<div class="title">Example <em>ldt.config</em> entry</div>
+<div class="content">
+<pre>MMF map projection:    latlon
+MMF spatial transform: average</pre>
+</div>
+</div>
+<div class="paragraph">
+<p><code>FDEPTH fill option:</code> specifies the MMF parameter fill option (<code>neighbor</code> is preferred).</p>
+</div>
+<div class="paragraph">
+<p><code>FDEPTH fill radius:</code> specifies the radius with which to search for nearby value(s) to help fill in the missing value (0 is preferred).</p>
+</div>
+<div class="paragraph">
+<p><code>FDEPTH fill value:</code> indicates the parameter value to be used if an arbitrary value fill is needed.</p>
+</div>
+<div class="paragraph">
+<p><code>FDEPTH water value:</code> MMF scheme is active in lake/water grid cells. Thus, a suitable FDEPTH value in lakes/rivers is needed in case GEOGRID didn&#8217;t have valid data at the location.</p>
+</div>
+<div class="literalblock">
+<div class="title">Example <em>ldt.config</em> entry</div>
+<div class="content">
+<pre>FDEPTH fill option: neighbor
+FDEPTH fill radius: 0.
+FDEPTH fill value: 100.
+FDEPTH water value: 100.</pre>
+</div>
+</div>
+<div class="paragraph">
+<p><code>RECHCLIM fill option:</code> specifies the MMF parameter fill option (<code>neighbor</code> is preferred).</p>
+</div>
+<div class="paragraph">
+<p><code>RECHCLIM fill radius:</code> specifies the radius with which to search for nearby value(s) to help fill in the missing value (0 is preferred).</p>
+</div>
+<div class="paragraph">
+<p><code>RECHCLIM fill value:</code> indicates the parameter value to be used if an arbitrary value fill is needed.</p>
+</div>
+<div class="paragraph">
+<p><code>RECHCLIM water value:</code> MMF scheme is active in lake/water grid cells. Thus, a suitable RECHCLIM value in lakes/rivers is needed in case GEOGRID didn&#8217;t have valid data at the location.</p>
+</div>
+<div class="literalblock">
+<div class="title">Example <em>ldt.config</em> entry</div>
+<div class="content">
+<pre>RECHCLIM fill option: neighbor
+RECHCLIM fill radius: 0.
+RECHCLIM fill value:  -1.
+RECHCLIM water value: -1.</pre>
+</div>
+</div>
+<div class="paragraph">
+<p><code>EQWTD fill option:</code> specifies the MMF parameter fill option (<code>neighbor</code> is preferred).</p>
+</div>
+<div class="paragraph">
+<p><code>EQWTD fill radius:</code> specifies the radius with which to search for nearby value(s) to help fill in the missing value.</p>
+</div>
+<div class="paragraph">
+<p><code>EQWTD fill value:</code> indicates the parameter value to be used if an arbitrary value fill is needed.</p>
+</div>
+<div class="paragraph">
+<p><code>EQWTD water value:</code> MMF scheme is active in lake/water grid cells. Thus, a suitable EQWTD value in lakes/rivers is needed in case GEOGRID didn&#8217;t have valid data at the location.</p>
+</div>
+<div class="literalblock">
+<div class="title">Example <em>ldt.config</em> entry</div>
+<div class="content">
+<pre>EQWTD fill option: neighbor
+EQWTD fill radius: 0.
+EQWTD fill value: 0.
+EQWTD water value: 0.</pre>
+</div>
+</div>
+<div class="paragraph">
+<p><code>HGT_M fill option:</code> specifies the MMF parameter fill option (<code>neighbor</code> is preferred).</p>
+</div>
+<div class="paragraph">
+<p><code>HGT_M fill radius:</code> specifies the radius with which to search for nearby value(s) to help fill in the missing value.</p>
+</div>
+<div class="paragraph">
+<p><code>HGT_M fill value:</code> indicates the parameter value to be used if an arbitrary value fill is needed.</p>
+</div>
+<div class="literalblock">
+<div class="title">Example <em>ldt.config</em> entry</div>
+<div class="content">
+<pre>HGT_M fill option: neighbor
+HGT_M fill radius: 0.
+HGT_M fill value: 0.</pre>
+</div>
+</div>
+<div class="paragraph">
 <p>If selecting the Community Land Model (4.5 version), the following config entires are also required.</p>
 </div>
 <div class="paragraph">
@@ -6022,6 +6363,34 @@ CLM45 upper right lat:                    90.0
 CLM45 upper right lon:                   359.375
 CLM45 resolution (dx):                     1.25
 CLM45 resolution (dy):                     0.9424060</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>If selecting Glen Liston&#8217;s SnowModel, the following config entires are required.</p>
+</div>
+<div class="paragraph">
+<p><code>Snowmodel topo-veg data source:</code> specifies which pre-processed SnowModel parameters and file format type to be read in. Currently, only the &#8220;Grads_binary&#8221; option is available.</p>
+</div>
+<div class="paragraph">
+<p><code>Snowmodel topo-veg map:</code> specifies the directory-file location of the pre-processed SnowModel topographic and vegetation class parameters.</p>
+</div>
+<div class="paragraph">
+<p><code>Snowmodel topo-veg spatial transform:</code> specifies the type of grid transform for preprocessed SnowModel topographic and vegetation class parameters. Currently, this option is not yet supported and user option is only &#8220;none&#8221; at this time.</p>
+</div>
+<div class="paragraph">
+<p><code>Snowmodel topo-veg map projection:</code> specifies the SnowModel parameter file projection. Currently, SnowModel parameter projection needs to be set to the same as the LIS domain projection, for now. SnowModel parameters are best provided either on a Lambert projection (in LIS) and supports some equal-area projection grids, like UTM, which is available in LIS. Future support for more options will be added.</p>
+</div>
+<div class="paragraph">
+<p><code>Snowmodel topo-veg fill option:</code> specifies the type of fill option used with SnowModel parameters. Currently, this feature is not supported, and will be in future versions.</p>
+</div>
+<div class="literalblock">
+<div class="title">Example <em>ldt.config</em> entry</div>
+<div class="content">
+<pre>Snowmodel topo-veg data source:     "Grads_binary"
+Snowmodel topo-veg map:        ../SnowModel_Inputs/uppertuo_100m/topo_vege.gdat
+Snowmodel topo-veg spatial transform:  "none"
+Snowmodel topo-veg map projection:    lambert
+Snowmodel topo-veg fill option:        none</pre>
 </div>
 </div>
 <div class="paragraph">
@@ -7633,6 +8002,26 @@ Ending second:                 0</pre>
 <td class="tableblock halign-left valign-top"><p class="tableblock">&#8220;THySM soil moisture&#8221;</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Thermal Hydraulic disaggregation of Soil Moisture</p></td>
 </tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">&#8220;SMAP_E_OPL soil moisture&#8221;</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Operational 9-km enhanced SMAP soil moisture retrieval</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">&#8220;GEOS effective soil temperature&#8221;</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">GEOS-FP effective soil temperature</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">&#8220;CDFS GVF&#8221;</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">CDFS green vegetation fraction (GVF)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">&#8220;VIIRS GVF&#8221;</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">VIIRS green vegetation fraction (GVF)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">&#8220;LIS LSM effective soil temperature&#8221;</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Soil temperature output from a LIS run</p></td>
+</tr>
 </tbody>
 </table>
 <div class="literalblock">
@@ -7717,6 +8106,10 @@ Ending second:                 0</pre>
 <td class="tableblock halign-left valign-top"><p class="tableblock">yearly</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">lump (considering all years and all seasons)</p></td>
 </tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">half-monthly</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">stratify for each calendar half-month (for SMAP_E_OPL)</p></td>
+</tr>
 </tbody>
 </table>
 <div class="literalblock">
@@ -7724,6 +8117,9 @@ Ending second:                 0</pre>
 <div class="content">
 <pre>Temporal resolution of CDFs:     monthly</pre>
 </div>
+</div>
+<div class="paragraph">
+<p><code>Daily interpolation of mean and stddev:</code> specifies whether daily interpolation of mean and standrd deviation is conducted when 'Temporal resolution of CDFS:' is set to 'half-monthly'. This should be '1' to generate statistics of effective soil temperature (Teff), which are used to scale the LIS Teff during generating the SMAP_E_OPL soil moisture retrievals</p>
 </div>
 <div class="paragraph">
 <p><code>Enable spatial sampling for CDF calculations:</code> Normally CDFs are calculated (for a given grid cell) by using the data values available at that grid point only. If this option is enabled, then values around a specified radius will be used in the CDF calculations, effectively improving the sampling density at the risk of reduced geographic specificity.</p>
@@ -7787,6 +8183,76 @@ landcover.1gd4r<br>
 <div class="title">Example <em>ldt.config</em> entry</div>
 <div class="content">
 <pre>CDF grouping attributes file:     cdf_grouping.txt</pre>
+</div>
+</div>
+<div class="paragraph">
+<p><code>Stratify CDFs by external data:</code> specifies whether to stratify CDFs for each pixel by an externally specified categorical map; for example, by precipitation climatology.
+This option generates a stratified CDF for each grid cell. That means if the domain contains 10000 grid cells, the CDF file also has 10000 CDFs. But CDFs in grid cells with a similar precipitation climatology are the same.
+Acceptable values are:</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 50%;">
+<col style="width: 50%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Value</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">0</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">do not stratify by external data</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">1</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">stratify by external data</p></td>
+</tr>
+</tbody>
+</table>
+<div class="literalblock">
+<div class="title">Example <em>ldt.config</em> entry</div>
+<div class="content">
+<pre>Stratify CDFs by external data:    1</pre>
+</div>
+</div>
+<div class="paragraph">
+<p><code>Number of bins to use for stratification:</code>  specifies the number of stratification bins to use for computing the CDF.</p>
+</div>
+<div class="literalblock">
+<div class="title">Example <em>ldt.config</em> entry</div>
+<div class="content">
+<pre>Number of bins to use for stratification: 15</pre>
+</div>
+</div>
+<div class="paragraph">
+<p><code>Stratification data source:</code> specifies the name of the stratification data source</p>
+</div>
+<div class="literalblock">
+<div class="title">Example <em>ldt.config</em> entry</div>
+<div class="content">
+<pre>Stratification data source:  "LIS LSM total precipitation"</pre>
+</div>
+</div>
+<div class="paragraph">
+<p><code>External stratification file:</code> Specifies the name of a NetCDF file that contains the monthly precipitation climatology. The user needs to run an LSM and generate daily total precipitation output for a long period. Then the user needs to run LVT to generate monthly precipitation climatology.</p>
+</div>
+<div class="literalblock">
+<div class="title">Example <em>ldt.config</em> entry</div>
+<div class="content">
+<pre>External stratification file:              "LVT_MEAN_FINAL.202201010000.d01.nc"</pre>
+</div>
+</div>
+<div class="paragraph">
+<p><code>Write stratified geolocation independent CDFs:</code> specifies whether to write the stratified CDF or not.
+This option eliminates the similar CDFs and collapses the stratified CDFs into a number of stratified bins.  For example, if the domain contains 10000 grid cells and you chose to stratify the CDFs to 15 precipitation bins. This option collapses the 10000 CDFs to 15 CDFs. This CDF is a geolocation independent CDFs.</p>
+</div>
+<div class="literalblock">
+<div class="title">Example <em>ldt.config</em> entry</div>
+<div class="content">
+<pre>Write stratified geolocation independent CDFs: 1</pre>
 </div>
 </div>
 <div class="paragraph">
@@ -7933,6 +8399,91 @@ LIS soil moisture distribution class:
 LIS soil moisture data category:
 LIS soil moisture area of data:
 LIS soil moisture write interval:</pre>
+</div>
+</div>
+<div class="paragraph">
+<p><code>LIS soil temperature output model name:</code> specifies the model name used to simulate soil temperature</p>
+</div>
+<div class="paragraph">
+<p><code>LIS soil temperature output directory:</code> specifies the location of the LIS model output.</p>
+</div>
+<div class="paragraph">
+<p><code>LIS soil temperature output format:</code> specifies the output format of the LIS model output. (binary/netcdf/grib1)</p>
+</div>
+<div class="paragraph">
+<p><code>LIS soil temperature output methodology:</code> specifies the output methodology used in the LIS model output (1d tilespace/1d gridspace/2d gridspace).</p>
+</div>
+<div class="paragraph">
+<p><code>LIS soil temperature output naming style:</code> specifies the output naming style used in the LIS model output (3 level hierarchy/4 level hierarchy, etc.).</p>
+</div>
+<div class="paragraph">
+<p><code>LIS soil temperature output nest index:</code> specifies the index of the nest used in the LIS model output.</p>
+</div>
+<div class="paragraph">
+<p><code>LIS soil temperature output map projection:</code> specifies the map projection used in the LIS model output.</p>
+</div>
+<div class="paragraph">
+<p><code>LIS soil temperature domain lower left lat:</code> specifies the lower left latitude of the LIS model outpu.</p>
+</div>
+<div class="paragraph">
+<p><code>LIS soil temperature domain upper right lat:</code> specifies the upper right latitude of the LIS model output.</p>
+</div>
+<div class="paragraph">
+<p><code>LIS soil temperature domain lower left lon:</code> specifies the lower left longitude of the LIS model output.</p>
+</div>
+<div class="paragraph">
+<p><code>LIS soil temperature domain upper right lon</code> specifies the upper right longitude of the LIS model output.</p>
+</div>
+<div class="paragraph">
+<p><code>LIS soil temperature domain resolution (dx):</code> specifies the resolution (in degrees) along the latitude of the LIS model output.</p>
+</div>
+<div class="paragraph">
+<p><code>LIS soil temperature domain resolution (dy):</code> specifies the resolution (in degrees) along the longitude of the LIS model output.</p>
+</div>
+<div class="paragraph">
+<p>For Lambert and polar projections:</p>
+</div>
+<div class="paragraph">
+<p><code>LIS soil temperature domain lower left lat:</code> specifies the lower left latitude of the LIS model output</p>
+</div>
+<div class="paragraph">
+<p><code>LIS soil temperature domain lower left lon:</code> specifies the lower left longitude of the LIS model output</p>
+</div>
+<div class="paragraph">
+<p><code>LIS soil temperature domain true lat1:</code> specifies the true lat1 of the LIS model output</p>
+</div>
+<div class="paragraph">
+<p><code>LIS soil temperature domain true lat2:</code> specifies the true lat2 of the LIS model output</p>
+</div>
+<div class="paragraph">
+<p><code>LIS soil temperature domain standard lon:</code> specifies the standard longitude of the LIS model output</p>
+</div>
+<div class="paragraph">
+<p><code>LIS soil temperature domain resolution:</code> specifies the resolution of the LIS model output</p>
+</div>
+<div class="paragraph">
+<p><code>LIS soil temperature domain x-dimension size:</code> specifies the x-dimension size of the LIS model output</p>
+</div>
+<div class="paragraph">
+<p><code>LIS soil temperature domain y-dimension size:</code> specifies the y-dimension size of the LIS model output</p>
+</div>
+<div class="literalblock">
+<div class="title">Example <em>ldt.config</em> entry</div>
+<div class="content">
+<pre>LIS soil temperature output model name:       "Noah.3.9"
+LIS soil temperature output directory:         ../OL/OUTPUT
+LIS soil temperature output format:            "netcdf"
+LIS soil temperature output methodology:       "2d gridspace"
+LIS soil temperature output naming style:      "3 level hierarchy"
+LIS soil temperature output nest index:        1
+LIS soil temperature output map projection:   "latlon"
+
+LIS soil temperature domain lower left lat:     -89.9531250
+LIS soil temperature domain upper right lat:     89.9531250
+LIS soil temperature domain lower left lon:    -179.9296875
+LIS soil temperature domain upper right lon:    179.9296875
+LIS soil temperature domain resolution (dx):      0.1406250
+LIS soil temperature domain resolution (dy):      0.0937500</pre>
 </div>
 </div>
 <div class="paragraph">
@@ -8612,7 +9163,7 @@ LPRM vegetation optical depth data designation:      'X-band'</pre>
 <div class="literalblock">
 <div class="title">Example <em>ldt.config</em> entry</div>
 <div class="content">
-<pre>MOS NRT NN soil moisture observation directory: ./SMOS_NRT_NN</pre>
+<pre>SMOS NRT NN soil moisture observation directory: ./SMOS_NRT_NN</pre>
 </div>
 </div>
 <div class="paragraph">
@@ -8631,6 +9182,51 @@ LPRM vegetation optical depth data designation:      'X-band'</pre>
 <div class="title">Example <em>ldt.config</em> entry</div>
 <div class="content">
 <pre>THySM observation directory: ../THySM</pre>
+</div>
+</div>
+<div class="paragraph">
+<p><code>SMAP_E_OPL soil moisture observation directory:</code> specifies the location of the data directory containing the SMAP_E_OPL soil moisture data</p>
+</div>
+<div class="literalblock">
+<div class="title">Example <em>ldt.config</em> entry</div>
+<div class="content">
+<pre>SMAP_E_OPL soil moisture observation directory:  ../SMAP_E_OPL_noah39</pre>
+</div>
+</div>
+<div class="paragraph">
+<p><code>SMAP_E_OPL search radius for openwater proximity detection:</code> specifies the radius in which LDT search to detect open water. Then removes all pixels within the radius in the CDF calculations</p>
+</div>
+<div class="literalblock">
+<div class="title">Example <em>ldt.config</em> entry</div>
+<div class="content">
+<pre>SMAP_E_OPL search radius for openwater proximity detection:  3</pre>
+</div>
+</div>
+<div class="paragraph">
+<p><code>GEOS soil temperature data directory:</code> specifies the location of the data directory containing the GEOS-FP soil temperature data</p>
+</div>
+<div class="literalblock">
+<div class="title">Example <em>ldt.config</em> entry</div>
+<div class="content">
+<pre>GEOS soil temperature data directory: ./GEOS</pre>
+</div>
+</div>
+<div class="paragraph">
+<p><code>CDFS GVF data directory:</code> specifies the location of the data directory containing the CDFS GVF data</p>
+</div>
+<div class="literalblock">
+<div class="title">Example <em>ldt.config</em> entry</div>
+<div class="content">
+<pre>CDFS GVF data directory:   ./CDFS_GVF</pre>
+</div>
+</div>
+<div class="paragraph">
+<p><code>VIIRS GVF data directory:</code> specifies the location of the data directory containing the VIIRS GVF data</p>
+</div>
+<div class="literalblock">
+<div class="title">Example <em>ldt.config</em> entry</div>
+<div class="content">
+<pre>VIIRS GVF data directory:   ./VIIRS_GVF</pre>
 </div>
 </div>
 </div>
@@ -9212,10 +9808,41 @@ USAFSI skewed backQC snow depth threshold (m):  0.4</pre>
 <p><code>USAFSI bogus climatology snow depth value (m):</code> bogus value for climatology if not available</p>
 </div>
 <div class="paragraph">
+<p><code>USAFSI source of ocean data:</code> specifies the source of the USAFSI ocean data.  Acceptable values are:</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 50%;">
+<col style="width: 50%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Value</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">GOFS</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Global Ocean Forecast System</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">ESPC-D</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Earth System Prediction Capability - Deterministic</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
 <p><code>USAFSI GOFS SST data directory:</code> directory with GOFS sea surface temperature netCDF files</p>
 </div>
 <div class="paragraph">
 <p><code>USAFSI GOFS CICE data directory:</code> directory with GOFS sea ice netCDF files</p>
+</div>
+<div class="paragraph">
+<p><code>USAFSI ESPC-D SST data directory:</code> directory with ESPC-D sea surface temperature netCDF files</p>
+</div>
+<div class="paragraph">
+<p><code>USAFSI ESPC-D CICE data directory:</code> directory with ESPC-D sea ice netCDF files</p>
 </div>
 <div class="paragraph">
 <p><code>USAFSI LIS GRIB2 data directory:</code> directory with LIS GRIB2 2-m temperature analyses</p>
@@ -9248,13 +9875,16 @@ USAFSI skewed backQC snow depth threshold (m):  0.4</pre>
 <div class="title">Example <em>ldt.config</em> entry</div>
 <div class="content">
 <pre>USAFSI bogus climatology snow depth value (m): 0.2
-USAFSI GOFS SST data directory: ./SNODEPIN//GOFS
-USAFSI GOFS CICE data directory: ./SNODEPIN//GOFS
-USAFSI LIS GRIB2 data directory: /discover/nobackup/emkemp/AFWA/data/LIS_GRIB2
-USAFSI LIS GRIB2 security class: U
-USAFSI LIS GRIB2 data category:  C
+USAFSI source of ocean data: "ESPC-D"
+USAFSI GOFS SST data directory:   ./USAFSIIN/GOFS
+USAFSI GOFS CICE data directory:  ./USAFSIIN/GOFS
+USAFSI ESPC-D SST data directory:   ./USAFSIIN/ESPC-D
+USAFSI ESPC-D CICE data directory:  ./USAFSIIN/ESPC-D
+USAFSI LIS GRIB2 data directory:  ./USAFSIIN/LIS_T2
+USAFSI LIS GRIB2 security class:  U
+USAFSI LIS GRIB2 data category:   C
 USAFSI LIS GRIB2 data resolution: C0P09DEG
-USAFSI LIS GRIB2 area of data: GLOBAL
+USAFSI LIS GRIB2 area of data:    GLOBAL
 USAFSI GALWEM root directory: USAF_FORCING
 USAFSI GALWEM subdirectory: GALWEM
 USAFSI GALWEM use timestamp directories: 1
@@ -9497,6 +10127,152 @@ Sentinel1A OSSE mask data resolution (km): 1</pre>
 <pre>TSSM OSSE mask directory:           ../Masks/TSSM/
 TSSM OSSE mask data resolution (km): 1</pre>
 </div>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="ssec-smap_e_opl">7.20. Operational 9-km enhanced SMAP soil moisture retrieval</h3>
+<div class="paragraph">
+<p><code>SMAP_E_OPL valid date (YYYYMMDDHH):</code> valid date and hour (UTC) of SMAP L1B data</p>
+</div>
+<div class="paragraph">
+<p><code>SMAP_E_OPL soil moisture output directory:</code> specifies a directory where soil moisture retrieval outputs are saved</p>
+</div>
+<div class="paragraph">
+<p><code>SMAP_E_OPL L1B data directory:</code> specifies a directory containing the SMAP L1B data</p>
+</div>
+<div class="paragraph">
+<p><code>SMAP_E_OPL L1B data type:</code> specifies the L1B data type. Acceptable values are:</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 50%;">
+<col style="width: 50%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Value</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">1</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Near real time data</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">2</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Historical data</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p><code>SMAP_E_OPL write L1B resampled output:</code> specifies whether to write L1B resampled output or not. Acceptable values are:</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 50%;">
+<col style="width: 50%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Value</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">0</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Do not write L1B resampled output</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">1</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Write L1B resampled output</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p><code>SMAP_E_OPL L1B resampled output directory:</code> specifies a L1B resampled output directory when 'SMAP_E_OPL write L1B resampled output: 1'</p>
+</div>
+<div class="paragraph">
+<p><code>SMAP_E_OPL LIS soil temperature directory:</code> specifies a directory containing LIS soil temperature outputs</p>
+</div>
+<div class="paragraph">
+<p><code>SMAP_E_OPL apply soil temperature bias correction:</code> specifies whether soil temperature bias correction is applied or not. Acceptable values are:</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 50%;">
+<col style="width: 50%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Value</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">0</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Do not apply soil temperature bias correction</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">1</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Apply soil temperature bias correction</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p><code>SMAP_E_OPL reference Teff daily statistics file:</code> specifies a directory and filename of the reference effective soil temperature (Teff) daily statistics file</p>
+</div>
+<div class="paragraph">
+<p><code>SMAP_E_OPL LIS Teff daily statistics file:</code> specifies a directory and filename of the LIS Teff daily statistics file</p>
+</div>
+<div class="paragraph">
+<p><code>SMAP_E_OPL LIS snow directory:</code> specifies a directory containing LIS snow outputs</p>
+</div>
+<div class="paragraph">
+<p><code>SMAP_E_OPL snow depth threshold:</code> specifies a snow depth threshold (unit: m). Soil moisture retrievals are not generate for grid cells with snow depth greater than the threshold.</p>
+</div>
+<div class="paragraph">
+<p><code>SMAP_E_OPL TAU directory:</code> specifies a directory containing the pre-processed TAU data</p>
+</div>
+<div class="paragraph">
+<p><code>SMAP_E_OPL OMEGA file:</code> specifies a directory and filename of the pre-processed OMEGA data</p>
+</div>
+<div class="paragraph">
+<p><code>SMAP_E_OPL soil bulk density file:</code> specifies a directory and filename of the pre-processed soil bulk density data</p>
+</div>
+<div class="paragraph">
+<p><code>SMAP_E_OPL soil clay fraction file:</code> specifies a directory and filename of the pre-processed soil clay fraction data</p>
+</div>
+<div class="paragraph">
+<p><code>SMAP_E_OPL roughness file:</code> specifies a directory and filename of the pre-processed roughness data</p>
+</div>
+<div class="paragraph">
+<p><code>SMAP_E_OPL landcover file:</code> specifies a directory and filename of the pre-processed land cover data</p>
+</div>
+<div class="literalblock">
+<div class="title">Example <em>ldt.config</em> entry</div>
+<div class="content">
+<pre>SMAP_E_OPL valid date (YYYYMMDDHH):                 2015060312
+SMAP_E_OPL soil moisture output directory:          ./SM_retrieval
+SMAP_E_OPL L1B data directory:                      ../SMAP_L1B_TB
+SMAP_E_OPL L1B data type:                           1
+SMAP_E_OPL write L1B resampled output:              0
+SMAP_E_OPL L1B resampled output directory:          ./ARFS_RESAMPLE
+SMAP_E_OPL LIS soil temperature directory:          ../Noah39_OL
+SMAP_E_OPL apply soil temperature bias correction:  1
+SMAP_E_OPL reference Teff daily statistics file:    ../geos_daily_statistics_15obs.nc
+SMAP_E_OPL LIS Teff daily statistics file:          ../noah39_daily_statistics_15obs.nc
+SMAP_E_OPL LIS snow directory:                      ../Noah39_snow
+SMAP_E_OPL snow depth threshold:                    0.05
+SMAP_E_OPL TAU directory:                           ../../data/TAU_ARFS_DAILY
+SMAP_E_OPL OMEGA file:                              ../../data/PRMS_RETRIEVAL_ARFS/omega_arfs.dat
+SMAP_E_OPL soil bulk density file:                  ../../data/PRMS_RETRIEVAL_ARFS/bd_arfs_006.dat
+SMAP_E_OPL soil clay fraction file:                 ../../data/PRMS_RETRIEVAL_ARFS/clay_arfs_006.dat
+SMAP_E_OPL roughness file:                          ../../data/PRMS_RETRIEVAL_ARFS/hvalue_arfs.dat
+SMAP_E_OPL landcover file:                          ../../data/PRMS_RETRIEVAL_ARFS/SMAP_LC_ARFS.bin</pre>
 </div>
 </div>
 </div>
@@ -17172,8 +17948,8 @@ param domain sections on a UTM projection.</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 2.0<br>
-Last updated 2022-08-24 12:53:17 UTC
+Version 3.0<br>
+Last updated 2024-10-25 10:21:05 UTC
 </div>
 </div>
 <script type="text/x-mathjax-config">

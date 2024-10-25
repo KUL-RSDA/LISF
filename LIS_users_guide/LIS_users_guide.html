@@ -4,8 +4,8 @@
 <meta charset="UTF-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="generator" content="Asciidoctor 2.0.17">
-<title>Land Information System (LIS): LIS 7.4 Users&#8217; Guide</title>
+<meta name="generator" content="Asciidoctor 2.0.23">
+<title>Land Information System (LIS): LIS 7.5 Users Guide</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700">
 <style>
 /*! Asciidoctor default stylesheet | MIT License | https://asciidoctor.org */
@@ -84,10 +84,10 @@ code{font-family:"Droid Sans Mono","DejaVu Sans Mono",monospace;font-weight:400;
 ul,ol,dl{line-height:1.6;margin-bottom:1.25em;list-style-position:outside;font-family:inherit}
 ul,ol{margin-left:1.5em}
 ul li ul,ul li ol{margin-left:1.25em;margin-bottom:0}
-ul.square li ul,ul.circle li ul,ul.disc li ul{list-style:inherit}
-ul.square{list-style-type:square}
 ul.circle{list-style-type:circle}
 ul.disc{list-style-type:disc}
+ul.square{list-style-type:square}
+ul.circle ul:not([class]),ul.disc ul:not([class]),ul.square ul:not([class]){list-style:inherit}
 ol li ul,ol li ol{margin-left:1.25em;margin-bottom:0}
 dl dt{margin-bottom:.3125em;font-weight:bold}
 dl dd{margin-bottom:1.25em}
@@ -140,7 +140,7 @@ p a>code:hover{color:rgba(0,0,0,.9)}
 #content::before{content:none}
 #header>h1:first-child{color:rgba(0,0,0,.85);margin-top:2.25rem;margin-bottom:0}
 #header>h1:first-child+#toc{margin-top:8px;border-top:1px solid #dddddf}
-#header>h1:only-child,body.toc2 #header>h1:nth-last-child(2){border-bottom:1px solid #dddddf;padding-bottom:8px}
+#header>h1:only-child{border-bottom:1px solid #dddddf;padding-bottom:8px}
 #header .details{border-bottom:1px solid #dddddf;line-height:1.45;padding-top:.25em;padding-bottom:.25em;padding-left:.25em;color:rgba(0,0,0,.6);display:flex;flex-flow:row wrap}
 #header .details span:first-child{margin-left:-.125em}
 #header .details span.email a{color:rgba(0,0,0,.85)}
@@ -162,6 +162,7 @@ p a>code:hover{color:rgba(0,0,0,.9)}
 #toctitle{color:#7a2518;font-size:1.2em}
 @media screen and (min-width:768px){#toctitle{font-size:1.375em}
 body.toc2{padding-left:15em;padding-right:0}
+body.toc2 #header>h1:nth-last-child(2){border-bottom:1px solid #dddddf;padding-bottom:8px}
 #toc.toc2{margin-top:0!important;background:#f8f8f7;position:fixed;width:15em;left:0;top:0;border-right:1px solid #e7e7e9;border-top-width:0!important;border-bottom-width:0!important;z-index:1000;padding:1.25em 1em;height:100%;overflow:auto}
 #toc.toc2 #toctitle{margin-top:0;margin-bottom:.8rem;font-size:1.2em}
 #toc.toc2>ul{font-size:.9em;margin-bottom:0}
@@ -208,13 +209,10 @@ table.tableblock.fit-content>caption.title{white-space:nowrap;width:0}
 .admonitionblock>table td.content{padding-left:1.125em;padding-right:1.25em;border-left:1px solid #dddddf;color:rgba(0,0,0,.6);word-wrap:anywhere}
 .admonitionblock>table td.content>:last-child>:last-child{margin-bottom:0}
 .exampleblock>.content{border:1px solid #e6e6e6;margin-bottom:1.25em;padding:1.25em;background:#fff;border-radius:4px}
-.exampleblock>.content>:first-child{margin-top:0}
-.exampleblock>.content>:last-child{margin-bottom:0}
 .sidebarblock{border:1px solid #dbdbd6;margin-bottom:1.25em;padding:1.25em;background:#f3f3f2;border-radius:4px}
-.sidebarblock>:first-child{margin-top:0}
-.sidebarblock>:last-child{margin-bottom:0}
 .sidebarblock>.content>.title{color:#7a2518;margin-top:0;text-align:center}
-.exampleblock>.content>:last-child>:last-child,.exampleblock>.content .olist>ol>li:last-child>:last-child,.exampleblock>.content .ulist>ul>li:last-child>:last-child,.exampleblock>.content .qlist>ol>li:last-child>:last-child,.sidebarblock>.content>:last-child>:last-child,.sidebarblock>.content .olist>ol>li:last-child>:last-child,.sidebarblock>.content .ulist>ul>li:last-child>:last-child,.sidebarblock>.content .qlist>ol>li:last-child>:last-child{margin-bottom:0}
+.exampleblock>.content>:first-child,.sidebarblock>.content>:first-child{margin-top:0}
+.exampleblock>.content>:last-child,.exampleblock>.content>:last-child>:last-child,.exampleblock>.content .olist>ol>li:last-child>:last-child,.exampleblock>.content .ulist>ul>li:last-child>:last-child,.exampleblock>.content .qlist>ol>li:last-child>:last-child,.sidebarblock>.content>:last-child,.sidebarblock>.content>:last-child>:last-child,.sidebarblock>.content .olist>ol>li:last-child>:last-child,.sidebarblock>.content .ulist>ul>li:last-child>:last-child,.sidebarblock>.content .qlist>ol>li:last-child>:last-child{margin-bottom:0}
 .literalblock pre,.listingblock>.content>pre{border-radius:4px;overflow-x:auto;padding:1em;font-size:.8125em}
 @media screen and (min-width:768px){.literalblock pre,.listingblock>.content>pre{font-size:.90625em}}
 @media screen and (min-width:1280px){.literalblock pre,.listingblock>.content>pre{font-size:1em}}
@@ -330,7 +328,7 @@ a.image{text-decoration:none;display:inline-block}
 a.image object{pointer-events:none}
 sup.footnote,sup.footnoteref{font-size:.875em;position:static;vertical-align:super}
 sup.footnote a,sup.footnoteref a{text-decoration:none}
-sup.footnote a:active,sup.footnoteref a:active{text-decoration:underline}
+sup.footnote a:active,sup.footnoteref a:active,#footnotes .footnote a:first-of-type:active{text-decoration:underline}
 #footnotes{padding-top:.75em;padding-bottom:.75em;margin-bottom:.625em}
 #footnotes hr{width:20%;min-width:6.25em;margin:-.25em 0 .75em;border-width:1px 0 0}
 #footnotes .footnote{padding:0 .375em 0 .225em;line-height:1.3334;font-size:.875em;margin-left:1.2em;margin-bottom:.2em}
@@ -393,7 +391,7 @@ b.conum *{color:inherit!important}
 dt,th.tableblock,td.content,div.footnote{text-rendering:optimizeLegibility}
 h1,h2,p,td.content,span.alt,summary{letter-spacing:-.01em}
 p strong,td.content strong,div.footnote strong{letter-spacing:-.005em}
-p,blockquote,dt,td.content,span.alt,summary{font-size:1.0625rem}
+p,blockquote,dt,td.content,td.hdlist1,span.alt,summary{font-size:1.0625rem}
 p{margin-bottom:1.25rem}
 .sidebarblock p,.sidebarblock dt,.sidebarblock td.content,p.tableblock{font-size:1em}
 .exampleblock>.content{background:#fffef7;border-color:#e0e0dc;box-shadow:0 1px 4px #e0e0dc}
@@ -438,10 +436,10 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </head>
 <body class="book">
 <div id="header">
-<h1>Land Information System (LIS): LIS 7.4 Users&#8217; Guide</h1>
+<h1>Land Information System (LIS): LIS 7.5 Users Guide</h1>
 <div class="details">
-<span id="revnumber">version 2.0,</span>
-<span id="revdate">22 Jun 2022</span>
+<span id="revnumber">version 3.0,</span>
+<span id="revdate">11 Jan 2024</span>
 </div>
 <div id="toc" class="toc">
 <div id="toctitle">Table of Contents</div>
@@ -509,14 +507,15 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#ssec_forcings">9.9. Forcings</a></li>
 <li><a href="#ssec_suppforcings">9.10. Supplemental forcings</a></li>
 <li><a href="#ssec_lsm">9.11. Land surface models</a></li>
-<li><a href="#ssec_lakes">9.12. Lake models</a></li>
-<li><a href="#ssec_openwater">9.13. Open water models</a></li>
-<li><a href="#ssec_landslides">9.14. Land slide models</a></li>
-<li><a href="#ssec_irrigation">9.15. Irrigation</a></li>
-<li><a href="#ssec_routing">9.16. Routing</a></li>
-<li><a href="#_runoff">9.17. Runoff</a></li>
-<li><a href="#ssec_outputconfig">9.18. Model output configuration</a></li>
-<li><a href="#ssec_timeinterval">9.19. Defining a time interval</a></li>
+<li><a href="#ssec_sublsm">9.12. Sublevel land surface models</a></li>
+<li><a href="#ssec_lakes">9.13. Lake models</a></li>
+<li><a href="#ssec_openwater">9.14. Open water models</a></li>
+<li><a href="#ssec_landslides">9.15. Land slide models</a></li>
+<li><a href="#ssec_irrigation">9.16. Irrigation</a></li>
+<li><a href="#ssec_routing">9.17. Routing</a></li>
+<li><a href="#_runoff">9.18. Runoff</a></li>
+<li><a href="#ssec_outputconfig">9.19. Model output configuration</a></li>
+<li><a href="#ssec_timeinterval">9.20. Defining a time interval</a></li>
 </ul>
 </li>
 <li><a href="#_specification_of_input_forcing_variables">10. Specification of Input Forcing Variables</a></li>
@@ -559,6 +558,41 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </tr>
 </thead>
 <tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">2.6</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">LISF 557WW 7.5.15 release</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Jun 14, 2024</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">3.0</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">LISF Public 7.5.0 release</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Jan 11, 2024</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">2.5</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">LISF 557WW 7.5.9 release</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Jul 05, 2023</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">2.4</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">LISF 557WW 7.5.8 release</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Jun 30, 2023</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">2.3</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">LISF 557WW 7.5.5 release</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Jun 20, 2023</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">2.2</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">LISF 557WW 7.5.4 release</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">May 5, 2023</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">2.1</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">LISF 557WW 7.5.0 release</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Nov 30, 2022</p></td>
+</tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">2.0</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">LISF Public 7.4.0 release</p></td>
@@ -672,7 +706,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <h2 id="sec_intro">1. Introduction</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>This is the Land Information System (LIS) User&#8217;s Guide.  This document describes how to download and install the code and data needed to run the LIS executable for LIS revision 7.4.  It describes how to build and run the code, and finally this document also describes how to download output data-sets to use for validation.</p>
+<p>This is the Land Information System (LIS) User&#8217;s Guide.  This document describes how to download and install the code and data needed to run the LIS executable for LIS revision 7.5.  It describes how to build and run the code, and finally this document also describes how to download output data-sets to use for validation.</p>
 </div>
 <div class="paragraph">
 <p>This document consists of 12 sections, described as follows:</p>
@@ -732,7 +766,55 @@ describes how to request help from and provide feedback to the LISF development 
 <div class="sect2">
 <h3 id="_whats_new">1.1. What&#8217;s New</h3>
 <div class="sect3">
-<h4 id="_version_7_4">1.1.1. Version 7.4</h4>
+<h4 id="_version_7_5">1.1.1. Version 7.5</h4>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Supports additional metforcing datasets</p>
+<div class="ulist">
+<ul>
+<li>
+<p>GALWEM 17km or 0.25deg deterministic forecast reader (galwem)</p>
+</li>
+<li>
+<p>GALWEM-GE forecast reader (galwem_ge)</p>
+</li>
+<li>
+<p>GEOS-IT (geos_it)</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>Supports additional data assimilation observation datasets</p>
+<div class="ulist">
+<ul>
+<li>
+<p>CDFS green vegetation fraction (CDFS_GVF)</p>
+</li>
+<li>
+<p>CDF_Transfer_NASA_SMAPsm</p>
+</li>
+<li>
+<p>Operation Enhanced (9-km) SMAP soil moisture (SMAP_E_OPLsm)</p>
+</li>
+<li>
+<p>VIIRS green vegetation fraction (VIIRS_GVF)</p>
+</li>
+<li>
+<p>Margulis Western US Snow Reanalysis dataset (WUS_UCLAsnow)</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>Includes RAPID router</p>
+</li>
+</ol>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_version_7_4">1.1.2. Version 7.4</h4>
 <div class="olist arabic">
 <ol class="arabic">
 <li>
@@ -893,7 +975,7 @@ describes how to request help from and provide feedback to the LISF development 
 </div>
 </div>
 <div class="sect3">
-<h4 id="_lis_7_3">1.1.2. LIS 7.3</h4>
+<h4 id="_lis_7_3">1.1.3. LIS 7.3</h4>
 <div class="olist arabic">
 <ol class="arabic">
 <li>
@@ -1193,7 +1275,7 @@ describes how to request help from and provide feedback to the LISF development 
 </div>
 </div>
 <div class="sect3">
-<h4 id="_lis_7_2">1.1.3. LIS 7.2</h4>
+<h4 id="_lis_7_2">1.1.4. LIS 7.2</h4>
 <div class="olist arabic">
 <ol class="arabic">
 <li>
@@ -1278,7 +1360,7 @@ forecasting runmode</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_lis_7_1">1.1.4. LIS 7.1</h4>
+<h4 id="_lis_7_1">1.1.5. LIS 7.1</h4>
 <div class="olist arabic">
 <ol class="arabic">
 <li>
@@ -1331,7 +1413,7 @@ available to external users; they should become available in July 2015</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_lis_7_0">1.1.5. LIS 7.0</h4>
+<h4 id="_lis_7_0">1.1.6. LIS 7.0</h4>
 <div class="olist arabic">
 <ol class="arabic">
 <li>
@@ -1426,7 +1508,7 @@ emissivity support</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_lis_6_2">1.1.6. LIS 6.2</h4>
+<h4 id="_lis_6_2">1.1.7. LIS 6.2</h4>
 <div class="olist arabic">
 <ol class="arabic">
 <li>
@@ -1467,7 +1549,7 @@ version 2 (RFE2) daily precipition (for use in WRSI).</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_lis_6_1">1.1.7. LIS 6.1</h4>
+<h4 id="_lis_6_1">1.1.8. LIS 6.1</h4>
 <div class="olist arabic">
 <ol class="arabic">
 <li>
@@ -1496,7 +1578,7 @@ snowcover, and LPRM retrievals of AMSRE soil moisture.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_lis_6_0">1.1.8. LIS 6.0</h4>
+<h4 id="_lis_6_0">1.1.9. LIS 6.0</h4>
 <div class="olist arabic">
 <ol class="arabic">
 <li>
@@ -1560,7 +1642,7 @@ for radiance based assimilation</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_lis_5_0">1.1.9. LIS 5.0</h4>
+<h4 id="_lis_5_0">1.1.10. LIS 5.0</h4>
 <div class="olist arabic">
 <ol class="arabic">
 <li>
@@ -1581,7 +1663,7 @@ replaced with the corresponding ESMF utility.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_lis_4_2">1.1.10. LIS 4.2</h4>
+<h4 id="_lis_4_2">1.1.11. LIS 4.2</h4>
 <div class="olist arabic">
 <ol class="arabic">
 <li>
@@ -1613,7 +1695,7 @@ parallel processing environments.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_lis_4_1">1.1.11. LIS 4.1</h4>
+<h4 id="_lis_4_1">1.1.12. LIS 4.1</h4>
 <div class="olist arabic">
 <ol class="arabic">
 <li>
@@ -1632,7 +1714,7 @@ parallel processing environments.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_lis_4_0_2">1.1.12. LIS 4.0.2</h4>
+<h4 id="_lis_4_0_2">1.1.13. LIS 4.0.2</h4>
 <div class="olist arabic">
 <ol class="arabic">
 <li>
@@ -1649,7 +1731,7 @@ only CLM and Noah models have full support.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_lis_4_0">1.1.13. LIS 4.0</h4>
+<h4 id="_lis_4_0">1.1.14. LIS 4.0</h4>
 <div class="olist arabic">
 <ol class="arabic">
 <li>
@@ -1659,7 +1741,7 @@ only CLM and Noah models have full support.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_lis_3_1">1.1.14. LIS 3.1</h4>
+<h4 id="_lis_3_1">1.1.15. LIS 3.1</h4>
 <div class="olist arabic">
 <ol class="arabic">
 <li>
@@ -1696,7 +1778,7 @@ this version of LIS.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_lis_3_0">1.1.15. LIS 3.0</h4>
+<h4 id="_lis_3_0">1.1.16. LIS 3.0</h4>
 <div class="olist arabic">
 <ol class="arabic">
 <li>
@@ -1874,7 +1956,7 @@ All users are encouraged to go to <a href="https://lis.gsfc.nasa.gov">LISF&#8217
 <div class="sect2">
 <h3 id="sec_publicrelease">4.2. Public Release Source Code</h3>
 <div class="paragraph">
-<p>The LISF public release 7.4 source code is available both on <a href="https://lis.gsfc.nasa.gov">LISF&#8217;s web-site</a> under the &#8220;Source&#8221; menu and on GitHub under the NASA-LIS organization at <a href="https://github.com/NASA-LIS/LISF" class="bare">https://github.com/NASA-LIS/LISF</a> under the &#8220;Releases&#8221; link.</p>
+<p>The LISF public release 7.5 source code is available both on <a href="https://lis.gsfc.nasa.gov">LISF&#8217;s web-site</a> under the &#8220;Source&#8221; menu and on GitHub under the NASA-LIS organization at <a href="https://github.com/NASA-LIS/LISF" class="bare">https://github.com/NASA-LIS/LISF</a> under the &#8220;Releases&#8221; link.</p>
 </div>
 <div class="paragraph">
 <p>After downloading the LISF tar-file:</p>
@@ -1892,7 +1974,7 @@ All users are encouraged to go to <a href="https://lis.gsfc.nasa.gov">LISF&#8217
 </div>
 <div class="literalblock">
 <div class="content">
-<pre>% mv LISF_public_release_7.4.0.tar.gz TOPLEVELDIR</pre>
+<pre>% mv LISF_public_release_7.5.0.tar.gz TOPLEVELDIR</pre>
 </div>
 </div>
 </div>
@@ -1914,7 +1996,7 @@ All users are encouraged to go to <a href="https://lis.gsfc.nasa.gov">LISF&#8217
 </div>
 <div class="literalblock">
 <div class="content">
-<pre>% gzip -dc LISF_public_release_7.4.0.tar.gz | tar xf -</pre>
+<pre>% gzip -dc LISF_public_release_7.5.0.tar.gz | tar xf -</pre>
 </div>
 </div>
 </div>
@@ -2122,6 +2204,18 @@ included components</p>
 </div>
 </li>
 <li>
+<p><em>CDFS_GVF</em></p>
+<div class="paragraph">
+<p>CDFS green vegetation fraction</p>
+</div>
+</li>
+<li>
+<p><em>CDF_Transfer_NASA_SMAPsm</em></p>
+<div class="paragraph">
+<p><span class="red">specifies what?</span></p>
+</div>
+</li>
+<li>
 <p><em>ESACCI_sm</em></p>
 <div class="paragraph">
 <p>ESACCI Essential Climate Variable product</p>
@@ -2142,13 +2236,13 @@ included components</p>
 <li>
 <p><em>GLASS_Albedo</em></p>
 <div class="paragraph">
-<p><span class="red">specifies what?</span></p>
+<p>GLASS Albedo retrievals</p>
 </div>
 </li>
 <li>
 <p><em>GLASS_LAI</em></p>
 <div class="paragraph">
-<p><span class="red">specifies what?</span></p>
+<p>GLASS LAI retrievals</p>
 </div>
 </li>
 <li>
@@ -2215,6 +2309,12 @@ included components</p>
 <p><em>PMW_snow</em></p>
 <div class="paragraph">
 <p>PMW snow</p>
+</div>
+</li>
+<li>
+<p><em>SMAP_E_OPLsm</em></p>
+<div class="paragraph">
+<p>Operation Enhanced (9-km) SMAP soil moisture</p>
 </div>
 </li>
 <li>
@@ -2305,6 +2405,18 @@ included components</p>
 <p><em>USAFSI</em></p>
 <div class="paragraph">
 <p>USAF Snow and Ice Analysis</p>
+</div>
+</li>
+<li>
+<p><em>VIIRS_GVF</em></p>
+<div class="paragraph">
+<p>VIIRS green vegetation fraction</p>
+</div>
+</li>
+<li>
+<p><em>WUS_UCLAsnow</em></p>
+<div class="paragraph">
+<p>Margulis Western US Snow Reanalysis dataset</p>
 </div>
 </li>
 <li>
@@ -2653,6 +2765,18 @@ included components</p>
 </div>
 </li>
 <li>
+<p><em>galwem</em></p>
+<div class="paragraph">
+<p>GALWEM 17km or 0.25deg deterministic forecast reader</p>
+</div>
+</li>
+<li>
+<p><em>galwem_ge</em></p>
+<div class="paragraph">
+<p>GALWEM-GE forecast reader</p>
+</div>
+</li>
+<li>
 <p><em>gdas</em></p>
 <div class="paragraph">
 <p>NCEP GDAS meteorological forcing data</p>
@@ -2692,6 +2816,12 @@ included components</p>
 <p><em>geos5fcst</em></p>
 <div class="paragraph">
 <p>NASA GEOS 5 meteorological forecast forcing data</p>
+</div>
+</li>
+<li>
+<p><em>geos_it</em></p>
+<div class="paragraph">
+<p>GEOS-IT</p>
 </div>
 </li>
 <li>
@@ -3127,6 +3257,9 @@ included components</p>
 </li>
 <li>
 <p><em>NLDAS_router</em></p>
+</li>
+<li>
+<p><em>RAPID_router</em></p>
 </li>
 </ul>
 </div>
@@ -3768,7 +3901,7 @@ included components</p>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>LIS_HDF4</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">path to HDF4 library</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">optional</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">optional (required to use HDFEOS2)</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>LIS_HDF5</code></p></td>
@@ -3806,9 +3939,19 @@ included components</p>
 <td class="tableblock halign-left valign-top"><p class="tableblock">optional</p></td>
 </tr>
 <tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>LIS_PETSC</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">path to PETSc library</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">optional</p></td>
+</tr>
+<tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>LIS_JPEG</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">path to JPEG library</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">optional (use system libjpeg by default)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>LIS_RPC</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">path to RPC library</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">optional (use system RPC library by default)</p></td>
 </tr>
 </tbody>
 </table>
@@ -3855,8 +3998,8 @@ Use HDFEOS? (1-yes, 0-no, default=1):
 Use MINPACK? (1-yes, 0-no, default=0):
 Use LIS-CRTM? (1-yes, 0-no, default=0):
 Use LIS-CMEM? (1-yes, 0-no, default=0):
-Use LIS-LAPACK? (1-yes, 0-no, default=0):
-Use LIS-MKL-LAPACK? (1-yes, 0-no, default=0):
+Use LIS-LAPACK? (0-no, 1-mkl, 2-lapack/blas, 3-lapack/refblas, default=0):
+Use PETSc? (1-yes, 0-no, default=0):
 -----------------------------------------------------
  configure.lis file generated successfully
 -----------------------------------------------------
@@ -3910,6 +4053,43 @@ if you wish to enable LIS-CRTM2EM support, then you must also enable LIS-CMEM su
 <li>
 <p>for <code>Use LIS-CMEM? (1-yes, 0-no, default=0):</code>,
 if you wish to enable LIS-CMEM support, then you must also enable LIS-CRTM.  So for <code>Use LIS-CRTM? (1-yes, 0-no, default=0):</code>, you must also select 1.</p>
+</li>
+<li>
+<p>for <code>Use LIS-LAPACK? (0-no, 1-mkl, 2-lapack/blas, 3-lapack/refblas, default=0):</code>,
+select the type of LAPACK library that you have installed.  This is used with <code>Use PETSc? (1-yes, 0-no, default=0):</code>.  If you select 0 for <code>Use PETSc?</code>, then select 0 for <code>Use LIS-LAPACK?</code>.  If you select 1 for <code>Use PETSc?</code>, then select <code>Use LIS-LAPACK?</code> according to the following table:</p>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 50%;">
+<col style="width: 50%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Selection</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">0</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">No LAPACK needed / Use system LAPACK</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">1</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">LAPACK in Intel MKL</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">2</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">liblapack / libblas</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">3</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">liblapack / librefblas</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>For example, on a Cray system using the Cray compilers, select 0 because the linker will find Cray&#8217;s LAPACK libraries.</p>
+</div>
 </li>
 </ul>
 </div>
@@ -4105,7 +4285,11 @@ Not all the optional components listed below are available in the public release
 <td class="tableblock halign-left valign-top"><p class="tableblock">On</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">NLDAS2</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">NLDAS2 grib</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">On</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">NLDAS2 netcdf</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">On</p></td>
 </tr>
 <tr>
@@ -4118,6 +4302,10 @@ Not all the optional components listed below are available in the public release
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">MERRA2</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">On</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">GEOS-IT</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">On</p></td>
 </tr>
 <tr>
@@ -4256,6 +4444,14 @@ Not all the optional components listed below are available in the public release
 <td class="tableblock halign-left valign-top"><p class="tableblock">GDDP</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">On</p></td>
 </tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">GALWEM forecast</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">On</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">GALWEM-GE forecast</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">On</p></td>
+</tr>
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all stretch">
@@ -4392,6 +4588,10 @@ Not all the optional components listed below are available in the public release
 <td class="tableblock halign-left valign-top"><p class="tableblock">HYMAP2 router</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">On</p></td>
 </tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">RAPID router</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Off</p></td>
+</tr>
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all stretch">
@@ -4527,6 +4727,10 @@ Not all the optional components listed below are available in the public release
 <td class="tableblock halign-left valign-top"><p class="tableblock">On</p></td>
 </tr>
 <tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">DA OBS WUSUCLA</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">On</p></td>
+</tr>
+<tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">DA OBS SMOPS_ASCATsm</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">On</p></td>
 </tr>
@@ -4555,6 +4759,10 @@ Not all the optional components listed below are available in the public release
 <td class="tableblock halign-left valign-top"><p class="tableblock">On</p></td>
 </tr>
 <tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">DA OBS SMAP_E_OPLsm</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">On</p></td>
+</tr>
+<tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">DA OBS NASA_SMAPvod</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">On</p></td>
 </tr>
@@ -4568,6 +4776,14 @@ Not all the optional components listed below are available in the public release
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">DA OBS GLASS_LAI</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">On</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">DA OBS VIIRS_GVF</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">On</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">DA OBS CDFS_GVF</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">On</p></td>
 </tr>
 <tr>
@@ -4588,6 +4804,10 @@ Not all the optional components listed below are available in the public release
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">DA OBS GRACE</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">On</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">DA CDF TRANSFER NASA SMAPSM</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">On</p></td>
 </tr>
 </tbody>
@@ -4884,7 +5104,7 @@ Not all the optional components listed below are available in the public release
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">LSM RDHM.3.5.6</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">On</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Off</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">SUMMA.1.0</p></td>
@@ -4892,6 +5112,10 @@ Not all the optional components listed below are available in the public release
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Crocus.8.1</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Off</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">SNOWMODEL</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Off</p></td>
 </tr>
 <tr>
@@ -4949,7 +5173,34 @@ Not all the optional components listed below are available in the public release
 </div>
 </div>
 <div class="paragraph">
-<p>Re-run the <em>configure</em> script to process your <em>user.cfg</em> file. Then compile the LIS source code accordingly.</p>
+<p>Now you may recompile LIS.</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>% ./compile</pre>
+</div>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Note</div>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>If you enable the SnowModel by adding</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>SNOWMODEL: On</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>to your <em>user.cfg</em> file, then you must modify the <em>make/configure.lis</em> file by adding <code>-mcmodel=medium</code> to the <code>FFLAGS77</code> and <code>FFLAGS</code> variables.</p>
+</div>
+</td>
+</tr>
+</table>
 </div>
 </div>
 </div>
@@ -5523,6 +5774,54 @@ Acceptable values are:</p>
 </div>
 </div>
 <div class="paragraph">
+<p><code>Number of subLSMs:</code> specifies the number of sub-level LSMs
+or specialized models that may interface with other LSMs in LIS.
+Entry here can be set to 1 with having a surface model type
+specified, such as "LSM", and set to 1.</p>
+</div>
+<div class="literalblock">
+<div class="title">Example <em>lis.config</em> entry</div>
+<div class="content">
+<pre>Number of subLSMs:             1</pre>
+</div>
+</div>
+<div class="paragraph">
+<p><code>subLSM models:</code> specifies the sub-level land surface model to run.
+Acceptable values are:</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 50%;">
+<col style="width: 50%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Value</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">none</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">template lsm</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Crocus8.1</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Crocus version 8.1 snow model</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">SnowModel</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Glen Liston&#8217;s SnowModel snow model</p></td>
+</tr>
+</tbody>
+</table>
+<div class="literalblock">
+<div class="title">Example <em>lis.config</em> entry</div>
+<div class="content">
+<pre>subLSM models:            "Crocus8.1"</pre>
+</div>
+</div>
+<div class="paragraph">
 <p><code>Lake model:</code> specifies the lake model to run.
 Acceptable values are:</p>
 </div>
@@ -5609,6 +5908,36 @@ Acceptable values are:</p>
 <div class="content">
 <pre>land slide model:</pre>
 </div>
+</div>
+<div class="paragraph">
+<p><code>Number of subLSMs:</code> specifies the number of subLSMs to run.
+Acceptable values are: 0 : no subLSM; 1 : One subLSM</p>
+</div>
+<div class="paragraph">
+<p><code>subLSM models:</code> specifies the subLSMs to run.
+Acceptable values are:</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 50%;">
+<col style="width: 50%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Value</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Crocus8.1</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Crocus snow model model</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>Note: To run a standalone version of the Crocus, the user needs to set:
+<code>Land surface model:  "none"</code></p>
 </div>
 <div class="paragraph">
 <p><code>Number of met forcing sources:</code> specifies the
@@ -5734,8 +6063,12 @@ Acceptable values for the sources are:</p>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Princeton</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">&#8220;NLDAS2&#8221;</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">NLDAS2</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">&#8220;NLDAS2 grib&#8221;</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">NLDAS-2 GRIB-1 format</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">&#8220;NLDAS2 netcdf&#8221;</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">NLDAS-2 v020 netCDF-4 format</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">&#8220;GLDAS&#8221;</p></td>
@@ -5748,6 +6081,10 @@ Acceptable values for the sources are:</p>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">&#8220;MERRA2&#8221;</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">MERRA2</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">&#8220;GEOS-IT&#8221;</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">GEOS-IT</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">&#8220;CMAP&#8221;</p></td>
@@ -5901,6 +6238,14 @@ Acceptable values for the sources are:</p>
 <td class="tableblock halign-left valign-top"><p class="tableblock">&#8220;COAMPSout&#8221;</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">COAMPS output forcing</p></td>
 </tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">&#8220;GALWEM forecast&#8221;</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">GALWEM 17km or 0.25deg deterministic forecast reader</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">&#8220;GALWEM-GE forecast&#8221;</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">GALWEM-GE forecast reader</p></td>
+</tr>
 </tbody>
 </table>
 <div class="literalblock">
@@ -5937,6 +6282,14 @@ Acceptable values are:</p>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">&#8220;slope-aspect&#8221;</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Apply slope-aspect correction for forcing</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">&#8220;lapse-rate and slope-aspect&#8221;</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Apply both lapse-rate and slope-aspect corrections</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">&#8220;micromet&#8221;</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Apply Glen Liston&#8217;s MicroMet corrections to forcing fields</p></td>
 </tr>
 </tbody>
 </table>
@@ -6332,12 +6685,90 @@ Acceptable values are:</p>
 <td class="tableblock halign-left valign-top"><p class="tableblock">&#8220;WMO convention&#8221;</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">WMO convention for weather codes</p></td>
 </tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">&#8220;557WW streamflow convention&#8221;</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">557WW convention for streamflow output</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">&#8220;557WW medium range forecast convention&#8221;</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">557WW convention for medium range forecast output</p></td>
+</tr>
 </tbody>
 </table>
 <div class="literalblock">
 <div class="title">Example <em>lis.config</em> entry</div>
 <div class="content">
 <pre>Output naming style: "3 level hierarchy"</pre>
+</div>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Note</div>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>The &#8220;557WW streamflow convention&#8221; and &#8220;557WW medium range forecast convention&#8221; have 4 additional settings:</p>
+</div>
+<div class="paragraph">
+<p><code>AGRMET security classification:</code> used with 557WW streamflow convention, 557WW medium range forecast convention, or AGRMET Ops runmode.</p>
+</div>
+<div class="paragraph">
+<p><code>AGRMET distribution classification:</code> used with 557WW streamflow convention, 557WW medium range forecast convention, or AGRMET Ops runmode.</p>
+</div>
+<div class="paragraph">
+<p><code>AGRMET data category:</code> used with 557WW streamflow convention, 557WW medium range forecast convention, or AGRMET Ops runmode.</p>
+</div>
+<div class="paragraph">
+<p><code>AGRMET area of data:</code> used with 557WW streamflow convention, 557WW medium range forecast convention, or AGRMET Ops runmode.</p>
+</div>
+<div class="paragraph">
+<p>See Section <a href="#sssec_forcings_afwa">AFWA/AGRMET</a> for more information.</p>
+</div>
+<div class="literalblock">
+<div class="title">Example <em>lis.config</em> entry</div>
+<div class="content">
+<pre>Output naming style: "557WW streamflow convention"
+AGRMET security classification:     U
+AGRMET distribution classification: C
+AGRMET data category:               ANLYS
+AGRMET area of data:                GLOBAL</pre>
+</div>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p><code>Number of dimensions in the lat/lon output fields:</code> specifies the number of dimensions to use when writing the latitude and longitude fields of the LIS output. This is an optional entry. If this entry is not used, LIS will attempt to write the lat/lon fields in 1D.  If the projection being used is not compatible with 1D, LIS will write in 2D.
+Acceptable values are:</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 50%;">
+<col style="width: 50%;">
+</colgroup>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Value</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Description</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">"1D"</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">1 dimensional latitude and longitude output
+            (Note: Only the latlon projection supports 1D output)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">"2D"</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">2 dimensional latitude and longitude output</p></td>
+</tr>
+</tbody>
+</table>
+<div class="literalblock">
+<div class="title">Example <em>lis.config</em> entry</div>
+<div class="content">
+<pre>Number of dimensions in the lat/lon output fields:          "1D"</pre>
 </div>
 </div>
 <div class="paragraph">
@@ -6900,6 +7331,10 @@ Acceptable values are:</p>
 <td class="tableblock halign-left valign-top"><p class="tableblock">&#8220;HYMAP2 router&#8221;</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">use the HyMAP2 router</p></td>
 </tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">&#8220;RAPID router&#8221;</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">use the RAPID router</p></td>
+</tr>
 </tbody>
 </table>
 <div class="paragraph">
@@ -7294,6 +7729,14 @@ Acceptable values are:</p>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">&#8220;SNODAS&#8221;</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">SNODAS snow depth</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">&#8220;GLASS LAI&#8221;</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">GLASS Leaf Area Index (LAI)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">&#8220;GLASS Albedo&#8221;</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">GLASS Albedo (black-sky and white-sky)</p></td>
 </tr>
 </tbody>
 </table>
@@ -9493,7 +9936,93 @@ MCD15A2H LAI apply QC flags:                                  1</pre>
 </div>
 </div>
 <div class="sect3">
-<h4 id="sssec_simgraceda">9.5.28. Simulated GRACE</h4>
+<h4 id="sssec_glasslaida">9.5.28. GLASS LAI assimilation</h4>
+<div class="paragraph">
+<p><code>GLASS LAI data directory:</code> specifies the location of the data directory containing the GLASS LAI retrievals.</p>
+</div>
+<div class="paragraph">
+<p><code>GLASS LAI data source:</code> specifies if the GLASS data source is AVHRR or MODIS.</p>
+</div>
+<div class="paragraph">
+<p><code>GLASS LAI apply temporal smoother between 8-day intervals:</code> specifies whether to apply temporal smoother between 8-day intervals of the LAI product.
+Acceptable values are:</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 50%;">
+<col style="width: 50%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Value</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">0</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Do not apply temporal smoother</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">1</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Apply temporal smoother</p></td>
+</tr>
+</tbody>
+</table>
+<div class="literalblock">
+<div class="title">Example <em>lis.config</em> entry</div>
+<div class="content">
+<pre>GLASS LAI data directory:                                  ./GLASS/LAI
+GLASS LAI data source:                                     "AVHRR"
+GLASS LAI apply temporal smoother between 8-day intervals: 1</pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="sssec_glassalbedoda">9.5.29. GLASS Albedo assimilation</h4>
+<div class="paragraph">
+<p><code>GLASS Albedo data directory:</code> specifies the location of the data directory containing the GLASS Albedo retrievals.</p>
+</div>
+<div class="paragraph">
+<p><code>GLASS Albedo data source:</code> specifies if the GLASS data source is AVHRR or MODIS.</p>
+</div>
+<div class="paragraph">
+<p><code>GLASS Albedo apply QC flags:</code> specifies whether to apply quality-control flags of the GLASS Albedo data to the assimilation.
+Acceptable values are:</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 50%;">
+<col style="width: 50%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Value</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">0</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Do not apply QC flags</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">1</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Apply QC flags</p></td>
+</tr>
+</tbody>
+</table>
+<div class="literalblock">
+<div class="title">Example <em>lis.config</em> entry</div>
+<div class="content">
+<pre>GLASS Albedo data directory:                               ./GLASS/Albedo
+GLASS Albedo data source:                                  "AVHRR"
+GLASS Albedo apply QC flags:                               1</pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="sssec_simgraceda">9.5.30. Simulated GRACE</h4>
 <div class="paragraph">
 <p><code>Simulated GRACE data directory:</code> specifies the location
 of the simulated GRACE data.</p>
@@ -9566,7 +10095,7 @@ Simulated GRACE use reported measurement error values:</pre>
 </div>
 </div>
 <div class="sect3">
-<h4 id="sssec_synsfda">9.5.29. Synthetic Streamflow</h4>
+<h4 id="sssec_synsfda">9.5.31. Synthetic Streamflow</h4>
 <div class="paragraph">
 <p><code>Synthetic streamflow data directory:</code> specifies the location
 of the synthetic streamflow data.</p>
@@ -9579,7 +10108,7 @@ of the synthetic streamflow data.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="sssec_esaccismda">9.5.30. ESA CCI soil moisture data assimilation</h4>
+<h4 id="sssec_esaccismda">9.5.32. ESA CCI soil moisture data assimilation</h4>
 <div class="paragraph">
 <p><code>ESA CCI soil moisture data directory:</code> specifies the location
 of the ESA CCI soil moisture data.</p>
@@ -9647,7 +10176,7 @@ ESA CCI soil moisture number of bins in the CDF:</pre>
 </div>
 </div>
 <div class="sect3">
-<h4 id="sssec_amsr2gcomwsmda">9.5.31. AMSR2 (GCOMW) soil moisture data assimilation</h4>
+<h4 id="sssec_amsr2gcomwsmda">9.5.33. AMSR2 (GCOMW) soil moisture data assimilation</h4>
 <div class="paragraph">
 <p><code>AMSR2(GCOMW) soil moisture data directory:</code> specifies the AMSR2(GCOMW) soil
 moisture data directory.</p>
@@ -9709,7 +10238,7 @@ AMSR2(GCOMW) soil moisture number of bins in the CDF:</pre>
 </div>
 </div>
 <div class="sect3">
-<h4 id="sssec_amsr2gcomwsndda">9.5.32. AMSR2 (GCOMW) snow depth data assimilation</h4>
+<h4 id="sssec_amsr2gcomwsndda">9.5.34. AMSR2 (GCOMW) snow depth data assimilation</h4>
 <div class="paragraph">
 <p><code>AMSR2(GCOMW) snow depth data directory:</code>
 specifies the directory for the AMSR2(GCOMW) snow depth data.</p>
@@ -9848,7 +10377,7 @@ AMSR2(GCOMW) snow depth input mask file:</pre>
 </div>
 </div>
 <div class="sect3">
-<h4 id="sssec_smapnasasmda">9.5.33. SMAP (NASA) soil moisture assimilation</h4>
+<h4 id="sssec_smapnasasmda">9.5.35. SMAP (NASA) soil moisture assimilation</h4>
 <div class="paragraph">
 <p><code>SMAP(NASA) soil moisture data directory:</code> specifies the SMAP(NASA) soil
 moisture data directory.</p>
@@ -9893,11 +10422,13 @@ and observation standard deviation.</p>
 </div>
 <div class="paragraph">
 <p><code>SMAP(NASA) model CDF file:</code> specifies the name of the model CDF file
-(observations will be scaled into this climatology).</p>
+(observations will be scaled into this climatology).
+Note: Soil moisture CDF grouped (stratified) by land cover or precipitation climatology or both simultaneously also can be used here.</p>
 </div>
 <div class="paragraph">
 <p><code>SMAP(NASA) observation CDF file:</code> specifies the name of the observation
-CDF file.</p>
+CDF file.
+Note: Soil moisture CDF grouped (stratified) by land cover or precipitation climatology or both simultaneously also can be used here.</p>
 </div>
 <div class="paragraph">
 <p><code>SMAP(NASA) soil moisture number of bins in the CDF:</code> specifies the number of
@@ -9959,7 +10490,7 @@ SMAP(NASA) CDF read option:</pre>
 </div>
 </div>
 <div class="sect3">
-<h4 id="sssec_smapnrtsmda">9.5.34. SMAP (NRT) soil moisture assimilation</h4>
+<h4 id="sssec_smapnrtsmda">9.5.36. SMAP (NRT) soil moisture assimilation</h4>
 <div class="paragraph">
 <p><code>SMAP(NRT) soil moisture data directory:</code> specifies the SMAP(NRT) soil
 moisture data directory</p>
@@ -10035,7 +10566,40 @@ SMAP(NRT) CDF read option:</pre>
 </div>
 </div>
 <div class="sect3">
-<h4 id="sssec_smapnasavodda">9.5.35. SMAP (NASA) vegetation optical depth assimilation</h4>
+<h4 id="sssec_cdftransfersmda">9.5.37. Transfering stratified CDFs from one domain to another</h4>
+<div class="paragraph">
+<p><code>Use CDF transfer for soil moisture data assimilation:</code> specifies
+whether to use CDF transfer method.</p>
+</div>
+<div class="paragraph">
+<p><code>Reference domain model CDF file:</code> specifies the reference domain model CDF name and data directory.</p>
+</div>
+<div class="paragraph">
+<p><code>Reference domain obs CDF file:</code> specifies the reference domain obs CDF name and data directory.</p>
+</div>
+<div class="paragraph">
+<p><code>Number of bins in the soil moisture CDF:</code> specifies the number of bins in the CDF.</p>
+</div>
+<div class="paragraph">
+<p><code>Reference domain precipitation climatology data source:</code> specifies the reference domain precipitation climatology generated by LVT.</p>
+</div>
+<div class="paragraph">
+<p><code>Target domain precipitation climatology data source:</code> specifies the target domain precipitation climatology generated by LVT.</p>
+</div>
+<div class="literalblock">
+<div class="title">Example <em>lis.config</em> entry</div>
+<div class="content">
+<pre>Use CDF transfer for soil moisture data assimilation:
+Reference domain model CDF file: ref_model_cdf_forcing_diff/stratified_cdf_noahmp401.nc
+Reference domain obs CDF file: ref_obs_cdf_forcing_diff/stratified_cdf_smapobs.nc
+Number of bins in the soil moisture CDF: 100
+Reference domain precipitation climatology data source: Precip.climo.us.nldas2/LVT_MEAN_FINAL.202201010000.d01.nc
+Target domain precipitation climatology data source: Precip.climo.eu.merra/LVT_MEAN_FINAL.202201010000.d01.nc</pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="sssec_smapnasavodda">9.5.38. SMAP (NASA) vegetation optical depth assimilation</h4>
 <div class="paragraph">
 <p><code>SMAP(NASA) vegetation optical depth data directory:</code> specifies the SMAP(NASA) vegetation
 optical depth data directory</p>
@@ -10104,7 +10668,7 @@ SMAP(NASA) vegetation optical depth number of bins in the CDF:</pre>
 </div>
 </div>
 <div class="sect3">
-<h4 id="sssec_smosnesdissmda">9.5.36. SMOS (NESDIS) soil moisture assimilation</h4>
+<h4 id="sssec_smosnesdissmda">9.5.39. SMOS (NESDIS) soil moisture assimilation</h4>
 <div class="paragraph">
 <p><code>SMOS(NESDIS) soil moisture data directory:</code> specifies the SMOS(NESDIS) soil
 moisture data directory</p>
@@ -10138,7 +10702,7 @@ SMOS(NESDIS) soil moisture number of bins in the CDF:</pre>
 </div>
 </div>
 <div class="sect3">
-<h4 id="sssec_smosnrtnnsmda">9.5.37. SMOS NRT NN soil moisture assimilation</h4>
+<h4 id="sssec_smosnrtnnsmda">9.5.40. SMOS NRT NN soil moisture assimilation</h4>
 <div class="paragraph">
 <p><code>SMOS NRT NN soil moisture data directory:</code> specifies the SMOS NRT NN soil
 moisture data directory</p>
@@ -10214,7 +10778,7 @@ SMOS NRT NN CDF read option:       1</pre>
 </div>
 </div>
 <div class="sect3">
-<h4 id="sssec_thysmda">9.5.38. THySM soil moisture assimilation</h4>
+<h4 id="sssec_thysmda">9.5.41. THySM soil moisture assimilation</h4>
 <div class="paragraph">
 <p><code>THySM data directory:</code> specifies the THySM data directory.</p>
 </div>
@@ -10242,7 +10806,7 @@ THySM soil moisture number of bins in the CDF: 100</pre>
 </div>
 </div>
 <div class="sect3">
-<h4 id="sssec_snodasda">9.5.39. SNODAS snow depth assimilation</h4>
+<h4 id="sssec_snodasda">9.5.42. SNODAS snow depth assimilation</h4>
 <div class="paragraph">
 <p><code>SNODAS data directory:</code> specifies the directory for the
 SNODAS data.</p>
@@ -13734,7 +14298,7 @@ match the first guess source.</p>
 </div>
 <div class="paragraph">
 <p><code>AGRMET radiation derived from:</code> specifies how to compute
-shortwave and longwave radiation.  Defaults to &#8220;cloud types&#8221;.
+shortwave and longwave radiation.
 Acceptable values are:</p>
 </div>
 <table class="tableblock frame-all grid-all stretch">
@@ -13754,11 +14318,27 @@ Acceptable values are:</p>
 <td class="tableblock halign-left valign-top"><p class="tableblock">use cloud types</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">&#8220;cloud optical depth&#8221;</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">use cloud optical depth</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">&#8220;cod properties&#8221;</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">use cloud optical depth properties</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">&#8220;GALWEM_RAD&#8221;</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">use radiation fields from GALWEM</p></td>
 </tr>
 </tbody>
 </table>
+<div class="paragraph">
+<p><code>AGRMET GALWEM radiation data directory:</code> specifies the location of the GALWEM
+radiation data files.</p>
+</div>
+<div class="paragraph">
+<p><code>AGRMET number of gauge networks to use:</code> specifies nonnegative number
+of gauge networks to use, to be identified in separate config entry.</p>
+</div>
+<div class="paragraph">
+<p><code>AGRMET gauge networks to use::</code> specifies list of names of gauge
+networks to be used. (One line of names per domain.)</p>
+</div>
 <div class="literalblock">
 <div class="title">Example <em>lis.config</em> entry</div>
 <div class="content">
@@ -13831,7 +14411,12 @@ AGRMET CMORPH dx:
 AGRMET CMORPH dy:
 AGRMET use GFS precip:     1
 AGRMET use GALWEM precip:  0
-AGRMET radiation derived from: 'cloud types'</pre>
+AGRMET radiation derived from: 'GALWEM_RAD'
+AGRMET GALWEM radiation data directory: GALWEM_Rad
+AGRMET number of gauge networks to use: 7
+AGRMET gauge networks to use::
+AMIL CANA FAA ICAO WMO HADS NWSLI
+::</pre>
 </div>
 </div>
 </div>
@@ -14084,7 +14669,86 @@ MERRA2 use corrected total precipitation:  1</pre>
 </div>
 </div>
 <div class="sect3">
-<h4 id="sssec_forcings_ERA5">9.9.9. ERA5</h4>
+<h4 id="sssec_forcings_GEOS-IT">9.9.9. GEOS-IT</h4>
+<div class="paragraph">
+<p><code>GEOS-IT forcing directory:</code> specifies the location of
+the GEOS-IT forcing files.</p>
+</div>
+<div class="paragraph">
+<p>Please note that GEOS-IT is currently in production and is
+not complete for all calendar years.  Also, it is not yet
+available outside of NASA&#8217;s NCCS computing platforms.
+Also, the topographic or elevation correction option is
+supported through the MERRA-2 geopotential terrain height
+file.  Please also see the latest LDT notes for updates on
+how to use this option.</p>
+</div>
+<div class="paragraph">
+<p><code>GEOS-IT use lowest model level forcing:</code> specifies whether
+to use the lowest model level forcing.
+Acceptable values are:</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 50%;">
+<col style="width: 50%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Value</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">0</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Do not use the lowest model level forcing.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">1</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Use the lowest model level forcing.</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p><code>GEOS-IT use 2m wind fields:</code> specifies whether to use the
+2m diagnosed wind fields.  This option will only work if
+the lowest model level forcing option is turned off.
+Acceptable values are:</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 50%;">
+<col style="width: 50%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Value</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">0</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Do not use the 2m diagnosed wind speed fields.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">1</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Use the 2m diagnosed wind speed fields.</p></td>
+</tr>
+</tbody>
+</table>
+<div class="literalblock">
+<div class="title">Example <em>lis.config</em> entry</div>
+<div class="content">
+<pre>GEOS-IT forcing directory:                  ./GEOS-IT
+GEOS-IT use lowest model level forcing:     1
+GEOS-IT use 2m wind fields:                 0</pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="sssec_forcings_ERA5">9.9.10. ERA5</h4>
 <div class="paragraph">
 <p><code>ERA5 forcing directory:</code> specifies the location of
 the ERA5 forcing files.</p>
@@ -14102,7 +14766,7 @@ ERA5 forcing tile to grid mapping file: ../ERA5/mapping.nc</pre>
 </div>
 </div>
 <div class="sect3">
-<h4 id="sssec_forcings_gswp1">9.9.10. GSWP1</h4>
+<h4 id="sssec_forcings_gswp1">9.9.11. GSWP1</h4>
 <div class="paragraph">
 <p><code>GSWP1 forcing directory:</code> specifies the location of the
 GSWP1 forcing files.</p>
@@ -14162,14 +14826,14 @@ SCAN metadata file:       ./input/FORCING/SCAN/msu_scan.mdata</pre>
 </div>
 </div>
 <div class="sect3">
-<h4 id="sssec_forcings_nldas2">9.10.4. NLDAS2</h4>
+<h4 id="sssec_forcings_nldas2">9.10.4. NLDAS2 (grib)</h4>
 <div class="paragraph">
-<p><code>NLDAS2 forcing directory:</code> specifies the location of the NLDAS2
-forcing files.</p>
+<p><code>NLDAS2 forcing directory:</code> specifies the location of the NLDAS-2
+GRIB-1 forcing files.</p>
 </div>
 <div class="paragraph">
-<p><code>NLDAS2 data center source:</code> specifies the center that produced
-the NLDAS2 files. (This is specified to distinguish the filenames.)
+<p><code>NLDAS2 data center source:</code> specifies the center that produced the
+NLDAS-2 GRIB-1 files.  (This is specified to distinguish the filenames.)
 Acceptable values are:</p>
 </div>
 <table class="tableblock frame-all grid-all stretch">
@@ -14197,7 +14861,7 @@ Acceptable values are:</p>
 <div class="paragraph">
 <p><code>NLDAS2 use model level data:</code> specifies whether or not to
 read in the model level data (instead of 2/10m fields) from the
-NLDAS2 forcing dataset (will open up and read &#8220;B&#8221; files).
+NLDAS-2 forcing dataset (will open up and read &#8220;B&#8221; files).
 This data is at the height of the NARR lowest model level.</p>
 </div>
 <div class="paragraph">
@@ -14231,7 +14895,7 @@ Acceptable values are:</p>
 <div class="paragraph">
 <p><code>NLDAS2 use model based swdown:</code> specifies whether or not to
 read in the un-bias corrected model downward shortwave radiation
-data (in leiu of the bias corrected data) from the NLDAS2 forcing
+data (in leiu of the bias corrected data) from the NLDAS-2 forcing
 dataset (will open up and read &#8220;B&#8221; files).  The data source is
 the NARR shortwave.
 Acceptable values are:</p>
@@ -14261,7 +14925,7 @@ Acceptable values are:</p>
 <div class="paragraph">
 <p><code>NLDAS2 use model based precip:</code> specifies whether or not
 to read in the model based precipitation data (instead of the
-observation based precipitation) from the NLDAS2 forcing
+observation based precipitation) from the NLDAS-2 forcing
 dataset (will open up and read &#8220;B&#8221; files).  The data source
 is the NARR precipitation.
 Acceptable values are:</p>
@@ -14289,10 +14953,9 @@ Acceptable values are:</p>
 </tbody>
 </table>
 <div class="paragraph">
-<p><code>NLDAS2 use model based pressure:</code> specifies whether or
-not to read in the model base pressure data (instead of the
-observation based pressure) from the NLDAS2 forcing dataset
-(will open up and read &#8220;B&#8221; files).  The data source is
+<p><code>NLDAS2 use model based pressure:</code> specifies whether or not
+to read in the model base pressure data from the NLDAS-2 forcing
+dataset (will open up and read &#8220;B&#8221; files).  The data source is
 the pressure at the NARR lowest model level.
 Acceptable values are:</p>
 </div>
@@ -14331,7 +14994,174 @@ NLDAS2 use model based pressure:        0</pre>
 </div>
 </div>
 <div class="sect3">
-<h4 id="sssec_forcings_COAMPS">9.10.5. COAMPS</h4>
+<h4 id="sssec_forcings_nldas20">9.10.5. NLDAS-2.0 (netcdf)</h4>
+<div class="paragraph">
+<p><code>NLDAS-2.0 FORA forcing directory:</code> specifies the location of the
+NLDAS-2.0 v020 &#8220;FORA&#8221; netCDF-4 forcing files.</p>
+</div>
+<div class="paragraph">
+<p><code>NLDAS-2.0 FORB forcing directory:</code> specifies the location of the
+NLDAS-2.0 v020 &#8220;FORB&#8221; netCDF-4 forcing files.  This config entry
+is not required unless one of the following FORB data use flags is
+set to &#8220;1&#8221;.</p>
+</div>
+<div class="paragraph">
+<p><code>NLDAS-2.0 use FORB model level data:</code> specifies whether or not to
+read in and use the model level data (instead of 2/10-m fields) from
+the NLDAS-2 &#8220;FORB&#8221; forcing dataset.  This data is at the height
+of the NARR lowest model level.  The fields that are used are air
+temperature, air humidity, winds, height of the lowest model level,
+and the aerodynamic conductance.  This config entry is not required,
+and the default will be to not use this FORB data.  However, if the
+FORB model level data is chosen, you must specify the directory of
+the FORB data using the &#8220;NLDAS-2.0 FORB forcing directory:&#8221; config.</p>
+</div>
+<div class="paragraph">
+<p>Note that this will read in &#8220;Height of Atmospheric Forcing&#8221;
+and &#8220;Surface Exchange Coefficient for Heat&#8221; (aka, aerodynamic
+conductance).  You must make sure that &#8220;Forc_Hgt:&#8221; and &#8220;Ch:&#8221;
+(respectively) are included in your forcing variables list file.</p>
+</div>
+<div class="paragraph">
+<p>Acceptable values are:</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 50%;">
+<col style="width: 50%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Value</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">0</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">do not use</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">1</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">use</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p><code>NLDAS-2.0 use FORB model-based SWdown:</code> specifies whether or not
+to read in and use the un-bias-corrected model downward shortwave
+radiation data (in leiu of the bias-corrected data) from the NLDAS-2
+&#8220;FORB&#8221; forcing dataset.  The data source is the NARR shortwave.
+This config entry is not required, and the default will be to not
+use this FORB data.  However, if the FORB model-based SWdown is
+chosen, you must specify the directory of the FORB data using the
+&#8220;NLDAS-2.0 FORB forcing directory:&#8221; config.
+Acceptable values are:</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 50%;">
+<col style="width: 50%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Value</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">0</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">do not use</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">1</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">use</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p><code>NLDAS-2.0 use FORB model-based precip:</code> specifies whether or not
+to read in and use the model-based precipitation data (instead of
+the observation-based precipitation) from the NLDAS-2 &#8220;FORB&#8221;
+forcing dataset.  The data source is the NARR precipitation.
+This config entry is not required, and the default will be to not
+use this FORB data.  However, if the FORB model-based precip is
+chosen, you must specify the directory of the FORB data using the
+&#8220;NLDAS-2.0 FORB forcing directory:&#8221; config.
+Acceptable values are:</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 50%;">
+<col style="width: 50%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Value</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">0</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">do not use</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">1</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">use</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p><code>NLDAS-2.0 use FORB model-based pressure:</code> specifies whether or
+not to read in and use the pressure data from the NLDAS-2 &#8220;FORB&#8221;
+forcing dataset.  This data is at the height of the NARR lowest
+model level.  This config entry is not required, and the default
+will be to not use this FORB data.  However, if the FORB model-based
+pressure is chosen, you must specify the directory of the FORB data
+using the &#8220;NLDAS-2.0 FORB forcing directory:&#8221; config.
+Acceptable values are:</p>
+</div>
+<div class="paragraph">
+<p>Acceptable values are:</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 50%;">
+<col style="width: 50%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Value</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">0</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">do not use</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">1</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">use</p></td>
+</tr>
+</tbody>
+</table>
+<div class="literalblock">
+<div class="title">Example <em>lis.config</em> entry</div>
+<div class="content">
+<pre>NLDAS-2.0 FORA forcing directory:               ./input/NLDAS2/FORA
+NLDAS-2.0 FORB forcing directory:               ./input/NLDAS2/FORB
+NLDAS-2.0 use FORB model level data:            0
+NLDAS-2.0 use FORB model-based SWdown:          0
+NLDAS-2.0 use FORB model-based precip:          0
+NLDAS-2.0 use FORB model-based pressure:        0</pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="sssec_forcings_COAMPS">9.10.6. COAMPS</h4>
 <div class="paragraph">
 <p><code>COAMPS output forcing directory:</code> specifies the location of
 the COAMPS forcing files.</p>
@@ -14373,7 +15203,7 @@ COAMPS nest id: 1</pre>
 </div>
 </div>
 <div class="sect3">
-<h4 id="sssec_supp_3b42rt">9.10.6. TRMM 3B42RT precipitation</h4>
+<h4 id="sssec_supp_3b42rt">9.10.7. TRMM 3B42RT precipitation</h4>
 <div class="paragraph">
 <p><code>TRMM 3B42RT forcing directory:</code> specifies the location of the
 TRMM 3B42RT forcing files.</p>
@@ -14396,7 +15226,7 @@ TRMM 3B42RT Version 7 forcing files.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="sssec_supp_3b42v6">9.10.7. TRMM 3B42V6 precipitation</h4>
+<h4 id="sssec_supp_3b42v6">9.10.8. TRMM 3B42V6 precipitation</h4>
 <div class="paragraph">
 <p><code>TRMM 3B42V6 forcing directory:</code> specifies the location of the
 TRMM 3B42V6 forcing files.</p>
@@ -14409,7 +15239,7 @@ TRMM 3B42V6 forcing files.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="sssec_supp_3b42v7">9.10.8. TRMM 3B42V7 precipitation</h4>
+<h4 id="sssec_supp_3b42v7">9.10.9. TRMM 3B42V7 precipitation</h4>
 <div class="paragraph">
 <p><code>TRMM 3B42V7 forcing directory:</code> specifies the location of the
 TRMM 3B42V7 forcing files.</p>
@@ -14422,7 +15252,7 @@ TRMM 3B42V7 forcing files.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="sssec_supp_cmorph">9.10.9. CMORPH precipitation</h4>
+<h4 id="sssec_supp_cmorph">9.10.10. CMORPH precipitation</h4>
 <div class="paragraph">
 <p><code>CMORPH forcing directory:</code> specifies the location of the
 CMORPH precipitation forcing files.</p>
@@ -14435,7 +15265,7 @@ CMORPH precipitation forcing files.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="sssec_supp_imerg">9.10.10. IMERG precipitation</h4>
+<h4 id="sssec_supp_imerg">9.10.11. IMERG precipitation</h4>
 <div class="paragraph">
 <p><code>IMERG forcing directory:</code> specifies the location of the
 GPM IMERG precipitation forcing files.</p>
@@ -14449,9 +15279,41 @@ default to the &#8220;final&#8221; product of GPM IMERG.</p>
 <div class="paragraph">
 <p><code>IMERG version:</code> specifies the version of the GPM IMERG
 precipitation forcing files. If no version is specified,
-the reader will default to the latest version of GPM IMERG.
-(Currently V06B).</p>
+the reader will default to &#8220;V06B&#8221;.</p>
 </div>
+<div class="paragraph">
+<p>The supported versions of GPM IMERG are:</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 50%;">
+<col style="width: 50%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Version</th>
+<th class="tableblock halign-left valign-top">Product</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">V06B</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">early, late, final</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">V06C</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">early, late, final</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">V06D</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">early, late, final</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">V07A</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">preliminary support for final</p></td>
+</tr>
+</tbody>
+</table>
 <div class="literalblock">
 <div class="title">Example <em>lis.config</em> entry</div>
 <div class="content">
@@ -14462,7 +15324,7 @@ IMERG version: 'V06B'</pre>
 </div>
 </div>
 <div class="sect3">
-<h4 id="sssec_supp_stageii">9.10.11. Stage II precipitation</h4>
+<h4 id="sssec_supp_stageii">9.10.12. Stage II precipitation</h4>
 <div class="paragraph">
 <p><code>STAGE2 forcing directory:</code> specifies the location of the
 STAGE2 forcing files.</p>
@@ -14475,7 +15337,7 @@ STAGE2 forcing files.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="sssec_supp_stageiv">9.10.12. Stage IV precipitation</h4>
+<h4 id="sssec_supp_stageiv">9.10.13. Stage IV precipitation</h4>
 <div class="paragraph">
 <p><code>STAGE4 forcing directory:</code> specifies the location of the
 STAGE4 forcing files.</p>
@@ -14488,7 +15350,7 @@ STAGE4 forcing files.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="sssec_supp_narr">9.10.13. NARR</h4>
+<h4 id="sssec_supp_narr">9.10.14. NARR</h4>
 <div class="paragraph">
 <p><code>NARR forcing directory:</code> specifies the location of the
 NARR forcing files.</p>
@@ -14520,7 +15382,7 @@ NARR domain z-dimension size:      30</pre>
 </div>
 </div>
 <div class="sect3">
-<h4 id="sssec_supp_rfe2daily">9.10.14. RFE2Daily</h4>
+<h4 id="sssec_supp_rfe2daily">9.10.15. RFE2Daily</h4>
 <div class="paragraph">
 <p><code>RFE2Daily forcing directory:</code> specifies the location of the
 RFE2Daily forcing files.</p>
@@ -14541,7 +15403,7 @@ RFE2Daily time offset:          0 # for use by GeoWRSI</pre>
 </div>
 </div>
 <div class="sect3">
-<h4 id="sssec_chirps2">9.10.15. CHIRPS2</h4>
+<h4 id="sssec_chirps2">9.10.16. CHIRPS2</h4>
 <div class="paragraph">
 <p><code>CHIRPS2.0 forcing directory:</code> specifies the location of the
 UCSB CHIRPS v2.0 precipitation forcing file directory. User
@@ -14562,7 +15424,7 @@ CHIRPS2.0 forcing resolution:     0.05</pre>
 </div>
 </div>
 <div class="sect3">
-<h4 id="sssec_supp_petusgs">9.10.16. PET_USGS</h4>
+<h4 id="sssec_supp_petusgs">9.10.17. PET_USGS</h4>
 <div class="paragraph">
 <p><code>USGS PET forcing directory:</code> specifies the location of the
 PET USGS forcing files.</p>
@@ -14602,7 +15464,7 @@ Acceptable values are:</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="sssec_rfe2gdas">9.10.17. RFE2 data bias corrected to GDAS</h4>
+<h4 id="sssec_rfe2gdas">9.10.18. RFE2 data bias corrected to GDAS</h4>
 <div class="paragraph">
 <p><code>RFE2gdas forcing directory:</code> specifies the location of the
 RFE2gdas forcing files.</p>
@@ -14615,7 +15477,7 @@ RFE2gdas forcing files.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="sssec_supp_nam242">9.10.18. NAM242</h4>
+<h4 id="sssec_supp_nam242">9.10.19. NAM242</h4>
 <div class="paragraph">
 <p><code>NAM242 forcing directory:</code> specifies the location of the
 &#8220;NAM 242 AWIPS Grid -- Over Alaska&#8221; forcing files</p>
@@ -14628,7 +15490,7 @@ RFE2gdas forcing files.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="sssec_supp_wrfout">9.10.19. WRFout</h4>
+<h4 id="sssec_supp_wrfout">9.10.20. WRFout</h4>
 <div class="paragraph">
 <p><code>WRF output forcing directory:</code> specifies the location of the
 WRF output data files.</p>
@@ -14645,7 +15507,7 @@ WRF nest id:                          1</pre>
 </div>
 </div>
 <div class="sect3">
-<h4 id="sssec_supp_wrfoutv2">9.10.20. NAM242</h4>
+<h4 id="sssec_supp_wrfoutv2">9.10.21. WRFoutv2</h4>
 <div class="paragraph">
 <p><code>WRF output v2 forcing directory:</code> specifies the location of the
 &#8220;NCAR-WRF 4km metforcing output&#8221; forcing files</p>
@@ -14658,7 +15520,7 @@ WRF nest id:                          1</pre>
 </div>
 </div>
 <div class="sect3">
-<h4 id="sssec_supp_wrfakdom">9.10.21. NAM242</h4>
+<h4 id="sssec_supp_wrfakdom">9.10.22. WRF AK domain</h4>
 <div class="paragraph">
 <p><code>WRF AK forcing directory:</code> specifies the location of the
 &#8220;NCAR-WRF Alaska domain 4km metforcing output&#8221; files</p>
@@ -14671,7 +15533,7 @@ WRF nest id:                          1</pre>
 </div>
 </div>
 <div class="sect3">
-<h4 id="sssec_geos5forecast">9.10.22. GEOS5 Forecast</h4>
+<h4 id="sssec_geos5forecast">9.10.23. GEOS5 Forecast</h4>
 <div class="paragraph">
 <p><code>GEOS5 forecast forcing directory:</code> specifies the location
 of the GEOS5 forecast forcing files.</p>
@@ -14689,7 +15551,7 @@ GEOS5 forecast forcing number of ensemble members:   11</pre>
 </div>
 </div>
 <div class="sect3">
-<h4 id="sssec_gefsforecast">9.10.23. GEFS Forecast</h4>
+<h4 id="sssec_gefsforecast">9.10.24. GEFS Forecast</h4>
 <div class="paragraph">
 <p><code>GEFS forecast directory:</code> specifies the location
 of the GEFS forecast forcing files.</p>
@@ -14758,7 +15620,7 @@ GEFS forecast grid resolution:   0.25</pre>
 </div>
 </div>
 <div class="sect3">
-<h4 id="sssec_genensfcst">9.10.24. Generic Ensemble Forecast Reader</h4>
+<h4 id="sssec_genensfcst">9.10.25. Generic Ensemble Forecast Reader</h4>
 <div class="paragraph">
 <p><code>Generic ensemble forecast directory:</code> specifies the location
 of the user-generated ensemble forecast forcing files.</p>
@@ -14772,17 +15634,24 @@ ensemble members desired for the user-generated ensemble forecast dataset.</p>
 the generated ensemble-based forecast forcing files being read in.
 Default setting is GEOS5, but options include GEOS5 and CFSv2.</p>
 </div>
+<div class="paragraph">
+<p><code>Generic ensemble forecast initial date:</code> specifies the initial forecast
+date, such as YYYYMMDD. This option enables the user to be able to
+run from restart conditions if a forecast run stops or times out
+during runtime. This is an optional entry.</p>
+</div>
 <div class="literalblock">
 <div class="title">Example <em>lis.config</em> entry</div>
 <div class="content">
 <pre>Generic ensemble forecast directory:     ./GEOS5_BiasCorrected/
 Generic ensemble forecast number of ensemble members:  11
-Name of base forecast model:              GEOS5</pre>
+Name of base forecast model:               GEOS5
+Generic ensemble forecast initial date:    20200501</pre>
 </div>
 </div>
 </div>
 <div class="sect3">
-<h4 id="sssec_pptensfcst">9.10.25. Precipitation-only Ensemble Forecast Reader</h4>
+<h4 id="sssec_pptensfcst">9.10.26. Precipitation-only Ensemble Forecast Reader</h4>
 <div class="paragraph">
 <p><code>Precipitation ensemble forecast directory:</code> specifies the location
 of the user-generated ensemble precipitation forecast forcing files.</p>
@@ -14796,17 +15665,24 @@ ensemble members desired for the user-generated precipitation ensemble forecast 
 the generated ensemble-based forecast forcing files being read in.
 Default setting is GEOS5, but options include GEOS5 and CFSv2.</p>
 </div>
+<div class="paragraph">
+<p><code>Precipitation ensemble forecast initial date:</code> specifies the initial forecast
+date, such as YYYYMMDD. This option enables the user to be able to
+run from restart conditions if a forecast run stops or times out
+during runtime. This is an optional entry.</p>
+</div>
 <div class="literalblock">
 <div class="title">Example <em>lis.config</em> entry</div>
 <div class="content">
-<pre>Precipitation ensemble forecast directory:     ./GEOS5_BiasCorrected/
+<pre>Precipitation ensemble forecast directory:    ./GEOS5_BiasCorrected/
 Precipitation ensemble forecast number of ensemble members:  11
-Name of base forecast model:              GEOS5</pre>
+Name of base forecast model:                   GEOS5
+Precipitation ensemble forecast initial date:  20200501</pre>
 </div>
 </div>
 </div>
 <div class="sect3">
-<h4 id="sssec_bondville">9.10.26. Bondville</h4>
+<h4 id="sssec_bondville">9.10.27. Bondville</h4>
 <div class="paragraph">
 <p><code>Bondville forcing file:</code> specifies the location of the
 Bondville forcing file.</p>
@@ -14848,7 +15724,7 @@ Bondville Noah-MP-4.0.1 forcing:     1</pre>
 </div>
 </div>
 <div class="sect3">
-<h4 id="sssec_snotel">9.10.27. SNOTEL</h4>
+<h4 id="sssec_snotel">9.10.28. SNOTEL</h4>
 <div class="paragraph">
 <p><code>SNOTEL forcing directory:</code> specifies the location of the
 SNOTEL forcing files.</p>
@@ -14871,7 +15747,7 @@ SNOTEL coord file:</pre>
 </div>
 </div>
 <div class="sect3">
-<h4 id="sssec_vicforcing">9.10.28. VIC processed forcing</h4>
+<h4 id="sssec_vicforcing">9.10.29. VIC processed forcing</h4>
 <div class="paragraph">
 <p>This is used by the LIS development team to support debugging VIC
 within LIS.  One must first run stand-alone VIC, configured to
@@ -14940,7 +15816,7 @@ VIC NR:</pre>
 </div>
 </div>
 <div class="sect3">
-<h4 id="sssec_pals">9.10.29. PALS station</h4>
+<h4 id="sssec_pals">9.10.30. PALS station</h4>
 <div class="paragraph">
 <p><code>PALS met forcing directory:</code> specifies the location of the
 PALS station forcing files.</p>
@@ -14988,7 +15864,7 @@ PALS met forcing data start second:</pre>
 </div>
 </div>
 <div class="sect3">
-<h4 id="sssec_ldtgen">9.10.30. LDT-generated</h4>
+<h4 id="sssec_ldtgen">9.10.31. LDT-generated</h4>
 <div class="paragraph">
 <p><code>Generated metforcing directory:</code> specifies the location of the
 LDT generated meteorological forcing files.  Files generated in LDT
@@ -15003,7 +15879,7 @@ by the LIS reader.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="sssec_climstand">9.10.31. CLIM-Standard</h4>
+<h4 id="sssec_climstand">9.10.32. CLIM-Standard</h4>
 <div class="paragraph">
 <p><code>Metforcing climatology directory:</code> specifies the location of the
 LDT generated forcing climatologies files.  Files generated in LDT
@@ -15018,7 +15894,7 @@ by this selected reader in LIS.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="sssec_genensfcstforcing">9.10.32. Generic ensemble forecast</h4>
+<h4 id="sssec_genensfcstforcing">9.10.33. Generic ensemble forecast</h4>
 <div class="paragraph">
 <p><code>Generic ensemble forecast directory:</code> specifies the location of the
 generic ensemble forecast data.</p>
@@ -15036,7 +15912,7 @@ Generic ensemble forecast number of ensemble members:</pre>
 </div>
 </div>
 <div class="sect3">
-<h4 id="sssec_supp_awap">9.10.33. AWAP</h4>
+<h4 id="sssec_supp_awap">9.10.34. AWAP</h4>
 <div class="paragraph">
 <p><code>AWAP forcing directory:</code> specifies the location of the AWAP precipitation
 forcing data.</p>
@@ -15049,7 +15925,7 @@ forcing data.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="sssec_gdast1534forcing">9.10.34. GDAS T1534</h4>
+<h4 id="sssec_gdast1534forcing">9.10.35. GDAS T1534</h4>
 <div class="paragraph">
 <p><code>GDAS T1534 forcing directory:</code> specifies the location of the GDAS T1534 metforcing data.</p>
 </div>
@@ -15061,7 +15937,7 @@ forcing data.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="sssec_mrmsforcing">9.10.35. MRMS</h4>
+<h4 id="sssec_mrmsforcing">9.10.36. MRMS</h4>
 <div class="paragraph">
 <p><code>MRMS forcing directory:</code> specifies the location of the MRMS metforcing data.</p>
 </div>
@@ -15087,7 +15963,7 @@ MRMS mask directory: ./input/MASKS/</pre>
 </div>
 </div>
 <div class="sect3">
-<h4 id="sssec_awral600forcing">9.10.36. AWRA-L 6.0.0</h4>
+<h4 id="sssec_awral600forcing">9.10.37. AWRA-L 6.0.0</h4>
 <div class="paragraph">
 <p><code>AWRAL forcing directory:</code> specifies the location of the AWRA-L metforcing data.</p>
 </div>
@@ -15107,7 +15983,7 @@ AWRAL domain y-dimension size:         681</pre>
 </div>
 </div>
 <div class="sect3">
-<h4 id="sssec_plumber2forcing">9.10.37. PLUMBER2</h4>
+<h4 id="sssec_plumber2forcing">9.10.38. PLUMBER2</h4>
 <div class="paragraph">
 <p><code>PLUMBER2 forcing file:</code> specifies the location of the PLUMBER2 forcing file.</p>
 </div>
@@ -15127,7 +16003,7 @@ PLUMBER2 Time Delta: 1800</pre>
 </div>
 </div>
 <div class="sect3">
-<h4 id="sssec_gddpforcing">9.10.38. GDDP</h4>
+<h4 id="sssec_gddpforcing">9.10.39. GDDP</h4>
 <div class="paragraph">
 <p><code>GDDP forcing file:</code> specifies the location of the GDDP metforcing data.</p>
 </div>
@@ -15147,6 +16023,110 @@ PLUMBER2 Time Delta: 1800</pre>
 GDDP forcing scenario:                       historical
 GDDP reference daily climatology directory:  ./input/MET_FORCING/M2CLIMO/DAILY/
 GDDP reference hourly climatology directory: ./input/MET_FORCING/M2CLIMO/HOURLY/</pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="sssec_galwemforecast">9.10.40. GALWEM Forecast</h4>
+<div class="paragraph">
+<p><code>GALWEM forecast forcing directory:</code> specifies the location
+of the GALWEM forecast forcing files.</p>
+</div>
+<div class="paragraph">
+<p><code>GALWEM forecast resolution:</code> specifies the resolution of
+the GALWEM forecast data. The current resolutions supported are:
+17(=17km) or 25(=0.25deg)</p>
+</div>
+<div class="paragraph">
+<p><code>GALWEM forecast run mode:</code> specifies the run mode related
+to the GALWEM dataset, which can either be forecast or analysis
+run mode. Currently, only the forecast mode is supported.</p>
+</div>
+<div class="literalblock">
+<div class="title">Example <em>lis.config</em> entry</div>
+<div class="content">
+<pre>GALWEM forecast forcing directory: ./GALWEM_17km
+GALWEM forecast grid resolution:   17          # 17(=17km) or 25(=0.25 deg)
+GALWEM forecast run mode:          forecast    # forecast | analysis</pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="sssec_galwemgeforecast">9.10.41. GALWEM-GE Forecast</h4>
+<div class="paragraph">
+<p><code>GALWEM-GE forecast forcing directory:</code> specifies the location
+of the GALWEM-GE forecast forcing files.</p>
+</div>
+<div class="paragraph">
+<p><code>GALWEM-GE forecast run mode:</code> specifies the run mode related
+to the GALWEM-GE dataset, which can either be forecast or analysis
+run mode. Currently, only the forecast mode is supported.</p>
+</div>
+<div class="paragraph">
+<p><code>GALWEM-GE forecast number of ensemble members:</code> specifies the number of ensembles
+of the GALWEM-GE forecast forcing data.</p>
+</div>
+<div class="literalblock">
+<div class="title">Example <em>lis.config</em> entry</div>
+<div class="content">
+<pre>GALWEM-GE forecast forcing directory:          ./GALWEM_GE
+GALWEM-GE forecast run mode:                   forecast    # forecast | analysis
+GALWEM-GE forecast number of ensemble members: 21</pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="sssec_mogrepsgforecast">9.10.42. MOGREPS-G Forecast</h4>
+<div class="paragraph">
+<p><code>MOGREPS-G forecast forcing directory:</code> specifies the location
+of the MOGREPS-G forecast forcing files.</p>
+</div>
+<div class="paragraph">
+<p><code>MOGREPS-G forecast run mode:</code> specifies the run mode related
+to the MOGREPS-G dataset, which can either be forecast or analysis
+run mode. Currently, only the forecast mode is supported.</p>
+</div>
+<div class="paragraph">
+<p><code>MOGREPS-G forecast number of ensemble members:</code> specifies the number of ensembles
+of the MOGREPS-G forecast forcing data.</p>
+</div>
+<div class="paragraph">
+<p><code>Apply MOGREPS-G precipitation bias correction:</code> specifies whether to enable the precipitation
+bias correction. Acceptable values are:</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 50%;">
+<col style="width: 50%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Value</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">0</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Do not enable</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">1</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Enable</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p><code>MOGREPS-G model CDF file:</code> specifies the location of the MOGREPS-G model CDF file.</p>
+</div>
+<div class="literalblock">
+<div class="title">Example <em>lis.config</em> entry</div>
+<div class="content">
+<pre>MOGREPS-G forecast forcing directory:          ./MOGREPS-G
+MOGREPS-G forecast run mode:                   forecast    # forecast | analysis
+MOGREPS-G forecast number of ensemble members: 18
+Apply MOGREPS-G precipitation bias correction: 1 #enter 1 - use; or 0
+MOGREPS-G model CDF file:                      ./input/cdf/MOGREPS_G_leadtime_cdf_10km.nc</pre>
 </div>
 </div>
 </div>
@@ -19684,9 +20664,147 @@ AWRAL600 initial mleaf: 0.67 0.2</pre>
 </div>
 </div>
 <div class="sect2">
-<h3 id="ssec_lakes">9.12. Lake models</h3>
+<h3 id="ssec_sublsm">9.12. Sublevel land surface models</h3>
 <div class="sect3">
-<h4 id="sssec_flake.1.0">9.12.1. FLAKE.1.0</h4>
+<h4 id="sssec_sublsm_snowmodel">9.12.1. SnowModel, Liston</h4>
+<div class="paragraph">
+<p><code>SnowModel model timestep:</code> specifies the timestep for the run.</p>
+</div>
+<div class="paragraph">
+<p>See Section <a href="#ssec_timeinterval">Defining a time interval</a> for a description
+of how to specify a time interval.</p>
+</div>
+<div class="paragraph">
+<p><code>SnowModel restart output interval:</code> defines the restart
+writing  interval for Glen Liston&#8217;s SnowModel model. The typical
+value used in the LIS runs is 24 hours (1da).</p>
+</div>
+<div class="paragraph">
+<p>See Section <a href="#ssec_timeinterval">Defining a time interval</a> for a description
+of how to specify a time interval.</p>
+</div>
+<div class="paragraph">
+<p><code>SnowModel restart file:</code> specifies the SnowModel active
+restart file.</p>
+</div>
+<div class="paragraph">
+<p><code>SnowModel restart file format:</code> specifies the restart file
+format for SnowModel.</p>
+</div>
+<div class="paragraph">
+<p><code>SnowModel parameter file:</code> specifies the main SnowModel-specific
+input and option parameter configuration file, which is needed
+to run SnowModel.</p>
+</div>
+<div class="paragraph">
+<p><code>SnowModel parameters source option:</code> specifies if SnowModel will
+read in its native binary parameter files from within the SnowModel
+code or what is preprocessed in LDT. LDT option supports parallel runs
+Acceptable values are:</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 50%;">
+<col style="width: 50%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Value</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">SnowModel</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Use SnowModel built-in routines to read in</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">LDT</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Use the LIS SnowModel main driver to load parameters from LDT.</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p><code>SnowModel MicroMet input source:</code> specifies if SnowModel will
+read in its own specifically formatted binary or ASCII table forcing
+files, or if LIS meteorological forcing fields will be passed in,
+with the option to turn on MicroMet topographic-downscaling options
+on the LIS metforcing layer side. To turn on "micromet" option in LIS,
+set Topographic correction method (met forcing) to micromet.
+Acceptable values are:</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 50%;">
+<col style="width: 50%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Value</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">SnowModel</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Readin specific SnowModel forcing files</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">LIS</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">LIS-based meteorological forcing fields</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p><code>SnowModel preprocess code option:</code> specifies the turning on
+of the SnowModel built-in preprocess code module, which performs
+initial preprocessing of gridded data for running the model.
+Currently, only option supported is 1 (on).</p>
+</div>
+<div class="paragraph">
+<p><code>Write out SnowModel forcing file fields:</code> specifies if you
+want to write out SnowModel forcing fields generated by reading
+in SnowModel-specific forcing files. This option is mainly
+used when SnowModel MicroMet input source is set to SnowModel
+and you run SnowModel in offline subLSM mode (no other LSMs or models
+run with this submodel). Selecting 1 activates this option, and
+0 indicates off.</p>
+</div>
+<div class="paragraph">
+<p><code>SnowModel number of snow layers:</code> specifies the number of snow
+layers that would be allowed to build within the SnowModel runtime.
+This option is currently set to 1 within LIS, and must also be
+activated and increased by setting the multiple layer snow model
+scheme in the SnowModel option parameter file (snowmodel.par).</p>
+</div>
+<div class="paragraph">
+<p><code>SnowModel initial snow water equivalent:</code> specifies the initial
+snow water equivalent (SWE) value.  This is currently set to
+default values found in the coldstart mode for model restart reads,
+based on a SnowModel initialization approach.</p>
+</div>
+<div class="literalblock">
+<div class="title">Example <em>lis.config</em> entry</div>
+<div class="content">
+<pre>SnowModel model timestep:                1hr
+SnowModel restart file:                ./none
+SnowModel restart output interval:       1mo
+SnowModel restart file format:          "netcdf"
+SnowModel parameter file:              ./snowmodel.par
+SnowModel parameters source option:       LDT
+SnowModel MicroMet input source:          LIS
+Write out SnowModel forcing file fields:  1
+SnowModel preprocess code option:         1
+SnowModel number of snow layers:          1
+SnowModel initial snow water equivalent:  0.0</pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="ssec_lakes">9.13. Lake models</h3>
+<div class="sect3">
+<h4 id="sssec_flake.1.0">9.13.1. FLAKE.1.0</h4>
 <div class="paragraph">
 <p><code>FLAKE1 model timestep:</code> specifies the timestep for FLAKE1.</p>
 </div>
@@ -19806,9 +20924,9 @@ FLAKE1 initial snow surface albedo with respect to the solar radiation:</pre>
 </div>
 </div>
 <div class="sect2">
-<h3 id="ssec_openwater">9.13. Open water models</h3>
+<h3 id="ssec_openwater">9.14. Open water models</h3>
 <div class="sect3">
-<h4 id="sssec_templateopenwater">9.13.1. template open water</h4>
+<h4 id="sssec_templateopenwater">9.14.1. template open water</h4>
 <div class="paragraph">
 <p><code>Template open water timestep:</code> specifies the timestep for the run.</p>
 </div>
@@ -19825,9 +20943,9 @@ of how to specify a time interval.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="ssec_landslides">9.14. Land slide models</h3>
+<h3 id="ssec_landslides">9.15. Land slide models</h3>
 <div class="sect3">
-<h4 id="sssec_gls">9.14.1. GLS</h4>
+<h4 id="sssec_gls">9.15.1. GLS</h4>
 <div class="paragraph">
 <p><code>GLS susceptibility index map:</code> <span class="red">specifies what?</span></p>
 </div>
@@ -19887,7 +21005,7 @@ GLS output interval:</pre>
 </div>
 </div>
 <div class="sect3">
-<h4 id="sssec_trigrs">9.14.2. TRIGRS</h4>
+<h4 id="sssec_trigrs">9.15.2. TRIGRS</h4>
 <div class="paragraph">
 <p><code>TRIGRS initialization file:</code> <span class="red">specifies what?</span></p>
 </div>
@@ -19908,7 +21026,7 @@ TRIGRS rain input source style:</pre>
 </div>
 </div>
 <div class="sect2">
-<h3 id="ssec_irrigation">9.15. Irrigation</h3>
+<h3 id="ssec_irrigation">9.16. Irrigation</h3>
 <div class="paragraph">
 <p><code>Irrigation scheme:</code> specifies the name of the irrigation
 scheme to use.
@@ -20094,9 +21212,9 @@ Irrigation source water partition: 0</pre>
 </div>
 </div>
 <div class="sect2">
-<h3 id="ssec_routing">9.16. Routing</h3>
+<h3 id="ssec_routing">9.17. Routing</h3>
 <div class="sect3">
-<h4 id="sssec_hymaprouting">9.16.1. HYMAP routing</h4>
+<h4 id="sssec_hymaprouting">9.17.1. HYMAP routing</h4>
 <div class="paragraph">
 <p><code>HYMAP routing model time step:</code> specifies the timestep for
 the HyMAP router.</p>
@@ -20278,7 +21396,7 @@ HYMAP routing model restart file: "./OL/ROUTING/200001/LIS_RST_HYMAP_router_2000
 </div>
 </div>
 <div class="sect3">
-<h4 id="sssec_hymap2routing">9.16.2. HYMAP2 routing</h4>
+<h4 id="sssec_hymap2routing">9.17.2. HYMAP2 routing</h4>
 <div class="paragraph">
 <p><code>HYMAP2 routing model time step:</code> specifies the timestep for
 the HyMAP2 router.</p>
@@ -20673,7 +21791,7 @@ HYMAP2 2-way coupling flooded fraction threshold: 2.0</pre>
 </div>
 </div>
 <div class="sect3">
-<h4 id="sssec_nldasrouting">9.16.3. NLDAS routing</h4>
+<h4 id="sssec_nldasrouting">9.17.3. NLDAS routing</h4>
 <div class="paragraph">
 <p><code>NLDAS routing model output interval:</code> defines the output
 writing interval for the NLDAS router.</p>
@@ -20756,11 +21874,802 @@ NLDAS routing model restart file:</pre>
 </div>
 </div>
 </div>
+<div class="sect3">
+<h4 id="sssec_rapidrouting">9.17.4. RAPID routing</h4>
+<div class="paragraph">
+<p><code>RAPID routing model time step:</code> specifies the timestep for
+the RAPID router.</p>
+</div>
+<div class="paragraph">
+<p>See Section <a href="#ssec_timeinterval">Defining a time interval</a> for a description
+of how to specify a time interval.</p>
+</div>
+<div class="paragraph">
+<p><code>RAPID river routing time step:</code> specifies the timestep for
+RAPID river routing precedure.</p>
+</div>
+<div class="paragraph">
+<p><code>RAPID routing model output interval:</code> defines the output
+writing interval for the RAPID router.</p>
+</div>
+<div class="paragraph">
+<p>See Section <a href="#ssec_timeinterval">Defining a time interval</a> for a description
+of how to specify a time interval.</p>
+</div>
+<div class="paragraph">
+<p><code>RAPID routing model restart interval:</code> defines the restart output
+writing interval for the RAPID router.</p>
+</div>
+<div class="paragraph">
+<p>See Section <a href="#ssec_timeinterval">Defining a time interval</a> for a description
+of how to specify a time interval.</p>
+</div>
+<div class="paragraph">
+<p><code>RAPID routing model start mode:</code> specifies the restart mode
+to be used for the RAPID router.
+Acceptable values are:</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 50%;">
+<col style="width: 50%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Value</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">restart</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">A restart mode is being used; read a RAPID restart file</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">coldstart</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">A cold start mode is being used; no restart file read</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p><code>RAPID run in ensemble mode:</code> specifies whether to run the
+RAPID router in ensemble mode.
+Acceptable values are:</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 50%;">
+<col style="width: 50%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Value</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">0</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Do not run in ensemble mode</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">1</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Run in ensemble mean mode</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">2</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Run in ensemble mode (not support)</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p><code>RAPID run option:</code> is set to 1 for a regular run. The other options are not
+supported yet.</p>
+</div>
+<div class="paragraph">
+<p><code>RAPID routing option:</code> is set to 1 for applying matrix-based
+Mukingum algorithm. The other options are not supported yet.</p>
+</div>
+<div class="paragraph">
+<p><code>RAPID cost function phi option:</code> is set to 1 for phi1. The other options
+are not supported yet.</p>
+</div>
+<div class="paragraph">
+<p><code>RAPID initial flow:</code> use initial instantaneous flow file. This option
+is not supported. Set to <code>.false.</code>.</p>
+</div>
+<div class="paragraph">
+<p><code>RAPID write final flow:</code> save final instantaneous flow file. This option
+is not supported. Set to <code>.false.</code>.</p>
+</div>
+<div class="paragraph">
+<p><code>RAPID compute volume:</code> compute flow volume. This option
+is not supported. Set to <code>.false.</code>.</p>
+</div>
+<div class="paragraph">
+<p><code>RAPID human-induced flow:</code> apply human-induced flow. This option
+is not supported. Set to <code>.false.</code>.</p>
+</div>
+<div class="paragraph">
+<p><code>RAPID upstream forcing:</code> use upstrem forcing. This option
+is not supported. Set to <code>.false.</code>.</p>
+</div>
+<div class="paragraph">
+<p><code>RAPID dam model used:</code> use dam model. This option
+is not supported. Set to <code>.false.</code>.</p>
+</div>
+<div class="paragraph">
+<p><code>RAPID output influence:</code> use output influence. This option
+is not supported. Set to <code>.false.</code>.</p>
+</div>
+<div class="paragraph">
+<p><code>RAPID uncertainty quantification:</code> use uncertainty quantification. This option
+is not supported. Set to <code>.false.</code>.</p>
+</div>
+<div class="paragraph">
+<p><code>RAPID river connectivity file:</code> specifies river connectivity file.</p>
+</div>
+<div class="paragraph">
+<p><code>RAPID max number of upstream reaches:</code> specifies maximum number of upstream
+reaches.</p>
+</div>
+<div class="paragraph">
+<p><code>RAPID river weight table:</code> specifies river weight table file.</p>
+</div>
+<div class="paragraph">
+<p><code>RAPID river basin ID file:</code> specifies river basin ID file.</p>
+</div>
+<div class="paragraph">
+<p><code>RAPID Muskingum parameter k file:</code> specifies Muskingum parameter k file.</p>
+</div>
+<div class="paragraph">
+<p><code>RAPID Muskingum parameter x file:</code> specifies Muskingum parameter x file.</p>
+</div>
+<div class="paragraph">
+<p><code>RAPID namelist file:</code> specifies namelist file.</p>
+</div>
+<div class="literalblock">
+<div class="title">Example <em>lis.config</em> entry</div>
+<div class="content">
+<pre>RAPID routing model time step: "1da"
+RAPID river routing time step: "15mn"
+RAPID routing model output interval: "1da"
+RAPID routing model restart interval: "1mo"
+RAPID routing model start mode: restart
+RAPID routing model restart file: ./output/ol/ROUTING/200801/LIS_RST_RAPID_router_200801150000.d01.nc
+RAPID run in ensemble mode: 0
+RAPID run option: 1
+RAPID routing option: 1
+RAPID cost function phi option: 1
+RAPID initial flow: .false.
+RAPID write final flow: .false.
+RAPID compute volume: .false.
+RAPID human-induced flow: .false.
+RAPID upstream forcing: .false.
+RAPID dam model used: .false.
+RAPID output influence: .false.
+RAPID uncertainty quantification: .false.
+RAPID river connectivity file: ./rapid_params/rapid_connect.csv
+RAPID max number of upstream reaches:   3
+RAPID river weight table: ./rapid_params/weight_lis.csv
+RAPID river basin ID file: ./rapid_params/riv_bas_id.csv
+RAPID Muskingum parameter k file: ./rapid_params/k.csv
+RAPID Muskingum parameter x file: ./rapid_params/x.csv
+RAPID namelist file: ./rapid_params/rapid_namelist</pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="sssec_lsm_Crocus8.1">9.17.5. Crocus8.1</h4>
+<div class="paragraph">
+<p><code>CROCUS81 model timestep:</code> specifies the timestep for the run.</p>
+</div>
+<div class="paragraph">
+<p><code>CROCUS81 restart output interval:</code> defines the restart
+writing interval for Crocus8.1. The typical value is 1 month (1mo).</p>
+</div>
+<div class="paragraph">
+<p><code>CROCUS81 nsnow:</code> specifies the total number of snow layers.</p>
+</div>
+<div class="paragraph">
+<p><code>CROCUS81 nimpur:</code> specifies the number of impurity types  Note: this option is not activated in the current version.</p>
+</div>
+<div class="paragraph">
+<p><code>CROCUS81 SNOWRES_opt:</code> specifies the turbulant exchange option.
+Acceptable values are:</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 50%;">
+<col style="width: 50%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Value</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">DEF</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Default: Louis (ISBA: Noilhan and Mahfouf 1996)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">RIL</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Limit Richarson number under very stable conditions (currently testing)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">M98</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Martin et Lejeune 1998: older computation for turbulent fluxes coefficents in Crocus</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p><code>CROCUS81 OMEB_BOOL:</code>
+Acceptable values are:</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 50%;">
+<col style="width: 50%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Value</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">.true.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Coupled to MEB. This means surface fluxes ae IMPOSED as an upper boundary condition to the explicit snow schemes.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">.false.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Then energy budget and fluxes are computed herein.</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p><code>CROCUS81 HIMPLICIT_WIND_opt:</code>  specifies the wind implicitation option.
+Acceptable values are:</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 50%;">
+<col style="width: 50%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Value</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">OLD</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">direct</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">NEW</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Taylor series, order 1</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p><code>CROCUS81 PTSTEP:</code> must set to 900s because it has been used to compute the amount of snowfall to triger the CALL_MODEL.</p>
+</div>
+<div class="paragraph">
+<p><code>CROCUS81 UREF:</code> specifies the reference height of the wind.</p>
+</div>
+<div class="paragraph">
+<p><code>CROCUS81 ZREF:</code> specifies the reference height of the first atmospheric level.</p>
+</div>
+<div class="paragraph">
+<p><code>CROCUS81 Z0NAT:</code> specifies the grid box average roughness length.</p>
+</div>
+<div class="paragraph">
+<p><code>CROCUS81 Z0EFF:</code> specifies the roughness length for momentum.</p>
+</div>
+<div class="paragraph">
+<p><code>CROCUS81 Z0HNAT:</code> specifies the grid box average roughness length for heat.</p>
+</div>
+<div class="paragraph">
+<p><code>CROCUS81 D_G:</code> specifies the assumed first soil layer thickness (m).</p>
+</div>
+<div class="paragraph">
+<p><code>CROCUS81 SNOWDRIFT_opt:</code>
+Acceptable values are:</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 50%;">
+<col style="width: 50%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Value</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">NONE</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">No snowdrift scheme</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">DFLT</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">falling snow falls as purely dendritic</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">GA01</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Gallee et al 2001</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">VI13</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Vionnet et al 2013</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p><code>CROCUS81 SNOWDRIFT_SUBLIM_BOOL:</code> activate sublimation during drift.</p>
+</div>
+<div class="paragraph">
+<p><code>CROCUS81 SNOW_ABS_ZENITH_BOOL:</code> activate parametrization of solar absorption for polar regions.</p>
+</div>
+<div class="paragraph">
+<p><code>CROCUS81 SNOWMETAMO_opt:</code> specifies the metamorphism scheme.
+Acceptable values are:</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 50%;">
+<col style="width: 50%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Value</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">B92</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Brun et al 1992</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">C13</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Carmagnola et al 2014</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">T07</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Taillandier et al 2007</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">F06</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Flanner et al 2006</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p><code>CROCUS81 SNOWRAD_opt:</code> specifies the radiative transfer scheme.
+Acceptable values are:</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 50%;">
+<col style="width: 50%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Value</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">B92</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Brun et al 1992</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">T17</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">(Tuzet et al. 2017) (Libois et al. 2013)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">TARTES</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">with impurities content scheme (Currently not available)</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p><code>CROCUS81 ATMORAD_BOOL:</code> activate atmotartes scheme.</p>
+</div>
+<div class="paragraph">
+<p><code>CROCUS81 IMPWET:</code> specifies the wet deposit impurity coefficient.</p>
+</div>
+<div class="paragraph">
+<p><code>CROCUS81 IMPDRY:</code> specifies the dry deposit impurity coefficient.</p>
+</div>
+<div class="paragraph">
+<p><code>CROCUS81 SNOWFALL_opt:</code> specifies the falling snow scheme.
+Acceptable values are:</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 50%;">
+<col style="width: 50%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Value</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">V12</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Vionnet et al. 2012 from Brun et al. 1989</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">A76</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Anderson et al. 1976</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">S02</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Lehning el al. 2002</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">P75</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Pahaut 1975</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">NZE</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Constant density 200 kg/m3 (who knows ?)</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p><code>CROCUS81 SNOWCOND_opt:</code> specifies the thermal conductivity scheme.
+Acceptable values are:</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 50%;">
+<col style="width: 50%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Value</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Y81</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">default Crocus from Yen et al. 1981</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">I02</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">ISBA_ES snow conductivity parametrization (Boone et al. 2002)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">C11</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Calonne et al. 2011 snow conductivity parametrization</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p><code>CROCUS81 SNOWHOLD_opt:</code> specifies the liquid water content scheme.
+Acceptable values are:</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 50%;">
+<col style="width: 50%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Value</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">B92</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">default Crocus from Brun et al. 1992 or Vionnet et al. 2012</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">B02</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">ISBA_ES  parametrization (Boone et al. 2002)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">O04</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">CLM parametrization (Oleson et al 2004)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">S02</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">SNOWPACK aprametrization (Lehning et al 2002)</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p><code>CROCUS81 SNOWCOMP_opt:</code> specifies the compaction option.
+Acceptable values are:</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 50%;">
+<col style="width: 50%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Value</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">B92</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">snow compaction basis version</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">B93</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">for slightly different parameters</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p><code>CROCUS81 SNOWZREF_opt:</code> specifies the reference height is constant or variable from the snow surface.
+Acceptable values are:</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 50%;">
+<col style="width: 50%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Value</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">CST</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">constant reference height from the snow surface</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">VAR</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">variable reference height from the snow surface (i.e. constant from the ground)</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p><code>CROCUS81 SNOWCOMPACT_BOOL:</code> activate snow comapction.</p>
+</div>
+<div class="paragraph">
+<p><code>CROCUS81 SNOWMAK_BOOL:</code> activate snowmaking.</p>
+</div>
+<div class="paragraph">
+<p><code>CROCUS81 SNOWTILLER_BOOL:</code> activate Tilling.</p>
+</div>
+<div class="paragraph">
+<p><code>CROCUS81 SELF_PROD_BOOL:</code> snow management option.</p>
+</div>
+<div class="paragraph">
+<p><code>CROCUS81 SNOWMAK_PROP_BOOL:</code> Additionnal boolean to use modified properties of machine made snow (MMS) or not.</p>
+</div>
+<div class="paragraph">
+<p><code>CROCUS81 PRODSNOWMAK_BOOL:</code> activate snowmaking daytime.</p>
+</div>
+<div class="paragraph">
+<p><code>CROCUS81 GLACIER_BOOL:</code>
+Acceptable values are:</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 50%;">
+<col style="width: 50%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Value</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">.true.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Over permanent snow and ice,
+              initialise WGI=WSAT,
+              Hsnow&gt;=10m and allow 0.8&lt;SNOALB&lt;0.85</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">.false.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">No specific treatment</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p><code>CROCUS81 TG:</code> specifies the surface soil temperature (effective temperature the of layer lying below snow).</p>
+</div>
+<div class="paragraph">
+<p><code>CROCUS81 use monthly albedo map:</code>
+Acceptable values are:</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 50%;">
+<col style="width: 50%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Value</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">.true.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">use monthly climatology albedo</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">.false.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">use constant value of 0.2</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p><code>CROCUS81 boolean option to partition total precip:</code>
+Acceptable values are:</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 50%;">
+<col style="width: 50%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Value</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">.true.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">forcing only provides total precip</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">.false.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">forcing contains snowfall and rainfall</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p><code>CROCUS81 restart file:</code> specifies the Crocus restart file.</p>
+</div>
+<div class="paragraph">
+<p><code>CROCUS81 restart file format:</code> specifies the format for the Crocus8.1 restart file.</p>
+</div>
+<div class="paragraph">
+<p><code>CROCUS81 initial SNOWSWE:</code> specifies the initial snow SWE (kg/m2).</p>
+</div>
+<div class="paragraph">
+<p><code>CROCUS81 initial SNOWRHO:</code> specifies the initial snow layer(s) density (kg/m3).</p>
+</div>
+<div class="paragraph">
+<p><code>CROCUS81 initial SNOWHEAT:</code> specifies the initial snow layer(s) heat content (J/m2).</p>
+</div>
+<div class="paragraph">
+<p><code>CROCUS81 initial SNOWALB:</code> specifies the initial surface albedo.</p>
+</div>
+<div class="paragraph">
+<p><code>CROCUS81 initial SNOWGRAN1:</code> specifies the initial Snow layer(s) grain parameter 1.</p>
+</div>
+<div class="paragraph">
+<p><code>CROCUS81 initial SNOWGRAN2:</code> specifies the initial Snow layer(s) grain parameter 1.</p>
+</div>
+<div class="paragraph">
+<p><code>CROCUS81 initial SNOWHIST:</code> specifies the initial Snow layer(s) Historical parameter (-) in [0-5].</p>
+</div>
+<div class="paragraph">
+<p><code>CROCUS81 initial SNOWLIQ:</code> specifies the initial Snow layer(s) liquid water content (m).</p>
+</div>
+<div class="paragraph">
+<p>`ROCUS81 initial SNOWTEMP: specifies the initial Snow layer(s) temperature (K).</p>
+</div>
+<div class="paragraph">
+<p><code>CROCUS81 initial SNOWDZ:</code> specifies the initial Snow layer(s) thickness (m).</p>
+</div>
+<div class="paragraph">
+<p><code>CROCUS81 initial GRNDFLUX:</code> specifies the initial Soil/snow interface heat flux (W/m2).</p>
+</div>
+<div class="paragraph">
+<p><code>CROCUS81 initial SNDRIFT:</code> specifies the initial Blowing snow sublimation (kg/m2/s). Note: Snow compaction and metamorphism due to drift, Mass is unchanged.</p>
+</div>
+<div class="paragraph">
+<p><code>CROCUS81 initial RI_n:</code> specifies the initial Richardson number.</p>
+</div>
+<div class="paragraph">
+<p><code>ROCUS81 initial CDSNOW:</code> specifies the initial drag coefficient for momentum over snow.</p>
+</div>
+<div class="paragraph">
+<p><code>CROCUS81 initial USTARSNOW:</code> specifies the initial Friction velocity over snow (m/s).</p>
+</div>
+<div class="paragraph">
+<p><code>CROCUS81 initial CHSNOW:</code> specifies the initial Drag coefficient for heat over snow (-).</p>
+</div>
+<div class="paragraph">
+<p><code>CROCUS81 initial SNOWMAK_dz:</code> specifies the initial depth from snow making process.</p>
+</div>
+<div class="literalblock">
+<div class="title">Example <em>lis.config</em> entry</div>
+<div class="content">
+<pre>CROCUS81 model timestep:                  15mn
+CROCUS81 restart output interval:         1mo
+CROCUS81 nsnow:                           50
+CROCUS81 nimpur:                          2
+CROCUS81 SNOWRES_opt:                     "DEF"
+CROCUS81 OMEB_BOOL:                      .FALSE.
+CROCUS81 HIMPLICIT_WIND_opt:             "NEW"
+CROCUS81 PTSTEP:                          900
+CROCUS81 UREF:                            10
+CROCUS81 ZREF:                            1.5
+CROCUS81 Z0NAT:                           0.005
+CROCUS81 Z0EFF:                           0.001
+CROCUS81 Z0HNAT:                          0.0005
+CROCUS81 D_G:                             0.01
+CROCUS81 SNOWDRIFT_opt:                   "NONE"
+CROCUS81 SNOWDRIFT_SUBLIM_BOOL:           .FALSE.
+CROCUS81 SNOW_ABS_ZENITH_BOOL:            .FALSE.
+CROCUS81 SNOWMETAMO_opt:                  "C13"
+CROCUS81 SNOWRAD_opt:                     "B92"
+CROCUS81 ATMORAD_BOOL:                    .FALSE.
+CROCUS81 IMPWET:                          0.0 0.0
+CROCUS81 IMPDRY:                          0.0 0.0
+CROCUS81 SNOWFALL_opt:                    "V12"
+CROCUS81 SNOWCOND_opt:                    "Y81"
+CROCUS81 SNOWHOLD_opt:                    "B92"
+CROCUS81 SNOWCOMP_opt:                    "B92"
+CROCUS81 SNOWZREF_opt:                    "CST"
+CROCUS81 SNOWCOMPACT_BOOL:                .FALSE.
+CROCUS81 SNOWMAK_BOOL:                    .FALSE.
+CROCUS81 SNOWTILLER_BOOL:                 .FALSE.
+CROCUS81 SELF_PROD_BOOL:                  .FALSE.
+CROCUS81 SNOWMAK_PROP_BOOL:               .FALSE.
+CROCUS81 PRODSNOWMAK_BOOL:                .FALSE.
+CROCUS81 GLACIER_BOOL:                    .FALSE.
+CROCUS81 TG:                              273.15
+CROCUS81 use monthly albedo map:          .TRUE.
+CROCUS81 boolean option to partition total precip:
+CROCUS81 restart file:                    output/SURFACEMODEL/201708/LIS_RST_CROCUS81_201708312345.d01.nc
+CROCUS81 restart file format:             netcdf
+CROCUS81 initial SNOWSWE: 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0  0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0  0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0  0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0  0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0
+CROCUS81 initial SNOWRHO: 10000000000 10000000000 10000000000 10000000000 10000000000 10000000000 10000000000 10000000000 10000000000 10000000000 10000000000 10000000000 10000000000 10000000000 10000000000 10000000000 10000000000 10000000000 10000000000 10000000000 10000000000 10000000000 10000000000 10000000000 10000000000 10000000000 10000000000 10000000000 10000000000 10000000000 10000000000 10000000000 10000000000 10000000000 10000000000 10000000000 10000000000 10000000000 10000000000 10000000000 10000000000 10000000000 10000000000 10000000000 10000000000 10000000000 10000000000 10000000000 10000000000 10000000000
+CROCUS81 initial SNOWHEAT: 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0  0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0  0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0  0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0  0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0
+CROCUS81 initial SNOWALB: 0.0
+CROCUS81 initial SNOWGRAN1: 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0  0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0  0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0  0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0  0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0
+CROCUS81 initial SNOWGRAN2: 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0  0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0  0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0  0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0  0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0
+CROCUS81 initial SNOWHIST: 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0  0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0  0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0  0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0  0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0
+CROCUS81 initial SNOWAGE: 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0  0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0  0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0  0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0  0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0
+CROCUS81 initial SNOWLIQ: 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0  0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0  0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0  0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0  0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0
+CROCUS81 initial SNOWTEMP: 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0  0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0  0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0  0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0  0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0
+CROCUS81 initial SNOWDZ: 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0  0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0  0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0  0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0  0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0
+CROCUS81 initial GRNDFLUX: 0.0
+CROCUS81 initial SNDRIFT: 0.0
+CROCUS81 initial RI_n: 0.0
+CROCUS81 initial CDSNOW: 0.0
+CROCUS81 initial USTARSNOW: 0.0
+CROCUS81 initial CHSNOW: 0.0
+CROCUS81 initial SNOWMAK_dz: 0.0</pre>
+</div>
+</div>
+</div>
 </div>
 <div class="sect2">
-<h3 id="_runoff">9.17. Runoff</h3>
+<h3 id="_runoff">9.18. Runoff</h3>
 <div class="sect3">
-<h4 id="sssec_erairunoff">9.17.1. ERA interim land runoff</h4>
+<h4 id="sssec_erairunoff">9.18.1. ERA interim land runoff</h4>
 <div class="paragraph">
 <p><code>ERA interim land runoff data output directory:</code> specifies directory
 where ERA interim outputs are located.</p>
@@ -20778,7 +22687,7 @@ ERA interim land runoff data output interval: "1da"</pre>
 </div>
 </div>
 <div class="sect3">
-<h4 id="sssec_gldas1runoff">9.17.2. GLDAS1 runoff</h4>
+<h4 id="sssec_gldas1runoff">9.18.2. GLDAS1 runoff</h4>
 <div class="paragraph">
 <p><code>GLDAS1 runoff data output directory:</code> specifies directory
 where GLDAS1 outputs are located.</p>
@@ -20805,7 +22714,7 @@ GLDAS1 runoff data output interval: "1da"</pre>
 </div>
 </div>
 <div class="sect3">
-<h4 id="sssec_gldas2runoff">9.17.3. GLDAS2 runoff</h4>
+<h4 id="sssec_gldas2runoff">9.18.3. GLDAS2 runoff</h4>
 <div class="paragraph">
 <p><code>GLDAS2 runoff data output directory:</code> specifies directory
 where GLDAS2 outputs are located.</p>
@@ -20832,7 +22741,7 @@ GLDAS2 runoff data output interval: "1da"</pre>
 </div>
 </div>
 <div class="sect3">
-<h4 id="sssec_gwbmiprunoff">9.17.4. GWBMIP runoff</h4>
+<h4 id="sssec_gwbmiprunoff">9.18.4. GWBMIP runoff</h4>
 <div class="paragraph">
 <p><code>GWBMIP runoff data output directory:</code> specifies directory
 where GWBMIP outputs are located.</p>
@@ -20855,7 +22764,7 @@ GWBMIP runoff data output interval: "1da"</pre>
 </div>
 </div>
 <div class="sect3">
-<h4 id="sssec_lisrunoff">9.17.5. LIS runoff</h4>
+<h4 id="sssec_lisrunoff">9.18.5. LIS runoff</h4>
 <div class="paragraph">
 <p><code>LIS runoff output directory:</code> specifies directory
 where LIS outputs are located.</p>
@@ -20878,7 +22787,7 @@ LIS runoff output domain file: ./LIS_OUTPUT/lis_input_010_hybrid.nc</pre>
 </div>
 </div>
 <div class="sect3">
-<h4 id="sssec_merra2runoff">9.17.6. MERRA2 runoff</h4>
+<h4 id="sssec_merra2runoff">9.18.6. MERRA2 runoff</h4>
 <div class="paragraph">
 <p><code>MERRA2 runoff data output directory:</code> specifies directory
 where MERRA2 outputs are located.</p>
@@ -20896,7 +22805,7 @@ MERRA2 runoff data output interval: "1da"</pre>
 </div>
 </div>
 <div class="sect3">
-<h4 id="sssec_nldas2runoff">9.17.7. NLDAS2 runoff</h4>
+<h4 id="sssec_nldas2runoff">9.18.7. NLDAS2 runoff</h4>
 <div class="paragraph">
 <p><code>NLDAS2 runoff data output directory:</code> specifies directory
 where NLDAS2 outputs are located.</p>
@@ -20920,7 +22829,7 @@ NLDAS2 runoff data output interval: "1da"</pre>
 </div>
 </div>
 <div class="sect2">
-<h3 id="ssec_outputconfig">9.18. Model output configuration</h3>
+<h3 id="ssec_outputconfig">9.19. Model output configuration</h3>
 <div class="paragraph">
 <p>The output start time is used to define when to begin writing
 model output.  Any value not defined will default to the corresponding
@@ -21087,7 +22996,7 @@ sample MODEL_OUTPUT_LIST.TBL file for the complete specification.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="ssec_timeinterval">9.19. Defining a time interval</h3>
+<h3 id="ssec_timeinterval">9.20. Defining a time interval</h3>
 <div class="paragraph">
 <p>Time interval values must be entered in a format where the timestep
 value is followed by 2 character string indicating the
@@ -21774,7 +23683,29 @@ sd:           1  mm      -    0 0 0 2 0 1 # water content of the deep soil store
 mleaf:        1  kg/m2   -    0 0 0 2 0 1 # leaf biomass for each hru
 s0_avg:       1  mm      -    0 0 0 1 0 1 # water storage in the surface soil layer
 ss_avg:       1  mm      -    0 0 0 1 0 1 # water content of the shallow soil store
-sd_avg:       1  mm      -    0 0 0 1 0 1 # water content of the deep soil store</pre>
+sd_avg:       1  mm      -    0 0 0 1 0 1 # water content of the deep soil store
+
+# SnowModel-specific fields:
+SM_SWE:          1  m       -    0 0 0 1  65 1000    # Snow Water Equivalent (kg/m2)
+SM_SnowDepth:    1  m       -    0 0 0 1  66 1000    # Snow depth (m)
+SM_SnowDensity:  1  kg/m3   -    0 0 0 1 900 10      # Snow density (kg/m3)
+SM_Snowcover:    0  -       -    0 0 0 1 238 100     # Snow cover (-)
+SM_SLiqFrac:     0  -       -    0 0 0 1 185 1000    # Fraction of SWE in the liquid phase
+SM_SWEVeg:       0  kg/m2   -    1 0 0 1 139 1000    # SWE intercepted by vegetation (kg/m2)
+SM_Albedo:       1  -       -    1 0 0 1  84 100     # Surface albedo (-)
+SM_SAlbedo:      0  -       -    0 0 0 1 184 1000    # Albedo of the snow-covered area (-)
+# Other fields -- summed output:
+SM_Qs:           0  m       OUT  3 0 0 1 235 10000   # Surface runoff from snowpack / top-soil (m/timestep)
+SM_Qsm:          0  m       S2L  3 0 0 1  99 10000   # Snowmelt (kg/m2s)
+SM_SubSnow:      0  m       -    3 0 0 1 198 1000    # Snow sublimation (m)
+SM_Snowf:        1  m       DN   3 0 0 1 161 10000   # Snowfall rate (m/timestep)
+SM_Rainf:        1  m       DN   3 0 0 1 162 10000   # Rainfall rate (m/timestep)
+SM_TotalPrecip:  1  m       DN   3 0 0 1  61 10000   # Total precipitation rate (m/timestep)
+# SnowModel-modified forcings:
+SM_SWdown:    1  W/m2    DN   1 0 0 1 204 10         # SnowModel-modified SWdown
+SM_LWdown:    1  W/m2    DN   1 0 0 1 205 10         # SnowModel-modified LWdown
+SM_NWind:     1  m/s     N    1 0 0 1  34 10         # SnowModel-modified NWind
+SM_EWind:     1  m/s     E    1 0 0 1  33 10         # SnowModel-modified EWind</pre>
 </div>
 </div>
 </div>
@@ -22134,7 +24065,7 @@ Program stopping..</pre>
 <div id="footnotes">
 <hr>
 <div class="footnote" id="_footnotedef_1">
-<a href="#_footnoteref_1">1</a>. Not available in the LISF_public_release_7.4.0.tar.gz public release of LISF 7.4.
+<a href="#_footnoteref_1">1</a>. Not available in the LISF_public_release_7.5.0.tar.gz public release of LISF 7.5.
 </div>
 <div class="footnote" id="_footnotedef_2">
 <a href="#_footnoteref_2">2</a>. See the &#8220;Creating a Custom Modulefile&#8221; document found at <a href="https://nasa-lis.github.io/LISF/" class="bare">https://nasa-lis.github.io/LISF/</a>
@@ -22142,8 +24073,8 @@ Program stopping..</pre>
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 2.0<br>
-Last updated 2022-08-24 12:53:17 UTC
+Version 3.0<br>
+Last updated 2024-10-25 10:21:05 UTC
 </div>
 </div>
 <script type="text/x-mathjax-config">
