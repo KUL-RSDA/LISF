@@ -2,6 +2,7 @@
 # To compile ldt, run the following steps
 cd LISF/ldt
 # load the modules (right ones for each system will be automatically selected)
+module swap cluster/dodrio/cpu_milan
 source KUL_LDT_modules
 # run the configure and accept all defaults or change to 'debug' compilation if wanted
 ./configure 
