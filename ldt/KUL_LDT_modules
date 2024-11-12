@@ -64,8 +64,8 @@ elif [[ $node == *"dodrio"* ]] || [[ $node == "n"* ]]; then
 	export LDT_NETCDF=$LIBDIR/netcdf4/
 	export LDT_HDF4=$LIBDIR/hdf4/
 	export LDT_HDFEOS=$LIBDIR/hdfeos/
-	#export LDT_HDF5=$LIBDIR/hdf5/
-	export LDT_HDF5=$EBROOTHDF5
+	export LDT_HDF5=$LIBDIR/hdf5/
+	#export LDT_HDF5=$EBROOTHDF5
 	export LDT_MODESMF=$LIBDIR/esmf/mod/modO/Linux.intel.64.intelmpi.default/
 	export LDT_LIBESMF=$LIBDIR/esmf/lib/libO/Linux.intel.64.intelmpi.default/
 	#export LDT_LIBGEOTIFF=$EBROOTGEOTIFF
