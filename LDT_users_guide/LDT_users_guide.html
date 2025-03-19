@@ -438,8 +438,8 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div id="header">
 <h1>Land Data Toolkit (LDT): LDT 7.5 Users Guide</h1>
 <div class="details">
-<span id="revnumber">version 3.0,</span>
-<span id="revdate">10 Jan 2024</span>
+<span id="revnumber">version 4.0,</span>
+<span id="revdate">12 Nov 2024</span>
 </div>
 <div id="toc" class="toc">
 <div id="toctitle">Table of Contents</div>
@@ -530,6 +530,16 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </tr>
 </thead>
 <tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">4.0</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">LISF 557WW 7.6.0 release</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Nov 12, 2024</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">2.6</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">LISF 557WW 7.5.19 release</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Nov 1, 2024</p></td>
+</tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">2.5</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">LISF 557WW 7.5.18 release</p></td>
@@ -1874,6 +1884,10 @@ LIBGEOTIFF means GeoTIFF support provided by the GeoTIFF library.</p>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">SiB2</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">SiB v2</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">AquaCrop.7.2</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">AquaCrop 7.2</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">FASST</p></td>
@@ -4620,7 +4634,7 @@ Soil texture spatial transform:     none</pre>
 <p><code>Soil texture fill value for Antarctica:</code> indicates which soil texture value to be used if an arbitrary value fill is needed south of 60S. If not specified, value of <code>Soil texture fill value:</code> will be used.</p>
 </div>
 <div class="paragraph">
-<p><code>Soil texture force exclusion of water points during fill:</code> indicates whether to force exclusion of water points when filling soil texture. Required when using STATSGOFAO south of 60S (texture is set to all water) and multiple surface model types are used.</p>
+<p><code>Soil texture force exclusion of water points during fill:</code> indicates whether to force exclusion of water points when filling soil texture. Required when using STATSGOFAO, south of 60S (i.e., texture is set to all water), and multiple surface model types (e.g., LSM and Openwater) are used.</p>
 </div>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
@@ -4834,7 +4848,7 @@ Curvature number of bands:     1</pre>
 <p>Topography maps</p>
 </div>
 <div class="paragraph">
-<p><code>Elevation map:</code> specifies the elevation of the LIS grid. If the elevation map type selected is SRTM_Native, then the elevation file entry is actually just the directory path, which contains the tiled SRTM elevation files.</p>
+<p><code>Elevation map:</code> specifies the elevation of the LIS grid. If the elevation map type selected is SRTM_Native, then the elevation file entry is actually just the directory path, which contains the tiled SRTM elevation files. Note: The SRTM tiles only go to 60deg S, and south of that the associated SRTM reader can fill in with GTOPO30 Antarctica tile files.</p>
 </div>
 <div class="paragraph">
 <p><code>Slope map:</code> specifies the slope of the LIS grid. If the slope map type selected is SRTM_Native, then the file entry is actually just the directory path, which contains the tiled SRTM elevation files.</p>
@@ -6936,6 +6950,74 @@ SiB2 resolution (dx):               0.05
 SiB2 resolution (dy):               0.05</pre>
 </div>
 </div>
+<div class="paragraph">
+<p><code>AquaCrop crop type data source:</code> specifies the data source for the crop types. Only current option is &#8220;CONSTANT&#8221;.</p>
+</div>
+<div class="paragraph">
+<p><code>AquaCrop crop library directory:</code> specifies the location of the crop library directory containing the AC_Crop.Inventory file and the AC_Crop.List directory containing the crop files.</p>
+</div>
+<div class="paragraph">
+<p><code>AquaCrop crop type:</code> specifies the crop type used for the &#8220;CONSTANT&#8221; crop type data source option.</p>
+</div>
+<div class="paragraph">
+<p><code>AquaCrop number of soil layers:</code> specifies the number of soil layers (from top to bottom).</p>
+</div>
+<div class="paragraph">
+<p><code>AquaCrop soil layer thickness:</code> specifies the thickness of each soil layer.</p>
+</div>
+<div class="paragraph">
+<p><code>AquaCrop temperature climatology directory:</code> specifies the directory containing the monthly climatologies of minimum and maximum temperatures used for the a priori parametrization of the fertility. The files are provided as formatted monthly .txt files for Tmin and Tmax.</p>
+</div>
+<div class="paragraph">
+<p><code>AquaCrop reference year for climatology</code>: specifies the reference year to be used for the a priori parametrization of the fertility (usually set to the center of the period used to compute the climatologies).</p>
+</div>
+<div class="paragraph">
+<p><code>AquaCrop temperature climatology spatial transform</code>: specifies the spatial transformation for the climatologies of minimum and maximum temperatures. Options include:</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 50%;">
+<col style="width: 50%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Value</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">none</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Data on same grid as LDT domain</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">neighbor</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Reinterpolate by selecting nearest gridcell neighbor</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">bilinear</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Reinterpolate by using bilinear interpolation</p></td>
+</tr>
+</tbody>
+</table>
+<div class="literalblock">
+<div class="title">Example <em>ldt.config</em> entry</div>
+<div class="content">
+<pre>##AquaCrop crop file directories
+AquaCrop crop type data source: "CONSTANT"
+AquaCrop crop library directory: ./crop_params_dir/
+AquaCrop crop type: "crop_type"
+
+##AquaCrop soil layers
+AquaCrop number of soil layers: 2
+AquaCrop soil layer thickness: 0.3 0.9
+
+##AquaCrop tmin/tmax climatology
+AquaCrop temperature climatology directory: ./climatologies_dir/
+AquaCrop reference year for climatology: 2011
+AquaCrop temperature climatology spatial transform: "bilinear"</pre>
+</div>
+</div>
 <div class="sect3">
 <h4 id="_wrsi_model_parameter_files">7.7.1. WRSI model parameter files</h4>
 <div class="paragraph">
@@ -7704,8 +7786,12 @@ for ensemble restart generation. Options are:</p>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Do not apply random sampling strategy</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">random sampling</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">&#8220;random sampling&#8221;</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Use random sampling strategy</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">&#8220;unperturbed sampling&#8221;</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Only use the non-perturbed member</p></td>
 </tr>
 </tbody>
 </table>
@@ -17948,8 +18034,8 @@ param domain sections on a UTM projection.</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 3.0<br>
-Last updated 2024-10-25 10:21:05 UTC
+Version 4.0<br>
+Last updated 2025-03-19 10:24:31 UTC
 </div>
 </div>
 <script type="text/x-mathjax-config">
