@@ -1,0 +1,54 @@
+#!/bin/bash
+# Basically: cd lis; ./configure; ./compile -j 4
+
+PWD=$(pwd)
+
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+cd $ROOT
+
+declare -A submodules
+submodules[0]='ldt'
+submodules[1]='lis'
+
+# load the modules
+source load_modules
+
+echo -n "Please enter the submodule to build (0-ldt, 1-lis, default: 1): "
+read submodule
+submodule=${submodules[${submodule:-1}]}
+cd $submodule
+
+# run configure and accept defaults or change to 'debug' compilation if wanted
+./configure
+
+echo -n "Please enter how to compile (0-batch, 1-interactive, default: 1): "
+read mode
+mode=${mode:-1}
+echo -n "Please enter how many processes to use to compile (default: 8): "
+read n
+c=${c:-8}
+if [[ $mode -eq 1 ]]; then
+    ./compile -j $c
+else
+    if [[ $VSC_INSTITUTE_CLUSTER == genius ]]; then
+        if [[ $VSC_ARCH_LOCAL == skylake ]]; then
+            if [[ $VSC_OS_LOCAL == rocky8 ]]; then
+                sbatch -A lp_ees_swm_ls_001 -M genius -c $c compile.slurm
+            fi
+        fi
+    elif [[ $VSC_INSTITUTE_CLUSTER == wice ]]; then
+        if [[ $VSC_ARCH_LOCAL == icelake ]]; then
+            if [[ $VSC_OS_LOCAL == rocky8 ]]; then
+                sbatch -A lp_ees_swm_ls_001 -M wice -c $c compile.slurm
+            fi
+        fi
+    elif [[ $VSC_INSTITUTE_CLUSTER == dodrio ]]; then
+        if [[ $VSC_ARCH_LOCAL == zen3 ]]; then
+            if [[ $VSC_OS_LOCAL == RHEL8 ]]; then
+                sbatch -A 2022_203 -c $c compile.slurm
+            fi
+        fi
+    fi
+fi
+
+cd $PWD

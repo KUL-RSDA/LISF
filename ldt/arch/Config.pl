@@ -180,11 +180,11 @@ if($opt_lev == -1) {
 }
 elsif($opt_lev == 0) {
    $sys_opt = "-O0 ";
-   $sys_c_opt = "";
+   $sys_c_opt = "-O0";
 }
 elsif($opt_lev == 1) {
    $sys_opt = "-O1 ";
-   $sys_c_opt = "";
+   $sys_c_opt = "-O1";
 }
 elsif($opt_lev == 2) {
   if($sys_arch eq "cray_cray") {
@@ -194,12 +194,12 @@ elsif($opt_lev == 2) {
    }
    else {
    $sys_opt = "-O2 ";
-   $sys_c_opt = "";
+   $sys_c_opt = "-O2";
    }
 }
 elsif($opt_lev == 3) {
    $sys_opt = "-O3 ";
-   $sys_c_opt = "";
+   $sys_c_opt = "-O3";
 }
 print "Assume little/big_endian data format (1-little, 2-big, default=2): ";
 $use_endian=<stdin>;
@@ -408,6 +408,9 @@ if($use_hdf4 == 1) {
    if(defined($ENV{LDT_HDF4})){
       $sys_hdf4_path = $ENV{LDT_HDF4};
       $inc = "/include/";
+      if($ENV{'VSC_INSTITUTE_CLUSTER'} eq "genius"){
+         $inc .= "hdf/";
+      }
       $lib = "/lib/";
       $inc_hdf4=$sys_hdf4_path.$inc;
       $lib_hdf4=$sys_hdf4_path.$lib;
@@ -632,7 +635,6 @@ if($sys_arch eq "linux_ifc") {
    }
 
    $cflags = "-c ".$sys_c_opt." -DIFC";
-
 }
 elsif($sys_arch eq "linux_pgi") {
    $cflags = "-c -DLITTLE_ENDIAN -DPGI";
@@ -763,6 +765,17 @@ if($enable_libgeotiff== 1){
     $ldflags = $ldflags." -L\$(LIB_LIBGEOTIFF) ".$tiffpath." -ltiff -lgeotiff -lm -lz ".$libjpeg." ".$tiffdeps;
 }
 
+if($ENV{'VSC_INSTITUTE_CLUSTER'} eq "genius"){
+    $fflags77 =~ s/-nomixed-str-len-arg/-nomixed_str_len_arg/;
+    $ldflags .= " -ltirpc -lmkl -lsz -lpioc";
+}
+elsif($ENV{'VSC_INSTITUTE_CLUSTER'} eq "wice"){
+    $ldflags .= " -ltirpc -lmkl -lsz -lpioc";
+}
+elsif($ENV{'VSC_INSTITUTE_CLUSTER'} eq "hortense") {
+    $ldflags .= " -ltirpc -lmkl -lsz -qopenmp";
+}
+$ldflags =~ s/-L([^\s]+)/-L$1 -Wl,-rpath=$1/g;
 
 open(conf_file,">configure.ldt");
 printf conf_file "%s%s\n","FC              = $sys_fc";

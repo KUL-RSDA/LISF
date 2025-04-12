@@ -278,7 +278,7 @@ elsif($opt_lev == 0) {
 }
 elsif($opt_lev == 1) {
    $sys_opt = "-O1";
-   $sys_c_opt = "";
+   $sys_c_opt = "O1";
 }
 elsif($opt_lev == 2) {
    if($sys_arch eq "cray_cray") {
@@ -287,17 +287,17 @@ elsif($opt_lev == 2) {
    }
    else {
       $sys_opt = "-O2 ";
-      $sys_c_opt = "";
+      $sys_c_opt = "-O2";
    }
 }
 elsif($opt_lev == 3) {
    $sys_opt = "-O3";
-   $sys_c_opt = "";
+   $sys_c_opt = "-O3";
 }
 
 if(($sys_arch eq "linux_ifc") && ($opt_lev gt 0)) {
    $sys_opt .= " -fp-model precise";
-   $sys_c_opt .= "-fp-model precise";
+   $sys_c_opt .= " -fp-model precise";
 }
 
 print "Assume little/big_endian data format (1-little, 2-big, default=2): ";
@@ -430,6 +430,9 @@ if($use_gribapi == 1) {
    elsif(defined($ENV{LIS_JASPER})){
       $sys_jpeg2000_path = $ENV{LIS_JASPER};
       $inc = "/include/";
+      if($ENV{'VSC_INSTITUTE_CLUSTER'} eq "genius"){
+          $inc .= "jasper/";
+      }
       $lib = "/lib/";
       $inc_jpeg2000=$sys_jpeg2000_path.$inc;
       $lib_jpeg2000=$sys_jpeg2000_path.$lib;
@@ -633,6 +636,9 @@ if($use_hdf4 == 1) {
    if(defined($ENV{LIS_HDF4})){
       $sys_hdf4_path = $ENV{LIS_HDF4};
       $inc = "/include/";
+      if($ENV{'VSC_INSTITUTE_CLUSTER'} eq "genius"){
+         $inc .= "hdf/";
+      }
       $lib = "/lib/";
       $inc_hdf4=$sys_hdf4_path.$inc;
       $lib_hdf4=$sys_hdf4_path.$lib;
@@ -1105,6 +1111,18 @@ $fflags = $fflags." -DLIS_JULES";
 #
 
 $ldflags = $ldflags." -lz";
+
+if($ENV{'VSC_INSTITUTE_CLUSTER'} eq "genius"){
+    $fflags77 =~ s/-nomixed-str-len-arg/-nomixed_str_len_arg/;
+    $ldflags .= " -ltirpc -lmkl -lsz -lpioc";
+}
+elsif($ENV{'VSC_INSTITUTE_CLUSTER'} eq "wice"){
+    $ldflags .= " -ltirpc -lmkl -lsz -lpioc";
+}
+elsif($ENV{'VSC_INSTITUTE_CLUSTER'} eq "hortense") {
+    $ldflags .= " -ltirpc -lmkl -lsz -qopenmp";
+}
+$ldflags =~ s/-L([^\s]+)/-L$1 -Wl,-rpath=$1/g;
 
 #
 # Write configure.lis and related files
