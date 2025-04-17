@@ -726,6 +726,9 @@ subroutine AC72_setup()
      ! InitializeSimulation (year)
      AC72_struc(n)%irun = 1
 
+     AC72_struc(n)%InitializeRun = 0 ! Make sure to set it to ...
+     AC72_struc(n)%read_Trecord = 0 ! 0 for all procs
+
      do t = 1, LIS_rc%npatch(n, mtype)
 
         col = LIS_surface(n, mtype)%tile(t)%col
@@ -1003,8 +1006,6 @@ subroutine AC72_setup()
          ! InitializeRunPart1
          call InitializeRunPart1(int(AC72_struc(n)%irun, kind=int8), AC72_struc(n)%ac72(t)%TheProjectType)
          call InitializeSimulationRunPart2()
-         AC72_struc(n)%InitializeRun = 0
-         AC72_struc(n)%read_Trecord = 0
          ! Check if enough GDDays to complete cycle, if not, turn on flag to warn the user
          AC72_struc(n)%AC72(t)%crop = GetCrop()
          if(GetCrop_ModeCycle().eq.ModeCycle_GDDays)then
@@ -1212,18 +1213,6 @@ subroutine AC72_setup()
             AC72_struc(n)%ac72(t)%irri_lnr = 0
          endif
 
-         ! Check if we need to start a new sim period
-         call LIS_get_julhr(LIS_rc%yr, LIS_rc%mo, LIS_rc%da, &
-               0,0,0,time1julhours)
-         time1days = (time1julhours - timerefjulhours)/24
-         ! If we restart on the first day of simulation
-         ! Do not read Trecord in main but initialize run
-         if (((AC72_struc(n)%Sim_AnnualStartMonth.eq.LIS_rc%smo) &
-               .and.(AC72_struc(n)%Sim_AnnualStartDay.eq.LIS_rc%sda)) &
-               .and.(trim(LIS_rc%startcode) .eq. "restart")) then
-            AC72_struc(n)%InitializeRun = 1
-         endif
-
       else ! No valid temperatures for crop growth, set all output variables to Nan
          do l = 1, 12
             AC72_struc(n)%ac72(t)%smc(l) = -9999.0 ! Gets overwritten by initial conditions, 
@@ -1245,6 +1234,15 @@ subroutine AC72_setup()
          AC72_struc(n)%ac72(t)%cycle_complete          = 0  ! kept as logical/flag
       endif
      enddo ! do t = 1, LIS_rc%npatch(n, mtype)
+     ! If we restart on the first day of simulation
+     ! Do not read Trecord in main but initialize run
+     if (((AC72_struc(n)%Sim_AnnualStartMonth.eq.LIS_rc%smo) &
+           .and.(AC72_struc(n)%Sim_AnnualStartDay.eq.LIS_rc%sda)) &
+           .and.(trim(LIS_rc%startcode) .eq. "restart") &
+           .and.(LIS_rc%npatch(n, mtype).gt.0)) then ! Make sure the proc has tiles
+        AC72_struc(n)%InitializeRun = 1
+        AC72_struc(n)%irun = 0 ! to avoid going to irun=2 in main
+     endif
   enddo
 end subroutine AC72_setup
 

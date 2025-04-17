@@ -1139,7 +1139,7 @@ subroutine AC72_main(n)
 
          ! Check for end of simulation period
          ! (DayNri - 1 because DayNri is already for next day)
-         if (((GetDayNri()-1) .eq. GetSimulation_ToDayNr()) .and. AC72_struc(n)%InitializeRun.eq.0) then
+         if ((GetDayNri()-1) .eq. GetSimulation_ToDayNr()) then
             AC72_struc(n)%InitializeRun = 1 ! Next surface model run, initialize
             AC72_struc(n)%read_Trecord = 1 ! Next surface model run, read meteo record
          end if
