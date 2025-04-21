@@ -31,23 +31,11 @@ if [[ $mode -eq 1 ]]; then
     ./compile -j $c
 else
     if [[ $VSC_INSTITUTE_CLUSTER == genius ]]; then
-        if [[ $VSC_ARCH_LOCAL == skylake ]]; then
-            if [[ $VSC_OS_LOCAL == rocky8 ]]; then
-                sbatch -A lp_ees_swm_ls_001 -M genius -c $c compile.slurm
-            fi
-        fi
+        sbatch -A lp_ees_swm_ls_001 -M genius -c $c compile.slurm
     elif [[ $VSC_INSTITUTE_CLUSTER == wice ]]; then
-        if [[ $VSC_ARCH_LOCAL == icelake ]]; then
-            if [[ $VSC_OS_LOCAL == rocky8 ]]; then
-                sbatch -A lp_ees_swm_ls_001 -M wice -c $c compile.slurm
-            fi
-        fi
+        sbatch -A lp_ees_swm_ls_001 -M wice -c $c compile.slurm
     elif [[ $VSC_INSTITUTE_CLUSTER == dodrio ]]; then
-        if [[ $VSC_ARCH_LOCAL == zen3 ]]; then
-            if [[ $VSC_OS_LOCAL == RHEL8 ]]; then
-                sbatch -A 2022_203 -c $c compile.slurm
-            fi
-        fi
+        sbatch -A 2022_203 -c $c compile.slurm
     fi
 fi
 

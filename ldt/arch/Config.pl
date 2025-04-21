@@ -399,10 +399,10 @@ if($use_netcdf == 1) {
 }
 
 
-print "Use HDF4? (1-yes, 0-no, default=1): ";
+print "Use HDF4? (1-yes, 0-no, default=0): ";
 $use_hdf4=<stdin>;
 if($use_hdf4 eq "\n"){
-   $use_hdf4=1;
+   $use_hdf4=0;
 }
 if($use_hdf4 == 1) {
    if(defined($ENV{LDT_HDF4})){
@@ -449,10 +449,10 @@ if($use_hdf5 == 1) {
 }
 
 
-print "Use HDFEOS? (1-yes, 0-no, default=1): ";
+print "Use HDFEOS? (1-yes, 0-no, default=0): ";
 $use_hdfeos=<stdin>;
 if($use_hdfeos eq "\n"){
-   $use_hdfeos=1;
+   $use_hdfeos=0;
 }
 if($use_hdfeos == 1) {
    if($use_hdf4 == 0) {
@@ -482,10 +482,10 @@ if($use_hdfeos == 1) {
    }
 }
 
-print "Enable GeoTIFF support? (1-yes, 0-no, default=1): ";
+print "Enable GeoTIFF support? (1-yes, 0-no, default=0): ";
 $enable_geotiff=<stdin>;
 if($enable_geotiff eq "\n"){
-   $enable_geotiff=1;
+   $enable_geotiff=0;
 }
 if($enable_geotiff == 1) {
     if(defined($ENV{LDT_GDAL})){
@@ -528,10 +528,10 @@ if($enable_geotiff == 1) {
 }
 
 # EMK...Add LIBGEOTIFF support for Air Force
-print "Enable LIBGEOTIFF support? (1-yes, 0-no, default=1): ";
+print "Enable LIBGEOTIFF support? (1-yes, 0-no, default=0): ";
 $enable_libgeotiff=<stdin>;
 if($enable_libgeotiff eq "\n"){
-    $enable_libgeotiff=1;
+    $enable_libgeotiff=0;
 }
 if($enable_libgeotiff == 1) {
     if(defined($ENV{LDT_LIBGEOTIFF})){

@@ -22,19 +22,23 @@ load_module() {
 }
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-echo $ROOT
 
 if [[ $VSC_INSTITUTE_CLUSTER == genius ]]; then
     if [[ $VSC_ARCH_LOCAL == skylake ]]; then
         if [[ $VSC_OS_LOCAL == rocky8 ]]; then
-            prepend_module_path $ROOT/modules/leuven/rocky8/skylake
+            prepend_module_path $ROOT/modules/genius/rocky8/skylake
+            load_module LISF/intel-2023b
+        fi
+    elif [[ $VSC_ARCH_LOCAL == cascadelake ]]; then
+        if [[ $VSC_OS_LOCAL == rocky8 ]]; then
+            prepend_module_path $ROOT/modules/genius/rocky8/cascadelake
             load_module LISF/intel-2023b
         fi
     fi
 elif [[ $VSC_INSTITUTE_CLUSTER == wice ]]; then
     if [[ $VSC_ARCH_LOCAL == icelake ]]; then
         if [[ $VSC_OS_LOCAL == rocky8 ]]; then
-            prepend_module_path $ROOT/modules/leuven/rocky8/icelake
+            prepend_module_path $ROOT/modules/wice/rocky8/icelake
             load_module LISF/intel-2023b
         fi
     fi

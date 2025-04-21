@@ -139,12 +139,12 @@ $sys_par_d = $par_table{$sys_arch}{$par_lev};
 #}
 
 
-print "Optimization level (-3=strict checks with warnings, -2=strict checks, -1=debug, 0,1,2,3, default=2): ";
+print "Optimization level (-3=strict checks with warnings, -2=strict checks, -1=debug, 0,1,2,3, default=3): ";
 $opt_lev=<stdin>;
 $opt_lev=~s/ *#.*$//;
 chomp($opt_lev);
 if($opt_lev eq ""){
-   $opt_lev=2;
+   $opt_lev=3;
 }
 
 if($opt_lev == -3) {
@@ -624,12 +624,12 @@ if($use_netcdf == 1) {
 }
 
 
-print "Use HDF4? (1-yes, 0-no, default=1): ";
+print "Use HDF4? (1-yes, 0-no, default=0): ";
 $use_hdf4=<stdin>;
 $use_hdf4=~s/ *#.*$//;
 chomp($use_hdf4);
 if($use_hdf4 eq ""){
-   $use_hdf4=1;
+   $use_hdf4=0;
 }
 
 if($use_hdf4 == 1) {
@@ -681,12 +681,12 @@ if($use_hdf5 == 1) {
 }
 
 
-print "Use HDFEOS? (1-yes, 0-no, default=1): ";
+print "Use HDFEOS? (1-yes, 0-no, default=0): ";
 $use_hdfeos=<stdin>;
 $use_hdfeos=~s/ *#.*$//;
 chomp($use_hdfeos);
 if($use_hdfeos eq ""){
-   $use_hdfeos=1;
+   $use_hdfeos=0;
 }
 
 if($use_hdfeos == 1) {
