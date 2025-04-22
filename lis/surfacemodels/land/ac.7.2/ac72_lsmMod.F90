@@ -75,10 +75,29 @@ module AC72_lsmMod
   !   reference height of forcings u and v
   ! \item[tempcli_refyr]
   !   reference year for climatology record for stress functions
+    ! \item[Temp_crit]
+  !   Uses a temperature criterion for sowing/planting
+  ! \item[Temp_crit_tmin]
+  !   Minimum temperature threshold (temperature criterion for sowing/planting)
+  ! \item[Temp_crit_days]
+  !   number of consecutive days (temperature criterion for sowing/planting)
+  ! \item[Temp_crit_occurrence]
+  !   Number of occurrences (temperature criterion for sowing/planting)
+  ! \item[Rainfall_crit]
+  !   Uses a rainfall criterion for sowing/planting
+  ! \item[Rainfall_crit_amount]
+  !   Minimum amount of rainfall (rainfall criterion for sowing/planting)
+  ! \item[Rainfall_crit_days]
+  !   number of days to reach amount (rainfall criterion for sowing/planting)
+  ! \item[Rainfall_crit_occurrence]
+  !   Number of occurrences (rainfall criterion for sowing/planting)
+  ! \item[crit_window]
+  !   Length of search window in days (rainfall and/or criterion for sowing/planting)
 
   !
   ! !REVISION HISTORY:
   !  04 NOV 2024, Louise Busschaert; initial implementation for AC72
+  !  22 APR 2025, Louise Busschaert; added plating criterion
   !
   ! !USES:
   use AC72_module, only: AC72dec
@@ -143,6 +162,15 @@ module AC72_lsmMod
      real               :: refz_tq
      real               :: refz_uv
      integer            :: tempcli_refyr
+     logical            :: Temp_crit
+     integer            :: Temp_crit_tmin
+     integer            :: Temp_crit_days
+     integer            :: Temp_crit_occurrence
+     logical            :: Rainfall_crit
+     integer            :: Rainfall_crit_amount
+     integer            :: Rainfall_crit_days
+     integer            :: Rainfall_crit_occurrence
+     integer            :: crit_window
      type(AC72dec), pointer :: ac72(:)
   end type AC72_type_dec
 
@@ -206,6 +234,9 @@ contains
        do t=1,LIS_rc%npatch(n, LIS_rc%lsm_index)
           allocate(AC72_struc(n)%ac72(t)%Tmax_record(366))
           allocate(AC72_struc(n)%ac72(t)%Tmin_record(366))
+          if (AC72_struc(n)%Rainfall_crit) then
+             allocate(AC72_struc(n)%ac72(t)%pcp_record(366))
+          endif  
        enddo
 
        ! initialize forcing variables to zeros
