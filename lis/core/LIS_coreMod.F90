@@ -1110,16 +1110,37 @@ contains
 
        write(fda,'(i3.3)') i
 
-       call LIS_registerAlarm("LIS DA output "//trim(fda),&
-            LIS_rc%ts,&
-            LIS_rc%daOutInterval(i))
+       !   call LIS_registerAlarm("LIS DA output "//trim(fda),&
+       !        LIS_rc%ts,&
+       !        LIS_rc%daOutInterval(i))
+       if (LIS_rc%lsm .eq. "AquaCrop.7.2") then
+           write(LIS_logunit,*) '[INFO] AC72 registerAlarm'
+          call LIS_registerAlarm("LIS DA output "//trim(fda),&
+               86400.0 ,&  
+               LIS_rc%daOutInterval(i))
+       else
+          call LIS_registerAlarm("LIS DA output "//trim(fda),&
+               LIS_rc%ts,&
+               LIS_rc%daOutInterval(i))
+       end if
        
     enddo
 
     if(LIS_rc%nperts.gt.0) then 
-       call LIS_registerAlarm("LIS pert restart alarm",&
-            LIS_rc%ts ,&  
-            LIS_rc%pertrestartInterval)
+           !   call LIS_registerAlarm("LIS pert restart alarm",&
+           !        LIS_rc%ts ,&  
+           !        LIS_rc%pertrestartInterval)
+           if (LIS_rc%lsm .eq. "AquaCrop.7.2") then
+              call LIS_registerAlarm("LIS pert restart alarm",&
+                   86400.0 ,&  
+                   LIS_rc%pertrestartInterval)
+                   !LIS_rc%pertrestartInterval,&
+                   !alarm_offset = 3600)
+           else
+              call LIS_registerAlarm("LIS pert restart alarm",&
+                   LIS_rc%ts ,&  
+                   LIS_rc%pertrestartInterval)
+           end if
     endif
     
   end subroutine LIS_updateAlarmSetups
