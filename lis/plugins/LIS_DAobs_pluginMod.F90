@@ -899,11 +899,11 @@ subroutine LIS_DAobs_plugin
 #if ( defined DA_OBS_CGLS_FCOVER)
    call registerdaobsclass(trim(LIS_CGLSfcoverobsId),"LSM")
    call registerdaobssetup(trim(LIS_CGLSfcoverobsId)//char(0),&
-        GLASSlai_setup)
+        CGLSfcover_setup)
    call registerreaddaobs(trim(LIS_CGLSfcoverobsId)//char(0),&
-        read_GLASSlai)
+        read_CGLSfcover)
    call registerwritedaobs(trim(LIS_CGLSfcoverobsId)//char(0),&
-        write_GLASSlai)
+        write_CGLSfcover)
 #endif
 
 #if ( defined DA_OBS_GLASS_LAI)
