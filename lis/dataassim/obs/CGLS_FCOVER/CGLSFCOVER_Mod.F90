@@ -286,8 +286,8 @@ contains
                 CGLSFCOVER_struc(n)%latmin = -59.997023809492
                 CGLSFCOVER_struc(n)%lonmax= -180.
                 CGLSFCOVER_struc(n)%lonmin = 179.997023811161
-                CGLSFCOVER_struc(n)%dlat = 0.008928002004371148
-                CGLSFCOVER_struc(n)%dlon = 0.008928349985839856
+                CGLSFCOVER_struc(n)%dlat = 0.002976190
+                CGLSFCOVER_struc(n)%dlon = 0.002976190
                 CGLSFCOVER_struc(n)%nc = 120960
                 CGLSFCOVER_struc(n)%nr = 47040
             endif
