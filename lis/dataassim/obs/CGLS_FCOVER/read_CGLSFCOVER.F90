@@ -481,7 +481,7 @@ subroutine create_CGLS_FCOVER_filename(res, ndir, year, month, day, filename)
     !  The naming scheme is
     !    CGLS_FCOVER_<year>_<month>_<day>.nc
 
-    write(unit=time, fmt='(i4.4),"_",(i2.2),"_",(i2.2)') year, month, day
+    write(unit=time, fmt='(I4.4, "_", I2.2, "_", I2.2)') year, month, day
 
     filename = trim(ndir)//'/'//&
             'CGLS_FCOVER_'//trim(time)//'.nc'
