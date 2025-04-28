@@ -587,6 +587,7 @@ contains
     enddo
 
     do j=1,LIS_rc%ndas
+       write(fda,'(i3.3)') j
        alarmCheck = LIS_isAlarmRinging(LIS_rc, "LIS DA output "//trim(fda))
        if (alarmCheck) then
           if(LIS_rc%daalg(j).ne."none") then 
