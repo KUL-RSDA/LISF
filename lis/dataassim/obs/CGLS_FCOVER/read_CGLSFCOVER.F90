@@ -459,7 +459,7 @@ subroutine create_CGLS_FCOVER_filename(res, ndir, year, month, day, filename)
     integer, intent(in)              :: year, month, day
     character(len=*), intent(inout)  :: filename
 
-    character (len=8) :: time
+    character (len=10) :: time
     ! 
     ! !DESCRIPTION: 
     !  This subroutine creates the CGLS FCOVER filename
