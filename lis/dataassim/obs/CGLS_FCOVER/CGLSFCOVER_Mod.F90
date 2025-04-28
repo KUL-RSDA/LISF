@@ -90,7 +90,6 @@ module CGLSFCOVER_Mod
         integer                :: qcflag
         integer                :: isresampled
         real*8                 :: spatialres
-        real                   :: scale
         real*8                 ::  dlat, dlon
         real*8                 ::  latmax, latmin, lonmax, lonmin
         real,    allocatable :: rlat(:)
@@ -553,9 +552,6 @@ contains
         enddo
 
         do n=1,LIS_rc%nnest
-            ! scale factor for unpacking the data
-            CGLSFCOVER_struc(n)%scale = 0.033333
-
             if(LIS_rc%lis_obs_map_proj(k).ne."latlon") then
                 write(LIS_logunit,*)&
                      '[ERROR] The CGLS FCOVER module only works with latlon projection'       

@@ -350,7 +350,7 @@ subroutine read_CGLS_FCOVER_data(n, k, fname, FCOVERobs_ip)
                 if(FCOVER(c,r).gt.0) then
                     if (is_valid_CGLSFCOVER_flag(flag(c,r))) then
                         FCOVER_flagged(c,r) =&
-                                FCOVER(c,r)*CGLSFCOVER_struc(n)%scale
+                                FCOVER(c,r)
                     else
                         FCOVER_flagged(c,r) = LIS_rc%udef
                     endif
@@ -362,7 +362,7 @@ subroutine read_CGLS_FCOVER_data(n, k, fname, FCOVERobs_ip)
 
                 if(FCOVER(c,r).gt.0) then
                     FCOVER_flagged(c,r) =&
-                            FCOVER(c,r)*CGLSFCOVER_struc(n)%scale
+                            FCOVER(c,r)
                 else
                     FCOVER_flagged(c,r) = LIS_rc%udef
                 endif
@@ -459,7 +459,7 @@ subroutine create_CGLS_FCOVER_filename(res, ndir, year, month, day, filename)
     integer, intent(in)              :: year, month, day
     character(len=*), intent(inout)  :: filename
 
-    character (len=10) :: time
+    character (len=8) :: time
     ! 
     ! !DESCRIPTION: 
     !  This subroutine creates the CGLS FCOVER filename
