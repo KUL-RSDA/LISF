@@ -121,7 +121,7 @@ contains
     use LIS_coreMod,        only: LIS_rc, LIS_surface, LIS_resetTimeMgr
     use LIS_FORC_AttributesMod
     use LIS_logMod,         only: LIS_logunit, LIS_verify
-    use LIS_metForcingMod,  only: LIS_get_met_forcing, LIS_FORC_State
+    use LIS_metForcingMod,  only: LIS_get_met_forcing, LIS_perturb_forcing, LIS_FORC_State
     use LIS_PRIV_rcMod,     only: lisrcdec
     use LIS_timeMgrMod,     only: LIS_advance_timestep, LIS_is_last_step
 
@@ -206,6 +206,7 @@ contains
           subdaily_arr(:,j) = tmp
 
           if (AC72_struc(n)%Rainfall_crit) then
+            call LIS_perturb_forcing(n)
             ! Get and store rainfall (for sowing/planting based on rainfall criterion)
             call ESMF_StateGet(LIS_FORC_State(n), trim(LIS_FORC_Rainf%varname(1)), pcpField, rc=status)
             call LIS_verify(status, "AC72_f2t: error getting Rainf")
