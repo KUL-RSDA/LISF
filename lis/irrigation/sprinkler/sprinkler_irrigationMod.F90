@@ -42,12 +42,13 @@ contains
     integer              :: n 
     integer              :: rc, status
     type(ESMF_ArraySpec) :: arrspec1
-    type(ESMF_Field)     :: irrigRateField, irrigFracField
+    type(ESMF_Field)     :: irrigRateField, irrigSumRateField, irrigFracField
     type(ESMF_Field)     :: irrigRootDepthField, irrigScaleField
     real,  allocatable   :: irrigFrac(:)
     real,  allocatable   :: irrigRootdepth(:)
     real,  allocatable   :: irrigScale(:)
-    real, pointer        :: frac(:),scale(:),rootdepth(:),irrigrate(:)
+    real, pointer        :: frac(:),scale(:),rootdepth(:),irrigrate(:), &
+                            irrigsumrate(:)
     character(len=LIS_CONST_PATH_LEN) :: maxrootdepthfile
 
     type(ESMF_Field)    :: irriggwratioField
@@ -100,6 +101,23 @@ contains
        call ESMF_StateAdd(irrigState(n),(/irrigRateField/),rc=status)
        call LIS_verify(status,&
             "ESMF_StateAdd for irrigRate failed in sprinkler_irrigation_init")
+
+
+       irrigSumRateField = ESMF_FieldCreate(&
+            grid=LIS_vecPatch(n,LIS_rc%lsm_index),&
+            arrayspec=arrspec1,&
+            name="Irrigation sum rate", rc=status)
+       call LIS_verify(status, &
+            "ESMF_FieldCreate failed in sprinkler_irrigation_init")
+
+       call ESMF_FieldGet(irrigSumRateField,localDE=0,&
+            farrayPtr=irrigsumrate,rc=status)
+       call LIS_verify(status,'ESMF_FieldGet failed for irrigsumrate ')
+       irrigsumrate = 0.0
+
+       call ESMF_StateAdd(irrigState(n),(/irrigSumRateField/),rc=status)
+       call LIS_verify(status,&
+            "ESMF_StateAdd for irrigSumRate failed in sprinkler_irrigation_init")
 
        irrigFracField = ESMF_FieldCreate(&
             grid=LIS_vecPatch(n,LIS_rc%lsm_index),&

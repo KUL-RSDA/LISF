@@ -88,10 +88,10 @@ subroutine noahmp401_getirrigationstates(n,irrigState)
   integer              :: rc
   integer              :: t,k,gid,vegt,l
   type(ESMF_State)     :: irrigState
-  type(ESMF_Field)     :: irrigRateField,irrigFracField
+  type(ESMF_Field)     :: irrigRateField, irrigSumRateField, irrigFracField
   type(ESMF_Field)     :: irrigRootDepthField,irrigScaleField
   
-  real,  pointer       :: irrigRate(:), irrigFrac(:)
+  real,  pointer       :: irrigRate(:), irrigSumRate(:), irrigFrac(:)
   real,  pointer       :: irrigRootDepth(:), irrigScale(:)
   integer              :: chhr, lhr
   integer                :: soiltyp           ! soil type index [-]
@@ -130,6 +130,11 @@ subroutine noahmp401_getirrigationstates(n,irrigState)
   call LIS_verify(rc,'ESMF_StateGet failed for Irrigation rate')    
   call ESMF_FieldGet(irrigRateField, localDE=0,farrayPtr=irrigRate,rc=rc)
   call LIS_verify(rc,'ESMF_FieldGet failed for Irrigation rate')
+
+  call ESMF_StateGet(irrigState, "Irrigation sum rate",irrigSumRateField,rc=rc)
+  call LIS_verify(rc,'ESMF_StateGet failed for Irrigation sum rate')    
+  call ESMF_FieldGet(irrigSumRateField, localDE=0,farrayPtr=irrigSumRate,rc=rc)
+  call LIS_verify(rc,'ESMF_FieldGet failed for Irrigation sum rate')
 
   call ESMF_StateGet(irrigState, "Irrigation frac",&
        irrigFracField,rc=rc)
@@ -177,12 +182,14 @@ subroutine noahmp401_getirrigationstates(n,irrigState)
              read (ftn, '(A)', IOSTAT=rc) line
              if (rc < 0) then
                  close (ftn)
+				 call LIS_releaseUnitNumber(ftn)
                  exit
              end if
              where = index (line, 'Soil Moisture')
              if (where .ne. 0) then
                  soil_moisture_pert = .true.
                  close (ftn)
+				 call LIS_releaseUnitNumber(ftn)
                  exit
              endif
           end do
@@ -508,7 +515,7 @@ subroutine noahmp401_getirrigationstates(n,irrigState)
 				  end if
 			   end if
 		   end if
-
+		   irrigSumRate(t) = irrigSumRate(t) + irrigRate(t)*LIS_rc%ts
 		end do
   
 
@@ -844,9 +851,10 @@ subroutine noahmp401_getirrigationstates(n,irrigState)
 				  end if
 			   end if
 		   end if
-
+		   irrigSumRate(t) = irrigSumRate(t) + irrigRate(t)*LIS_rc%ts
 		end do
 	  end do
   endif
+
 
   end subroutine noahmp401_getirrigationstates

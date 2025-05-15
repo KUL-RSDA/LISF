@@ -44,6 +44,7 @@ module LIS_fileIOMod
   public :: LIS_create_innov_filename    ! create an innovations filename
   public :: LIS_create_incr_filename     ! create an analysis increments filename
   public :: LIS_create_daspread_filename ! create an innovations filename
+  public :: LIS_create_irrspread_filename ! create an irrigation spread filename
   public :: LIS_create_obs_filename      ! create an observations filename
   public :: LIS_create_gain_filename
   public :: LIS_putget                   !a generic read/write method. 
@@ -2863,6 +2864,158 @@ subroutine LIS_create_daspread_filename(n, k, fname, mname)
 
         
  end subroutine LIS_create_daspread_filename
+
+ !BOP
+!
+! !ROUTINE: LIS_create_irrspread_filename
+! \label{LIS_create_irrspread_filename}
+! 
+! !INTERFACE:
+subroutine LIS_create_irrspread_filename(n, fname, mname)
+   use LIS_coreMod,  only : LIS_rc
+   use LIS_logMod,   only : LIS_log_msg, LIS_endrun
+
+   implicit none 
+! !ARGUMENTS:
+   integer, intent(in) :: n
+   character(len=*), intent(out) :: fname
+   character(len=*), intent(in)  :: mname !LB should be IRRIGATION to match dir
+! 
+! !DESCRIPTION:  
+!  Create the file name for the output data files. It creates both the GSWP
+!  style of output filenames and the standard LIS style. The convention used
+!  in LIS creates a filename in a hierarchical style (output directory, 
+!  model name, date, file extention)
+!
+!  2 level hierarchy
+!  \begin{verbatim}
+!   <output directory>/<model name>/LIS_HIST_<yyyymmddhhmnss>.<extension>
+!  \end{verbatim}
+!  3 level hierarchy
+!  \begin{verbatim}
+!   <output directory>/<model name>/<yyyymm>/LIS_HIST_<yyyymmddhhmnss>.<extension>
+!  \end{verbatim}
+!  4 level hierarchy
+!  \begin{verbatim}
+!   <output directory>/<model name>/<yyyy>/<yyyymm>/LIS_HIST_<yyyymmddhhmnss>.<extension>
+!  \end{verbatim}
+!  WMO convention
+!  \begin{verbatim}
+!   <output directory>/<AFWA Weather product style>
+!  \end{verbatim}
+!   A filename in the convention of weather products (such as): \newline
+!   {\small
+!   PS.AFWA\_SC.U\_DI.C\_DC.ANLYS\_GP.LIS\_GR.C0P25DEG\_AR.GLOBAL\_PA.03-HR-SUM\_DD.YYYYMMDD\_DT.HH00\_DF.GR1 \newline
+!   }
+!   where                             \newline
+!    PS = Product source              \newline
+!    SC = security classification     \newline
+!    DI = distribution classification \newline
+!    DC = data category               \newline
+!    GP = generating process          \newline
+!    GR = grid                        \newline
+!    AR = area of data                \newline
+!    PA = parameter                   \newline
+!    DD = date                        \newline
+!    DT = data time                   \newline
+!    DF = data format                 \newline
+! 
+!  The arguments are: 
+!  \begin{description}
+!   \item [n]
+!     index of the domain or nest
+!   \item [fname]
+!     the created file name. 
+!   \item [model\_name]
+!    string describing the name of the model 
+!   \item [writeint]
+!    output writing interval  of the model
+!   \item [style]
+!    style option as described above
+!  \end{description}
+!EOP
+   character(len=8)        :: date
+   character(len=10)       :: time
+   character(len=5)        :: zone
+   integer, dimension(8)   :: values
+ 
+   character(len=10)       :: cdate
+   character(len=10)       :: cda
+   character(len=14)       :: cdate1
+   character(len=2)        :: fint
+   character(len=10)       :: fres
+   character(len=10)       :: fres2
+   character(len=10)       :: fres3
+   character*1             :: fres1(10)
+   character(len=1)        :: fproj
+   integer                 :: curr_mo = 0
+   character(len=LIS_CONST_PATH_LEN)       :: dname
+   character(len=LIS_CONST_PATH_LEN), save :: out_fname
+   integer                  :: i, c
+
+   if(LIS_rc%wstyle.eq."4 level hierarchy") then 
+      write(unit=cdate1, fmt='(i4.4, i2.2, i2.2, i2.2, i2.2)') &
+           LIS_rc%yr, LIS_rc%mo, &
+           LIS_rc%da, LIS_rc%hr,LIS_rc%mn
+      
+      dname = trim(LIS_rc%odir)//'/'
+      dname = trim(dname)//trim(mname)//'/'
+      
+      write(unit=cdate, fmt='(i4.4)') LIS_rc%yr
+      dname = trim(dname)//trim(cdate)//'/'
+      
+      write(unit=cdate, fmt='(i4.4, i2.2, i2.2)') &
+           LIS_rc%yr, LIS_rc%mo, LIS_rc%da
+      dname = trim(dname)//trim(cdate)
+      
+      out_fname = trim(dname)//'/LIS_HIST_'//trim(cdate1)//&
+           '_spread'
+      
+      write(unit=cdate, fmt='(a2,i2.2)') '.d',n      
+      out_fname = trim(out_fname)//trim(cdate)
+      
+      out_fname = trim(out_fname)//'.nc'
+   elseif(LIS_rc%wstyle.eq."3 level hierarchy") then
+      write(unit=cdate1, fmt='(i4.4, i2.2, i2.2, i2.2, i2.2)') &
+           LIS_rc%yr, LIS_rc%mo, &
+           LIS_rc%da, LIS_rc%hr,LIS_rc%mn
+      
+      dname = trim(LIS_rc%odir)//'/'
+      dname = trim(dname)//trim(mname)//'/'
+      
+      write(unit=cdate, fmt='(i4.4, i2.2)') LIS_rc%yr, LIS_rc%mo
+      dname = trim(dname)//trim(cdate)//'/'
+
+      out_fname = trim(dname)//'LIS_HIST_'//trim(cdate1)//&
+           '_spread'
+
+      write(unit=cdate, fmt='(a2,i2.2)') '.d',n      
+      out_fname = trim(out_fname)//trim(cdate)
+      
+      out_fname = trim(out_fname)//'.nc'
+   elseif(LIS_rc%wstyle.eq."2 level hierarchy".or.&
+        LIS_rc%wstyle.eq."WMO convention" .or. &
+        LIS_rc%wstyle.eq."557WW streamflow convention" .or. &
+        LIS_rc%wstyle.eq."557WW medium range forecast convention") then
+      write(unit=cdate1, fmt='(i4.4, i2.2, i2.2, i2.2, i2.2)') &
+           LIS_rc%yr, LIS_rc%mo, &
+           LIS_rc%da, LIS_rc%hr,LIS_rc%mn
+      
+      dname = trim(LIS_rc%odir)//'/'
+      dname = trim(dname)//trim(mname)//'/'
+      
+      out_fname = trim(dname)//'LIS_HIST_'//trim(cdate1)//&
+           '_spread'
+
+      write(unit=cdate, fmt='(a2,i2.2)') '.d',n      
+      out_fname = trim(out_fname)//trim(cdate)
+      
+      out_fname = trim(out_fname)//'.nc'
+   endif
+   fname = out_fname
+
+        
+ end subroutine LIS_create_irrspread_filename
 
 
 !BOP

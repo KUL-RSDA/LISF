@@ -26,6 +26,15 @@ module LIS_irrigationMod
   use ESMF
   use LIS_coreMod
   use LIS_logMod
+  use LIS_mpiMod
+  use LIS_constantsMod, only : LIS_CONST_PATH_LEN
+  use LIS_historyMod, only : LIS_writevar_spread
+  use LIS_fileIOMod, only : LIS_create_irrspread_filename, &
+                            LIS_create_output_directory
+
+#if ( defined USE_NETCDF3 || defined USE_NETCDF4 )
+  use netcdf
+#endif
 
   implicit none
   
@@ -173,6 +182,24 @@ contains
                              LIS_rc%irrigation_SourcePartition
 !------------------------------------------------------
 
+!-------------------Louise B---Output irrigation ensemble spread------------------
+     LIS_rc%irrigation_outspread = 0 ! Default is no
+     call ESMF_ConfigGetAttribute(LIS_config,LIS_rc%irrigation_outspread,&
+            label="Irrigation output ensemble spread:",default=0,rc=rc)
+     
+     if ((LIS_rc%irrigation_outspread.ne.0).and.(LIS_rc%irrigation_type.ne."Sprinkler")) then
+          write(LIS_logunit,*) "Irrigation output ensemble spread only possible with Sprinkler"
+          call LIS_endrun()
+     endif
+
+     if (LIS_rc%irrigation_outspread.ne.0) then
+          call ESMF_ConfigGetAttribute(LIS_config,LIS_rc%irrigation_ensemstype,&
+               label="Irrigation ensemble spread type:",default="std",rc=rc)
+          call LIS_verify(rc,'Irrigation ensemble spread type: not defined (either "max-min" or "std")')
+     endif
+
+!------------------------------------------------------
+
      ! Register irrigation output interval:
        do n=1,LIS_rc%nnest
           call LIS_parseTimeString(time,LIS_irrig_struc(n)%outInterval)
@@ -290,10 +317,138 @@ contains
                   nsoillayers=1, lyrthk = (/1.0/),                       &
                   nsoillayers2=1,                                        &
                   model_name=LIS_irrig_struc(n)%models_used,group=4)
+
+             if(LIS_rc%irrigation_outspread.eq.1) then
+               call writeEnsembleSpread_irrigation(n, LIS_irrig_state(n))
+             endif
+
           endif
        endif
     endif
     
   end subroutine LIS_irrigation_output
+
+!BOP
+! 
+! !ROUTINE: writeEnsembleSpread_irrigation
+! \label{writeEnsembleSpread_irrigation}
+!
+! !INTERFACE: 
+  subroutine writeEnsembleSpread_irrigation(n, irrigState)
+!
+! !DESCRIPTION: 
+!  This routine writes the ensemble spread (standard deviation) 
+!  of the irrigation amounts per day (kg m-2 d-1)
+!
+!  The arguments and variables are: 
+!  \begin{description}
+!   \item[n]    index of the nest 
+!  \end{description}
+
+!EOP
+    integer,  intent(in)    :: n
+    type(ESMF_State)        :: irrigState
+
+    integer                :: ftn 
+    integer                :: t
+    character(len=LIS_CONST_PATH_LEN) :: spreadfile
+    integer                :: shuffle, deflate, deflate_level
+    integer                :: dimID(3)
+    integer                :: irrigSumRate_id
+    character*100          :: varname, vardimname, standard_name
+    integer                :: status, rc, ierr
+    type(ESMF_Field)       :: irrigSumRateField
+    real,  pointer         :: irrigsumRate(:)
+
+
+     ! Get irrigSumRate
+     call ESMF_StateGet(irrigState, "Irrigation sum rate",irrigSumRateField,rc=rc)
+     call LIS_verify(rc,'ESMF_StateGet failed for Irrigation sum rate in writeEnsembleSpread_irrigation')    
+     call ESMF_FieldGet(irrigSumRateField, localDE=0,farrayPtr=irrigSumRate,rc=rc)
+     call LIS_verify(rc,'ESMF_FieldGet failed for Irrigation sum rate in writeEnsembleSpread_irrigation')
+          
+     if(LIS_masterproc) then
+          call LIS_create_output_directory('IRRIGATION')
+          call LIS_create_irrspread_filename(n,spreadfile,&
+               'IRRIGATION')
+
+#if (defined USE_NETCDF4)
+          status = nf90_create(path=spreadfile,cmode=nf90_hdf5,&
+               ncid = ftn)
+          call LIS_verify(status,&
+               'creating netcdf file '//trim(spreadfile)//&
+               ' failed in irrigation_Mod')
+#endif
+#if (defined USE_NETCDF3)
+          status = nf90_create(path=spreadfile,cmode=nf90_clobber,&
+               ncid = ftn)
+          call LIS_verify(status,&
+               'creating netcdf file '//trim(spreadfile)//&
+               ' failed in irrigation_Mod')
+#endif
+
+          if(LIS_rc%wopt.eq."1d gridspace") then 
+               call LIS_verify(nf90_def_dim(ftn,'ngrid',&
+                    LIS_rc%glbngrid_red(n),&
+                    dimID(1)),'nf90_def_dim for ngrid failed in irrigation_mod')
+          elseif(LIS_rc%wopt.eq."2d gridspace") then 
+               call LIS_verify(nf90_def_dim(ftn,'east_west',LIS_rc%gnc(n),&
+                    dimID(1)),'nf90_def_dim for east_west failed in irrigation_mod')
+               call LIS_verify(nf90_def_dim(ftn,'north_south',LIS_rc%gnr(n),&
+                    dimID(2)),'nf90_def_dim for north_south failed in irrigation_mod')
+          endif
+
+          call LIS_verify(nf90_put_att(ftn,&
+               NF90_GLOBAL,"missing_value", LIS_rc%udef),&
+               'nf90_put_att for missing_value failed in irrigation_mod')
+
+!--------------------------------------------------------------------------
+!  Ensemble spread -meta data
+!--------------------------------------------------------------------------
+
+          varname = "ensspread_IrrigationRate_daily"
+          vardimname = "ensspread_IrrigationRate_daily"
+          standard_name = "Ensemble_spread_for_IrrigationRate_daily"
+
+          if(LIS_rc%wopt.eq."1d gridspace") then            
+               call LIS_verify(nf90_def_var(ftn,varname,&
+                    nf90_float,&
+                    dimids = dimID(1), varID=IrrigSumRate_Id),&
+                    'nf90_def_var for ensspread failed in irrigation_mod')
+               
+          elseif(LIS_rc%wopt.eq."2d gridspace") then 
+               call LIS_verify(nf90_def_var(ftn,varname,&
+                    nf90_float,&
+                    dimids = dimID(1:2), varID=IrrigSumRate_Id),&
+                    'nf90_def_var for ensspread failed in irrigation_mod')
+          endif
+
+#if(defined USE_NETCDF4)
+          call LIS_verify(nf90_def_var_deflate(ftn,&
+               IrrigSumRate_Id,&
+               shuffle, deflate, deflate_level),&
+               'nf90_def_var_deflate for ensspread failed in irrigation_mod')             
+#endif
+          call LIS_verify(nf90_put_att(ftn,IrrigSumRate_Id,&
+               "standard_name",standard_name),&
+               'nf90_put_att for ensspread failed in irrigation_mod')
+          call LIS_verify(nf90_enddef(ftn),&
+               'nf90_enddef failed in irrigation_mod')
+     endif
+
+     call LIS_writevar_spread(ftn,n,LIS_rc%lsm_index,IrrigSumRate_id, &
+          irrigSumRate,1,LIS_rc%irrigation_ensemstype)
+
+     if(LIS_masterproc) then 
+          call LIS_verify(nf90_close(ftn),&
+               'nf90_close failed in irrigation_mod')
+     endif
+     ! Reset sum
+     do t=1,LIS_rc%npatch(n,LIS_rc%lsm_index)
+          irrigSumRate(t) = 0
+     enddo
+
+
+  end subroutine writeEnsembleSpread_irrigation
 
 end module LIS_irrigationMod

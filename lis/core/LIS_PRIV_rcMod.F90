@@ -966,6 +966,9 @@ module LIS_PRIV_rcMod
      integer                :: irrigation_dveg        !WN
      integer                :: irrigation_SourcePartition  !WN
      integer                :: irrigation_GWabstraction !JE 
+     integer                :: irrigation_outspread !LB
+     character*50           :: irrigation_ensemstype !LB
+
 
      logical, allocatable       :: LSM_DAinst_valid(:)
      logical, allocatable       :: Routing_DAinst_valid(:)
