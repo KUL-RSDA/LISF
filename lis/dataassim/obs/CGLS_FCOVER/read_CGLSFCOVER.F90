@@ -294,7 +294,7 @@ subroutine read_CGLS_FCOVER_data(n, k, fname, FCOVERobs_ip)
     !EOP
 
     integer                 :: lat_offset, lon_offset
-    integer                 :: FCOVER(CGLSFCOVER_struc(n)%nc,CGLSFCOVER_struc(n)%nr)
+    real                    :: FCOVER(CGLSFCOVER_struc(n)%nc,CGLSFCOVER_struc(n)%nr)
     integer                 :: flag(CGLSFCOVER_struc(n)%nc,CGLSFCOVER_struc(n)%nr)
     real                    :: FCOVER_flagged(CGLSFCOVER_struc(n)%nc,CGLSFCOVER_struc(n)%nr)
     real                    :: FCOVER_in(CGLSFCOVER_struc(n)%nc*CGLSFCOVER_struc(n)%nr)
