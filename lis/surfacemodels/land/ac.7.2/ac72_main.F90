@@ -1222,6 +1222,21 @@ subroutine AC72_main(n)
         ![ 19] output variable: HItimesBEF (unit=-).  *** Harvest Index
         call LIS_diagnoseSurfaceOutputVar(n, t, LIS_MOC_AC_HItimesBEF, value = AC72_struc(n)%ac72(t)%HItimesBEF, &
              vlevel=1, unit="-", direction="-", surface_type = LIS_rc%lsm_index)
+        ![ 20] output variable: CCxTotal (unit=-).  *** max canopy cover
+        call LIS_diagnoseSurfaceOutputVar(n, t, LIS_MOC_AC_CCxTotal, value = AC72_struc(n)%ac72(t)%CCxTotal, &
+             vlevel=1, unit="-", direction="-", surface_type = LIS_rc%lsm_index)
+        ![ 21] output variable: CCoTotal (unit=-).  *** initial canopy cover
+        call LIS_diagnoseSurfaceOutputVar(n, t, LIS_MOC_AC_CCoTotal, value = AC72_struc(n)%ac72(t)%CCoTotal, &
+             vlevel=1, unit="-", direction="-", surface_type = LIS_rc%lsm_index)
+        ![ 22] output variable: CCiPrev (unit=-).  *** canopy cover (end of the day)
+        call LIS_diagnoseSurfaceOutputVar(n, t, LIS_MOC_AC_CCiPrev, value = AC72_struc(n)%ac72(t)%CCiPrev, &
+             vlevel=1, unit="-", direction="-", surface_type = LIS_rc%lsm_index)
+        ![ 23] output variable: CCoAdjusted (unit=-).  *** initial canopy cover in water stress conditions
+        call LIS_diagnoseSurfaceOutputVar(n, t, LIS_MOC_AC_CCoAdjusted, value = AC72_struc(n)%ac72(t)%Crop%CCoAdjusted, &
+             vlevel=1, unit="-", direction="-", surface_type = LIS_rc%lsm_index)
+        ![ 24] output variable: CCxAdjusted (unit=-).  *** initial canopy cover in water stress conditions
+        call LIS_diagnoseSurfaceOutputVar(n, t, LIS_MOC_AC_CCxAdjusted, value = AC72_struc(n)%ac72(t)%Crop%CCxAdjusted, &
+             vlevel=1, unit="-", direction="-", surface_type = LIS_rc%lsm_index)
 
         !  Reset forcings
         AC72_struc(n)%ac72(t)%tair = 0.0
