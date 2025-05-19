@@ -432,6 +432,8 @@ module LIS_histDataMod
   ! AquaCrop
   public :: LIS_MOC_AC_Biomass
   public :: LIS_MOC_AC_CCiActual
+  public :: LIS_MOC_AC_CCxWithered
+  public :: LIS_MOC_AC_HItimesBEF
   public :: LIS_MOC_AC_RootZoneWC_Actual
   public :: LIS_MOC_AC_RootZoneWC_WP
   public :: LIS_MOC_AC_RootZoneWC_FC
@@ -960,6 +962,8 @@ module LIS_histDataMod
 !  <- AquaCrop ->
    integer :: LIS_MOC_AC_Biomass  = -9999
    integer :: LIS_MOC_AC_CCiActual  = -9999
+   integer :: LIS_MOC_AC_CCxWithered = -9999
+   integer :: LIS_MOC_AC_HItimesBEF = -9999
    integer :: LIS_MOC_AC_RootZoneWC_Actual  = -9999
    integer :: LIS_MOC_AC_RootZoneWC_WP  = -9999
    integer :: LIS_MOC_AC_RootZoneWC_FC  = -9999
@@ -4556,6 +4560,30 @@ contains
          "actual canopy cover",rc)
     if ( rc == 1 ) then
        call register_dataEntry(LIS_MOC_LSM_COUNT,LIS_MOC_AC_CCiActual,&
+            LIS_histData(n)%head_lsm_list,&
+            n,1,ntiles,(/"-"/),1,(/"-"/),1,1,1,&
+            model_patch=.true.)
+    endif
+
+    call ESMF_ConfigFindLabel(modelSpecConfig,"AC_CCxWithered:",rc=rc)
+    call get_moc_attributes(modelSpecConfig, LIS_histData(n)%head_lsm_list, &
+         "AC_CCxWithered",&
+         "max_withered_canopy_cover",&
+         "max withered canopy cover",rc)
+    if ( rc == 1 ) then
+       call register_dataEntry(LIS_MOC_LSM_COUNT,LIS_MOC_AC_CCxWithered,&
+            LIS_histData(n)%head_lsm_list,&
+            n,1,ntiles,(/"-"/),1,(/"-"/),1,1,1,&
+            model_patch=.true.)
+    endif
+    
+    call ESMF_ConfigFindLabel(modelSpecConfig,"AC_HItimesBEF:",rc=rc)
+    call get_moc_attributes(modelSpecConfig, LIS_histData(n)%head_lsm_list, &
+         "AC_HItimesBEF",&
+         "harvest_index",&
+         "harvest index",rc)
+    if ( rc == 1 ) then
+       call register_dataEntry(LIS_MOC_LSM_COUNT,LIS_MOC_AC_HItimesBEF,&
             LIS_histData(n)%head_lsm_list,&
             n,1,ntiles,(/"-"/),1,(/"-"/),1,1,1,&
             model_patch=.true.)
