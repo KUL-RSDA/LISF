@@ -1217,7 +1217,7 @@ subroutine AC72_main(n)
         call LIS_diagnoseSurfaceOutputVar(n, t, LIS_MOC_AC_cycle_complete, value = real(AC72_struc(n)%ac72(t)%cycle_complete), &
              vlevel=1, unit="-", direction="-", surface_type = LIS_rc%lsm_index)
         ![ 18] output variable: CCxWithered (unit=-).  *** max canopy cover in water stress conditions
-        call LIS_diagnoseSurfaceOutputVar(n, t, LIS_MOC_AC_CCxWhitered, value = AC72_struc(n)%ac72(t)%crop%CCxWhitered, &
+        call LIS_diagnoseSurfaceOutputVar(n, t, LIS_MOC_AC_CCxWithered, value = AC72_struc(n)%ac72(t)%crop%CCxWithered, &
              vlevel=1, unit="-", direction="-", surface_type = LIS_rc%lsm_index)
         ![ 19] output variable: HItimesBEF (unit=-).  *** Harvest Index
         call LIS_diagnoseSurfaceOutputVar(n, t, LIS_MOC_AC_HItimesBEF, value = AC72_struc(n)%ac72(t)%HItimesBEF, &
