@@ -1219,8 +1219,8 @@ subroutine AC72_main(n)
         ![ 18] output variable: CCxWithered (unit=-).  *** max canopy cover in water stress conditions
         call LIS_diagnoseSurfaceOutputVar(n, t, LIS_MOC_AC_CCxWithered, value = AC72_struc(n)%ac72(t)%crop%CCxWithered, &
              vlevel=1, unit="-", direction="-", surface_type = LIS_rc%lsm_index)
-        ![ 19] output variable: HItimesBEF (unit=-).  *** Harvest Index
-        call LIS_diagnoseSurfaceOutputVar(n, t, LIS_MOC_AC_HItimesBEF, value = AC72_struc(n)%ac72(t)%HItimesBEF, &
+        ![ 19] output variable: HI (unit=-).  *** Harvest Index
+        call LIS_diagnoseSurfaceOutputVar(n, t, LIS_MOC_AC_HI, value = AC72_struc(n)%ac72(t)%crop%HI, &
              vlevel=1, unit="-", direction="-", surface_type = LIS_rc%lsm_index)
         ![ 20] output variable: CCxTotal (unit=-).  *** max canopy cover
         call LIS_diagnoseSurfaceOutputVar(n, t, LIS_MOC_AC_CCxTotal, value = AC72_struc(n)%ac72(t)%CCxTotal, &

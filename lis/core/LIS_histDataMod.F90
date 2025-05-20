@@ -438,7 +438,7 @@ module LIS_histDataMod
   public :: LIS_MOC_AC_CCiPrev
   public :: LIS_MOC_AC_CCoAdjusted
   public :: LIS_MOC_AC_CCxAdjusted
-  public :: LIS_MOC_AC_HItimesBEF
+  public :: LIS_MOC_AC_HI
   public :: LIS_MOC_AC_RootZoneWC_Actual
   public :: LIS_MOC_AC_RootZoneWC_WP
   public :: LIS_MOC_AC_RootZoneWC_FC
@@ -973,7 +973,7 @@ module LIS_histDataMod
    integer :: LIS_MOC_AC_CCiPrev = -9999
    integer :: LIS_MOC_AC_CCoAdjusted = -9999
    integer :: LIS_MOC_AC_CCxAdjusted = -9999
-   integer :: LIS_MOC_AC_HItimesBEF = -9999
+   integer :: LIS_MOC_AC_HI = -9999
    integer :: LIS_MOC_AC_RootZoneWC_Actual  = -9999
    integer :: LIS_MOC_AC_RootZoneWC_WP  = -9999
    integer :: LIS_MOC_AC_RootZoneWC_FC  = -9999
@@ -4647,13 +4647,13 @@ contains
             model_patch=.true.)
     endif
     
-    call ESMF_ConfigFindLabel(modelSpecConfig,"AC_HItimesBEF:",rc=rc)
+    call ESMF_ConfigFindLabel(modelSpecConfig,"AC_HI:",rc=rc)
     call get_moc_attributes(modelSpecConfig, LIS_histData(n)%head_lsm_list, &
-         "AC_HItimesBEF",&
+         "AC_HI",&
          "harvest_index",&
          "harvest index",rc)
     if ( rc == 1 ) then
-       call register_dataEntry(LIS_MOC_LSM_COUNT,LIS_MOC_AC_HItimesBEF,&
+       call register_dataEntry(LIS_MOC_LSM_COUNT,LIS_MOC_AC_HI,&
             LIS_histData(n)%head_lsm_list,&
             n,1,ntiles,(/"-"/),1,(/"-"/),1,1,1,&
             model_patch=.true.)
