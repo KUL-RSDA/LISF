@@ -1231,8 +1231,8 @@ subroutine AC72_main(n)
         ![ 22] output variable: CCiPrev (unit=-).  *** canopy cover (end of the day)
         call LIS_diagnoseSurfaceOutputVar(n, t, LIS_MOC_AC_CCiPrev, value = AC72_struc(n)%ac72(t)%CCiPrev, &
              vlevel=1, unit="-", direction="-", surface_type = LIS_rc%lsm_index)
-        ![ 23] output variable: CCoAdjusted (unit=-).  *** initial canopy cover in water stress conditions
-        call LIS_diagnoseSurfaceOutputVar(n, t, LIS_MOC_AC_CCoAdjusted, value = AC72_struc(n)%ac72(t)%Crop%CCoAdjusted, &
+        ![ 23] output variable: StageCode (unit=-).  *** stage code
+        call LIS_diagnoseSurfaceOutputVar(n, t, LIS_MOC_AC_StageCode, value = real(AC72_struc(n)%ac72(t)%StageCode), &
              vlevel=1, unit="-", direction="-", surface_type = LIS_rc%lsm_index)
         ![ 24] output variable: CCxAdjusted (unit=-).  *** initial canopy cover in water stress conditions
         call LIS_diagnoseSurfaceOutputVar(n, t, LIS_MOC_AC_CCxAdjusted, value = AC72_struc(n)%ac72(t)%Crop%CCxAdjusted, &
