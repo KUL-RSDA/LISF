@@ -93,6 +93,7 @@ module AC72_module
      !-------------------------------------------------------------------------
      ! AC specific (all AC global variables)
      !-------------------------------------------------------------------------
+     real               :: CCiPot
      real               :: cycle_complete
      integer            :: daynri
      real               :: RootZoneWC_Actual

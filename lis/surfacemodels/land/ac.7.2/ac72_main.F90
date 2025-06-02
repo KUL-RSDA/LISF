@@ -19,8 +19,17 @@
 ! !INTERFACE:
 subroutine AC72_main(n)
   ! !USES:
-!!! MB_AC70
-  use ac_global, only:    DegreesDay,&
+!!! MB_AC70    
+  use ac_global, only:     DegreesDay,&
+       CanopyCoverNoStressSF,&
+       GetSimulation_DelayedDays,&
+       GetCrop_GDDaysToFullCanopy,&
+       GetCrop_CCo,&
+       GetCrop_CCx,&
+       GetCrop_CGC,&
+       GetCrop_CDC,&
+       GetCrop_GDDCGC,&
+       GetCrop_GDDCDC(),&
        GetCCiActual,&
        GetCCiprev,&
        GetCCiTopEarlySen,&
@@ -969,6 +978,77 @@ subroutine AC72_main(n)
         call AdvanceOneTimeStep(tmp_wpi, AC72_struc(n)%ac72(t)%HarvestNow)
         AC72_struc(n)%ac72(t)%WPi = tmp_wpi
 
+         ! Store CCiPot
+         SumGDDadjCC = real(undef_int, kind=sp)
+         if (GetCrop_DaysToCCini() /= 0) then
+            ! regrowth
+            if (GetDayNri() - 1 >= GetCrop_Day1()) then
+               ! time setting for canopy development
+               VirtualTimeCC = (GetDayNri() - 1 - GetSimulation_DelayedDays() &
+                  - GetCrop_Day1()) &
+                  + GetTadj() + GetCrop_DaysToGermination()
+               ! adjusted time scale
+               if (VirtualTimeCC > GetCrop_DaysToHarvest()) then
+                  VirtualTimeCC = GetCrop_DaysToHarvest()
+                  ! special case where L123 > L1234
+               end if
+               if (VirtualTimeCC > GetCrop_DaysToFullCanopy()) then
+                  if ((GetDayNri() - 1 - GetSimulation_DelayedDays() - &
+                        GetCrop_Day1()) <= GetCrop_DaysToSenescence()) then
+                     VirtualTimeCC = GetCrop_DaysToFullCanopy() + &
+                        roundc(GetDayFraction() * ((GetDayNri() - 1 - &
+                        GetSimulation_DelayedDays() - &
+                        GetCrop_Day1())+GetTadj()+ &
+                        GetCrop_DaysToGermination() - &
+                        GetCrop_DaysToFullCanopy()), mold=1) ! slow down
+                  else
+                     VirtualTimeCC = GetDayNri() - 1 - &
+                        GetSimulation_DelayedDays() - GetCrop_Day1() ! switch time scale
+                  end if
+               end if
+               if (GetCrop_ModeCycle() == modeCycle_GDDays) then
+                  SumGDDadjCC = GetSimulation_SumGDDfromDay1() + GetGDDTadj() + &
+                     GetCrop_GDDaysToGermination()
+                  if (SumGDDadjCC > GetCrop_GDDaysToHarvest()) then
+                     SumGDDadjCC = GetCrop_GDDaysToHarvest()
+                     ! special case where L123 > L1234
+                  end if
+                  if (SumGDDadjCC > GetCrop_GDDaysToFullCanopy()) then
+                     if (GetSimulation_SumGDDfromDay1() <= &
+                           GetCrop_GDDaysToSenescence()) then
+                        SumGDDadjCC = GetCrop_GDDaysToFullCanopy() &
+                           + roundc(GetGDDayFraction() &
+                           * (GetSimulation_SumGDDfromDay1() &
+                           + GetGDDTadj()+GetCrop_GDDaysToGermination() &
+                           - GetCrop_GDDaysToFullCanopy()), mold=1) ! slow down
+                     else
+                        SumGDDadjCC = GetSimulation_SumGDDfromDay1()
+                        ! switch time scale
+                     end if
+                  endif
+               end if
+            else
+               ! before start crop
+               VirtualTimeCC = GetDayNri() - 1 - GetSimulation_DelayedDays() - &
+                  GetCrop_Day1()
+               if (GetCrop_ModeCycle() == modeCycle_GDDays) then
+                  SumGDDadjCC = GetSimulation_SumGDD()
+               end if
+            end if
+         else
+            ! sown or transplanted
+            VirtualTimeCC = GetDayNri() - 1 - GetSimulation_DelayedDays() - &
+               GetCrop_Day1()
+            if (GetCrop_ModeCycle() == modeCycle_GDDays) then
+               SumGDDadjCC = GetSimulation_SumGDD()
+            end if
+         end if
+         AC72_struc(n)%ac72(t)%CCiPot = CanopyCoverNoStressSF((VirtualTimeCC + GetSimulation_DelayedDays() + 1), &
+            GetCrop_DaysToGermination(), GetCrop_DaysToSenescence(), GetCrop_DaysToHarvest(), &
+            GetCrop_GDDaysToGermination(), GetCrop_GDDaysToSenescence(), GetCrop_GDDaysToHarvest(), &
+            GetCrop_CCo(), GetCrop_CCx(), GetCrop_CGC(), GetCrop_CDC(), GetCrop_GDDCGC(), &
+            GetCrop_GDDCDC(), SumGDDadjCC, GetCrop_ModeCycle(), 0_int8, 0_int8)
+
         ! Close irri file if opened
         if(irr_record_flag.eq.1)then
            call fIrri_close()
@@ -1225,8 +1305,8 @@ subroutine AC72_main(n)
         ![ 20] output variable: CCxTotal (unit=-).  *** max canopy cover
         call LIS_diagnoseSurfaceOutputVar(n, t, LIS_MOC_AC_CCxTotal, value = AC72_struc(n)%ac72(t)%CCxTotal, &
              vlevel=1, unit="-", direction="-", surface_type = LIS_rc%lsm_index)
-        ![ 21] output variable: CCoTotal (unit=-).  *** initial canopy cover
-        call LIS_diagnoseSurfaceOutputVar(n, t, LIS_MOC_AC_CCoTotal, value = AC72_struc(n)%ac72(t)%CCoTotal, &
+        ![ 21] output variable: CCiPot (unit=-).  *** potential canopy cover
+        call LIS_diagnoseSurfaceOutputVar(n, t, LIS_MOC_AC_CCiPot, value = AC72_struc(n)%ac72(t)%CCiPot, &
              vlevel=1, unit="-", direction="-", surface_type = LIS_rc%lsm_index)
         ![ 22] output variable: CCiPrev (unit=-).  *** canopy cover (end of the day)
         call LIS_diagnoseSurfaceOutputVar(n, t, LIS_MOC_AC_CCiPrev, value = AC72_struc(n)%ac72(t)%CCiPrev, &

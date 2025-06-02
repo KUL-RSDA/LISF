@@ -29,7 +29,7 @@ subroutine ac72_setvegvars(n, LSM_State)
 ! 
 ! !DESCRIPTION:
 ! 
-!  This routine assigns the progognostic variables to AquaCrop's
+!  This routine assigns the prognostic variables to AquaCrop's
 !  model space. The state vector consists of veg
 ! 
 !EOP
@@ -46,7 +46,14 @@ subroutine ac72_setvegvars(n, LSM_State)
   call LIS_verify(status)
 
   do t=1,LIS_rc%npatch(n,LIS_rc%lsm_index)
-      AC72_struc(n)%ac72(t)%CCiprev = AC72CCiprev(t)
+    if (AC72CCiprev(t) > AC72_struc(n)%ac72(t)%CCiPot(t)) then
+      AC72CCiprev(t) = AC72_struc(n)%ac72(t)%CCiPot(t)
+    AC72_struc(n)%ac72(t)%CCiprev = AC72CCiprev(t)
+    AC72_struc(n)%ac72(t)%CCiActual = AC72CCiprev(t)
+    AC72_struc(n)%ac72(t)%CCxAdjusted = AC72_struc(n)%ac72(t)%CCiActual
+    if (AC72_struc(n)%ac72(t)%CCiActual > AC72_struc(n)%ac72(t)%CCiTopEarlySen) then
+      AC72_struc(n)%ac72(t)%CCiTopEarlySen = AC72_struc(n)%ac72(t)%CCiActual
+    endif
   enddo
   
 end subroutine ac72_setvegvars

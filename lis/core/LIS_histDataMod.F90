@@ -434,7 +434,7 @@ module LIS_histDataMod
   public :: LIS_MOC_AC_CCiActual
   public :: LIS_MOC_AC_CCxWithered
   public :: LIS_MOC_AC_CCxTotal
-  public :: LIS_MOC_AC_CCoTotal
+  public :: LIS_MOC_AC_CCiPot
   public :: LIS_MOC_AC_CCiPrev
   public :: LIS_MOC_AC_StageCode
   public :: LIS_MOC_AC_CCxAdjusted
@@ -969,7 +969,7 @@ module LIS_histDataMod
    integer :: LIS_MOC_AC_CCiActual  = -9999
    integer :: LIS_MOC_AC_CCxWithered = -9999
    integer :: LIS_MOC_AC_CCxTotal = -9999
-   integer :: LIS_MOC_AC_CCoTotal = -9999
+   integer :: LIS_MOC_AC_CCiPot = -9999
    integer :: LIS_MOC_AC_CCiPrev = -9999
    integer :: LIS_MOC_AC_StageCode = -9999
    integer :: LIS_MOC_AC_CCxAdjusted = -9999
@@ -4599,13 +4599,13 @@ contains
             model_patch=.true.)
     endif
     
-    call ESMF_ConfigFindLabel(modelSpecConfig,"AC_CCoTotal:",rc=rc)
+    call ESMF_ConfigFindLabel(modelSpecConfig,"AC_CCiPot:",rc=rc)
     call get_moc_attributes(modelSpecConfig, LIS_histData(n)%head_lsm_list, &
-         "AC_CCoTotal",&
-         "initial_canopy_cover",&
-         "initial canopy cover",rc)
+         "AC_CCiPot",&
+         "potential_canopy_cover",&
+         "potential canopy cover",rc)
     if ( rc == 1 ) then
-       call register_dataEntry(LIS_MOC_LSM_COUNT,LIS_MOC_AC_CCoTotal,&
+       call register_dataEntry(LIS_MOC_LSM_COUNT,LIS_MOC_AC_CCiPot,&
             LIS_histData(n)%head_lsm_list,&
             n,1,ntiles,(/"-"/),1,(/"-"/),1,1,1,&
             model_patch=.true.)
