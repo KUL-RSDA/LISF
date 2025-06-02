@@ -20,6 +20,7 @@
 subroutine AC72_main(n)
   ! !USES:
 !!! MB_AC70    
+  use ac_utils, only: roundc
   use ac_global, only:     DegreesDay,&
        CanopyCoverNoStressSF,&
        GetSimulation_DelayedDays,&
@@ -504,7 +505,6 @@ subroutine AC72_main(n)
   ! To store CCiPot
   real                 :: SumGDDadjCC
   integer              :: VirtualTimeCC
-  use ac_utils, only: roundc
 
     ! For flexible planting/sowing with criteria
   integer              :: start_day_t, start_day_p
