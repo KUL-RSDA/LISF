@@ -29,7 +29,7 @@ subroutine AC72_main(n)
        GetCrop_CGC,&
        GetCrop_CDC,&
        GetCrop_GDDCGC,&
-       GetCrop_GDDCDC(),&
+       GetCrop_GDDCDC,&
        GetCCiActual,&
        GetCCiprev,&
        GetCCiTopEarlySen,&
@@ -500,6 +500,11 @@ subroutine AC72_main(n)
 
   ! For AdvanceOneTimeStep
   real                 :: tmp_wpi
+
+  ! To store CCiPot
+  real                 :: SumGDDadjCC
+  integer              :: VirtualTimeCC
+  use ac_utils, only: roundc
 
     ! For flexible planting/sowing with criteria
   integer              :: start_day_t, start_day_p
