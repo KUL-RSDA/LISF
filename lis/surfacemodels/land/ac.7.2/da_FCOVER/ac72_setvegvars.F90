@@ -48,6 +48,7 @@ subroutine ac72_setvegvars(n, LSM_State)
   do t=1,LIS_rc%npatch(n,LIS_rc%lsm_index)
     if (AC72CCiprev(t) > AC72_struc(n)%ac72(t)%CCiPot(t)) then
       AC72CCiprev(t) = AC72_struc(n)%ac72(t)%CCiPot(t)
+    endif
     AC72_struc(n)%ac72(t)%CCiprev = AC72CCiprev(t)
     AC72_struc(n)%ac72(t)%CCiActual = AC72CCiprev(t)
     AC72_struc(n)%ac72(t)%CCxAdjusted = AC72_struc(n)%ac72(t)%CCiActual
