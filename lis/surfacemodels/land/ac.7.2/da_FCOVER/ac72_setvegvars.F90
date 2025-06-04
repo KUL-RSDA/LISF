@@ -46,7 +46,8 @@ subroutine ac72_setvegvars(n, LSM_State)
   call LIS_verify(status)
 
   do t=1,LIS_rc%npatch(n,LIS_rc%lsm_index)
-    if (AC72_struc(n)%ac72(t)%Simulation%ProtectedSeedling == .false.) then
+    if ((AC72_struc(n)%ac72(t)%Simulation%ProtectedSeedling == .false.) .and.&
+      (mod(real(AC72_struc(n)%AC72(t)%daynri),5)==0)) then
       if (AC72CCiprev(t) > AC72_struc(n)%ac72(t)%CCiPot) then
         AC72CCiprev(t) = AC72_struc(n)%ac72(t)%CCiPot
       endif
