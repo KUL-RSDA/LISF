@@ -46,17 +46,14 @@ subroutine ac72_setvegvars(n, LSM_State)
   call LIS_verify(status)
 
   do t=1,LIS_rc%npatch(n,LIS_rc%lsm_index)
-    if ((AC72_struc(n)%ac72(t)%Simulation%ProtectedSeedling == .false.) .and.&
-      (mod(AC72_struc(n)%AC72(t)%daynri,5)==0)) then
-      if (AC72CCiprev(t) > AC72_struc(n)%ac72(t)%CCiPot) then
-        AC72CCiprev(t) = AC72_struc(n)%ac72(t)%CCiPot
-      endif
-      AC72_struc(n)%ac72(t)%CCiprev = AC72CCiprev(t)
-      AC72_struc(n)%ac72(t)%CCiActual = AC72CCiprev(t)
-      AC72_struc(n)%ac72(t)%crop%CCxAdjusted = AC72_struc(n)%ac72(t)%CCiActual
-      if (AC72_struc(n)%ac72(t)%CCiActual > AC72_struc(n)%ac72(t)%CCiTopEarlySen) then
-        AC72_struc(n)%ac72(t)%CCiTopEarlySen = AC72_struc(n)%ac72(t)%CCiActual
-      endif
+    if (AC72CCiprev(t) > AC72_struc(n)%ac72(t)%CCiPot) then
+      AC72CCiprev(t) = AC72_struc(n)%ac72(t)%CCiPot
+    endif
+    AC72_struc(n)%ac72(t)%CCiprev = AC72CCiprev(t)
+    AC72_struc(n)%ac72(t)%CCiActual = AC72CCiprev(t)
+    AC72_struc(n)%ac72(t)%crop%CCxAdjusted = AC72_struc(n)%ac72(t)%CCiActual
+    if (AC72_struc(n)%ac72(t)%CCiActual > AC72_struc(n)%ac72(t)%CCiTopEarlySen) then
+      AC72_struc(n)%ac72(t)%CCiTopEarlySen = AC72_struc(n)%ac72(t)%CCiActual
     endif
   enddo
   
