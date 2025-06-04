@@ -73,8 +73,6 @@ subroutine AC72_writerst(n)
   alarmCheck_sf = LIS_isAlarmRinging(LIS_rc, "AC72 model alarm")
   if (alarmCheck_sf) then
      InitializeRun_flag = 0
-     ! Wait for processors
-     call MPI_Barrier(LIS_MPI_COMM, ierr)
      ! Get InitializeRun_flag
      call MPI_ALLREDUCE(AC72_struc(n)%InitializeRun, InitializeRun_flag, 1, &
           MPI_INTEGER, MPI_MAX,&

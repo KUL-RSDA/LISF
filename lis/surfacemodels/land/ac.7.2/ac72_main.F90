@@ -517,8 +517,6 @@ subroutine AC72_main(n)
      read_Trecord_flag = 0
      InitializeRun_flag = 0
 
-     ! Wait for processors
-     call MPI_Barrier(LIS_MPI_COMM, ierr)
      ! Get read_Trecord_flag
      call MPI_ALLREDUCE(AC72_struc(n)%read_Trecord, read_Trecord_flag, 1, &
           MPI_INTEGER, MPI_MAX,&
