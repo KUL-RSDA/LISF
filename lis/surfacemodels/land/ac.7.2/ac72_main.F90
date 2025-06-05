@@ -25,6 +25,8 @@ subroutine AC72_main(n)
        CanopyCoverNoStressSF,&
        GetSimulation_DelayedDays,&
        GetCrop_GDDaysToFullCanopy,&
+       GetSimulation_EffectStress_RedCGC, &
+       GetSimulation_EffectStress_RedCCX, &
        GetCrop_CCo,&
        GetCrop_CCx,&
        GetCrop_CGC,&
@@ -1052,7 +1054,8 @@ subroutine AC72_main(n)
             GetCrop_DaysToGermination(), GetCrop_DaysToSenescence(), GetCrop_DaysToHarvest(), &
             GetCrop_GDDaysToGermination(), GetCrop_GDDaysToSenescence(), GetCrop_GDDaysToHarvest(), &
             GetCrop_CCo(), GetCrop_CCx(), GetCrop_CGC(), GetCrop_CDC(), GetCrop_GDDCGC(), &
-            GetCrop_GDDCDC(), SumGDDadjCC, GetCrop_ModeCycle(), 0_int8, 0_int8)
+            GetCrop_GDDCDC(), SumGDDadjCC, GetCrop_ModeCycle(), GetSimulation_EffectStress_RedCGC(), &
+            GetSimulation_EffectStress_RedCCX())
 
         ! Close irri file if opened
         if(irr_record_flag.eq.1)then
