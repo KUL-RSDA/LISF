@@ -35,14 +35,20 @@ subroutine ac72_setvegvars(n, LSM_State)
 !EOP
 
   type(ESMF_Field)       :: AC72CCiprevField
+  type(ESMF_Field)       :: AC72BiomassField
 
   integer                :: t
   integer                :: status
   real, pointer          :: AC72CCiprev(:)
+  real, pointer          :: AC72Biomass(:)
  
   call ESMF_StateGet(LSM_State,"AC72 CCiprev",AC72CCiprevField,rc=status)
   call LIS_verify(status)
+  call ESMF_StateGet(LSM_State,"AC72 Biomass",AC72BiomassField,rc=status)
+  call LIS_verify(status)
   call ESMF_FieldGet(AC72CCiprevField,localDE=0,farrayPtr=AC72CCiprev,rc=status)
+  call LIS_verify(status)
+  call ESMF_FieldGet(AC72BiomassField,localDE=0,farrayPtr=AC72Biomass,rc=status)
   call LIS_verify(status)
 
   do t=1,LIS_rc%npatch(n,LIS_rc%lsm_index)
@@ -55,6 +61,7 @@ subroutine ac72_setvegvars(n, LSM_State)
     if (AC72_struc(n)%ac72(t)%CCiActual > AC72_struc(n)%ac72(t)%CCiTopEarlySen) then
       AC72_struc(n)%ac72(t)%CCiTopEarlySen = AC72_struc(n)%ac72(t)%CCiActual
     endif
+    AC72_struc(n)%ac72(t)%SumWaBal%Biomass = AC72Biomass(t)
   enddo
   
 end subroutine ac72_setvegvars
