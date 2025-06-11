@@ -55,13 +55,18 @@ subroutine ac72_setvegvars(n, LSM_State)
     if (AC72CCiprev(t) > AC72_struc(n)%ac72(t)%CCiPot) then
       AC72CCiprev(t) = AC72_struc(n)%ac72(t)%CCiPot
     endif
+    if (AC72CCiprev(t) < AC72_struc(n)%ac72(t)%CCoTotal) then
+      AC72CCiprev(t) = AC72_struc(n)%ac72(t)%CCoTotal
+    endif
     AC72_struc(n)%ac72(t)%CCiprev = AC72CCiprev(t)
     AC72_struc(n)%ac72(t)%CCiActual = AC72CCiprev(t)
     AC72_struc(n)%ac72(t)%crop%CCxAdjusted = AC72_struc(n)%ac72(t)%CCiActual
     if (AC72_struc(n)%ac72(t)%CCiActual > AC72_struc(n)%ac72(t)%CCiTopEarlySen) then
       AC72_struc(n)%ac72(t)%CCiTopEarlySen = AC72_struc(n)%ac72(t)%CCiActual
     endif
-    AC72_struc(n)%ac72(t)%SumWaBal%Biomass = AC72Biomass(t)
+    if (AC72_struc(n)%ac72(t)%Simulation%ProtectedSeedling == .false.) then
+      AC72_struc(n)%ac72(t)%SumWaBal%Biomass = AC72Biomass(t)
+    endif
   enddo
   
 end subroutine ac72_setvegvars
