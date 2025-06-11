@@ -56,7 +56,8 @@ subroutine ac72_setvegvars(n, LSM_State)
       AC72CCiprev(t) = AC72_struc(n)%ac72(t)%CCiPot
     endif
     if ((AC72CCiprev(t) < AC72_struc(n)%ac72(t)%CCoTotal) .and.&
-        (simulation%SumEToStress == 0._sp) .and. (simulation%SumGDDfromDay1 &
+        (AC72_struc(n)%ac72(t)%simulation%SumEToStress == 0) .and.&
+        (AC72_struc(n)%ac72(t)%simulation%SumGDDfromDay1 &
         <= AC72_struc(n)%ac72(t)%crop%GDDaysToSenescence)) then
       AC72CCiprev(t) = AC72_struc(n)%ac72(t)%CCoTotal
     endif
