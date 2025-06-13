@@ -8725,7 +8725,7 @@ end subroutine writevar_grib2_withstats_real
                         enddo
                         if(npatch.gt.0) then 
                            mean_v = mean_v/npatch
-                           std_v  = (var_v/npatch - mean_v*mean_v)
+                           std_v  = max(0.0,(var_v/npatch - mean_v*mean_v))
                            if(std_v.ge.0) then 
                               std_v = sqrt(std_v)
                            else
