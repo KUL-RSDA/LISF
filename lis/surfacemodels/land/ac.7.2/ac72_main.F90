@@ -1050,6 +1050,7 @@ subroutine AC72_main(n)
                SumGDDadjCC = GetSimulation_SumGDD()
             end if
          end if
+         AC72_struc(n)%ac72(t)%SumGDDadjCC = SumGDDadjCC
          AC72_struc(n)%ac72(t)%CCiPot = CanopyCoverNoStressSF((VirtualTimeCC + GetSimulation_DelayedDays() + 1), &
             GetCrop_DaysToGermination(), GetCrop_DaysToSenescence(), GetCrop_DaysToHarvest(), &
             GetCrop_GDDaysToGermination(), GetCrop_GDDaysToSenescence(), GetCrop_GDDaysToHarvest(), &

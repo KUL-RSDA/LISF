@@ -41,6 +41,7 @@ subroutine ac72_setvegvars(n, LSM_State)
   integer                :: status
   real, pointer          :: AC72CCiprev(:)
   real, pointer          :: AC72Biomass(:)
+  real                   :: GDDtFinalCCx
  
   call ESMF_StateGet(LSM_State,"AC72 CCiprev",AC72CCiprevField,rc=status)
   call LIS_verify(status)
@@ -51,7 +52,11 @@ subroutine ac72_setvegvars(n, LSM_State)
   call ESMF_FieldGet(AC72BiomassField,localDE=0,farrayPtr=AC72Biomass,rc=status)
   call LIS_verify(status)
 
+  
+
   do t=1,LIS_rc%npatch(n,LIS_rc%lsm_index)
+    GDDtFinalCCx = AC72_struc(n)%AC72(t)%crop%GDDaysToFlowering &
+      + AC72_struc(n)%AC72(t)%crop%GDDLengthFlowering/2
     if (AC72CCiprev(t) > AC72_struc(n)%ac72(t)%CCiPot) then
       AC72CCiprev(t) = AC72_struc(n)%ac72(t)%CCiPot
     endif
@@ -63,7 +68,11 @@ subroutine ac72_setvegvars(n, LSM_State)
     endif
     AC72_struc(n)%ac72(t)%CCiprev = AC72CCiprev(t)
     AC72_struc(n)%ac72(t)%CCiActual = AC72CCiprev(t)
-    AC72_struc(n)%ac72(t)%crop%CCxAdjusted = AC72_struc(n)%ac72(t)%CCiActual
+    if ((AC72_struc(n)%ac72(t)%SumGDDadjCC > GDDtFinalCCx) .and. &
+        (AC72_struc(n)%ac72(t)%SumGDDadjCC < &
+        AC72_struc(n)%ac72(t)%crop%GDDaysToSenescence)) then
+      AC72_struc(n)%ac72(t)%crop%CCxAdjusted = AC72_struc(n)%ac72(t)%CCiActual
+    endif
     if (AC72_struc(n)%ac72(t)%CCiActual > AC72_struc(n)%ac72(t)%CCiTopEarlySen) then
       AC72_struc(n)%ac72(t)%CCiTopEarlySen = AC72_struc(n)%ac72(t)%CCiActual
     endif
