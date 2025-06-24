@@ -174,15 +174,6 @@ subroutine AC72_main(n)
        SetCrop_DaysToHIo,&
        SetCrop_DaysToMaxRooting,&
        SetCrop_DaysTosenescence,&
-       SetCrop_SmaxTopQuarter,&
-       SetCrop_SmaxBotQuarter,&
-       GetCrop_SmaxTopQuarter,&
-       GetCrop_SmaxBotQuarter,&
-       GetCrop_SmaxTop,&
-       GetCrop_SmaxBot,&
-       SetCrop_SmaxTop,&
-       SetCrop_SmaxBot,&
-       DeriveSmaxTopBottom,&
        SetCRsalt,&
        SetCRwater,&
        SetDaySubmerged,&
@@ -494,9 +485,6 @@ subroutine AC72_main(n)
   integer              :: l
   integer              :: irr_record_flag, DNr ! for irri file management
   character(250)       :: TempStr
-
-  real                 :: Crop_SmaxTop_temp 
-  real                 :: Crop_SmaxBot_temp 
 
   real                 :: tmp_pres, tmp_precip, tmp_tmax, tmp_tmin   ! Weather Forcing
   real                 :: tmp_tdew, tmp_swrad, tmp_wind, tmp_eto     ! Weather Forcing
@@ -932,20 +920,6 @@ subroutine AC72_main(n)
            AC72_struc(n)%ac72(t)%InitializeRun = 0 ! Initialization done
            AC72_struc(n)%ac72(t)%read_Trecord = 0
         end if
-
-        call SetCrop_SmaxTopQuarter(MAX(0.00001, 1.25*AC72_struc(n)%ac72(t)%CCiprev*GetCrop_KcTop()*&
-                AC72_struc(n)%ac72(t)%eto/1000/AC72_struc(n)%ac72(t)%RootingDepth))
-        call SetCrop_SmaxBotQuarter(MAX(0.00001, AC72_struc(n)%ac72(t)%CCiprev*GetCrop_KcTop()*&
-                AC72_struc(n)%ac72(t)%eto/1000/AC72_struc(n)%ac72(t)%RootingDepth))
-        Crop_SmaxTop_temp = GetCrop_SmaxTop()
-        Crop_SmaxBot_temp = GetCrop_SmaxBot()
-        !write(LIS_logunit, *) "GetCrop_SmaxBot()"
-        !write(LIS_logunit, *) GetCrop_SmaxBot()
-        call DeriveSmaxTopBottom(GetCrop_SmaxTopQuarter(), &
-                                 GetCrop_SmaxBotQuarter(), &
-                                 Crop_SmaxTop_temp, Crop_SmaxBot_temp)
-        call SetCrop_SmaxTop(Crop_SmaxTop_temp)
-        call SetCrop_SmaxBot(Crop_SmaxBot_temp)
 
         ! Run AC
         tmp_wpi = AC72_struc(n)%ac72(t)%WPi
