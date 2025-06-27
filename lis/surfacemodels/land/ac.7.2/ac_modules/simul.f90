@@ -3633,7 +3633,8 @@ subroutine DetermineCCiGDD(CCxTotal, CCoTotal, &
                 if (GetCCiTopEarlySen() < 0.001_sp) then
                     if ((GetSimulation_SumEToStress() &
                             > GetCrop_SumEToDelaySenescence()) &
-                      .or. (abs(GetCrop_SumEToDelaySenescence()) < epsilon(0._sp))) then
+                      .or. (abs(GetCrop_SumEToDelaySenescence()) < epsilon(0._sp)) &
+                      .or. (SumGDDadjCC >= GDDtFinalCCx)) then          ! Added V7.3 =========
                         CCiSen = 0._sp ! no crop anymore
                     else
                         if (CCdormant > GetCrop_CCo()) then
@@ -3654,7 +3655,8 @@ subroutine DetermineCCiGDD(CCxTotal, CCoTotal, &
                         ! Ln of negative or zero value
                         if ((GetSimulation_SumEToStress() &
                             > GetCrop_SumEToDelaySenescence()) &
-                            .or. (abs(GetCrop_SumEToDelaySenescence()) < epsilon(0._sp))) then
+                            .or. (abs(GetCrop_SumEToDelaySenescence()) < epsilon(0._sp)) &
+                            .or. (SumGDDadjCC >= GDDtFinalCCx)) then        ! Added V7.3 =========
                             CCiSen = 0._sp ! no crop anymore
                         else
                             if (CCdormant > GetCrop_CCo()) then
@@ -3689,8 +3691,9 @@ subroutine DetermineCCiGDD(CCxTotal, CCoTotal, &
                         CCiSen = 0._sp
                     end if
                     if ((GetCrop_SumEToDelaySenescence() > 0._sp) &
-                        .and. (GetSimulation_SumEToStress() &
-                                <= GetCrop_SumEToDelaySenescence())) then
+                            .and. (GetSimulation_SumEToStress() &
+                            <= GetCrop_SumEToDelaySenescence()) &
+                            .and. (SumGDDadjCC < GDDtFinalCCx)) then        ! Added V7.3 =========
                         if ((CCiSen < GetCrop_CCo()) &
                             .or. (CCiSen < CCdormant)) then
                             if (CCdormant > GetCrop_CCo()) then
@@ -4999,7 +5002,8 @@ subroutine DetermineCCi(CCxTotal, CCoTotal, StressLeaf, FracAssim, &
                     if ((GetSimulation_SumEToStress() &
                         > GetCrop_SumEToDelaySenescence()) &
                         .or. (abs(GetCrop_SumEToDelaySenescence()) &
-                              < epsilon(0._sp))) then
+                              < epsilon(0._sp)) &
+                        .or. (VirtualTimeCC >= tFinalCCx)) then     ! Added V7.3 =========
                         CCiSen = 0._sp ! no crop anymore
                     else
                         if (CCdormant > GetCrop_CCo()) then
@@ -5022,7 +5026,8 @@ subroutine DetermineCCi(CCxTotal, CCoTotal, StressLeaf, FracAssim, &
                         if ((GetSimulation_SumEToStress() &
                                 > GetCrop_SumEToDelaySenescence()) &
                             .or. (abs(GetCrop_SumEToDelaySenescence()) &
-                                    < epsilon(0._sp))) then
+                                    < epsilon(0._sp)) &
+                            .or. (VirtualTimeCC >= tFinalCCx)) then     ! Added V7.3 =========
                             CCiSen = 0._sp ! no crop anymore
                         else
                             if (CCdormant > GetCrop_CCo()) then
@@ -5067,7 +5072,8 @@ subroutine DetermineCCi(CCxTotal, CCoTotal, StressLeaf, FracAssim, &
                     end if
                     if ((GetCrop_SumEToDelaySenescence() > 0._sp) &
                         .and. (GetSimulation_SumEToStress() &
-                                <= GetCrop_SumEToDelaySenescence())) then
+                                <= GetCrop_SumEToDelaySenescence()) &
+                        .and. (VirtualTimeCC < tFinalCCx)) then     ! Added V7.3 =========
                         if ((CCiSen < GetCrop_CCo()) &
                             .or. (CCiSen < CCdormant)) then
                             if (CCdormant > GetCrop_CCo()) then
