@@ -23,6 +23,9 @@ subroutine AC72_main(n)
   use ac_utils, only: roundc
   use ac_global, only:     DegreesDay,&
        CanopyCoverNoStressSF,&
+       CCiNoWaterStressSF,&
+       GetSimulation_EffectStress_CDecline,&
+       GetCrop_GDDaysToFullCanopySF,&
        GetSimulation_DelayedDays,&
        GetCrop_GDDaysToFullCanopy,&
        GetSimulation_EffectStress_RedCGC, &
@@ -57,6 +60,9 @@ subroutine AC72_main(n)
        GetCrop_GDDaysToHarvest,&
        GetCrop_GDDaysToMaxRooting,&
        GetCrop_GDDaysToSenescence,&
+       GetCrop_GDDLengthFlowering,&
+       GetCropFile, &
+       GetCropFilefull, &
        GetCrop_ModeCycle,&
        GetCRsalt,&
        GetCRwater,&
@@ -507,6 +513,7 @@ subroutine AC72_main(n)
   ! To store CCiPot
   real                 :: SumGDDadjCC
   integer              :: VirtualTimeCC
+  real(sp)             :: RatDGDD
 
     ! For flexible planting/sowing with criteria
   integer              :: start_day_t, start_day_p
@@ -1050,13 +1057,20 @@ subroutine AC72_main(n)
                SumGDDadjCC = GetSimulation_SumGDD()
             end if
          end if
+         RatDGDD = 1._sp
+         if (GetCrop_GDDaysToFullCanopySF() < GetCrop_GDDaysToSenescence()) then
+            RatDGDD = (GetCrop_DaysToSenescence() - GetCrop_DaysToFullCanopySF()) &
+               /real(GetCrop_GDDaysToSenescence() - GetCrop_GDDaysToFullCanopySF(), kind=sp)
+         endif
          AC72_struc(n)%ac72(t)%SumGDDadjCC = SumGDDadjCC
-         AC72_struc(n)%ac72(t)%CCiPot = CanopyCoverNoStressSF((VirtualTimeCC + GetSimulation_DelayedDays() + 1), &
-            GetCrop_DaysToGermination(), GetCrop_DaysToSenescence(), GetCrop_DaysToHarvest(), &
-            GetCrop_GDDaysToGermination(), GetCrop_GDDaysToSenescence(), GetCrop_GDDaysToHarvest(), &
-            GetCrop_CCo(), GetCrop_CCx(), GetCrop_CGC(), GetCrop_CDC(), GetCrop_GDDCGC(), &
-            GetCrop_GDDCDC(), SumGDDadjCC, GetCrop_ModeCycle(), GetSimulation_EffectStress_RedCGC(), &
-            GetSimulation_EffectStress_RedCCX())
+         AC72_struc(n)%ac72(t)%CCiPot = CCiNoWaterStressSF((VirtualTimeCC + GetSimulation_DelayedDays() + 1), &
+            GetCrop_DaysToGermination(), GetCrop_DaysToFullCanopySF(), &
+            GetCrop_DaysToSenescence(), GetCrop_DaysToHarvest(), &
+            GetCrop_GDDaysToGermination(), GetCrop_GDDaysToFullCanopySF(), &
+            GetCrop_GDDaysToSenescence(), GetCrop_GDDaysToHarvest(), &
+            GetCrop_CCo(), GetCrop_CCx(), GetCrop_CGC(), GetCrop_GDDCGC(), GetCrop_CDC(), GetCrop_GDDCDC(), &
+            SumGDDadjCC, RatDGDD, GetSimulation_EffectStress_RedCGC(), &
+            GetSimulation_EffectStress_RedCCX(), GetSimulation_EffectStress_CDecline(), GetCrop_ModeCycle())
 
         ! Close irri file if opened
         if(irr_record_flag.eq.1)then
