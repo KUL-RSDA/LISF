@@ -55,29 +55,31 @@ subroutine ac72_setvegvars(n, LSM_State)
   
 
   do t=1,LIS_rc%npatch(n,LIS_rc%lsm_index)
-    GDDtFinalCCx = AC72_struc(n)%AC72(t)%crop%GDDaysToFlowering &
-      + AC72_struc(n)%AC72(t)%crop%GDDLengthFlowering/2
-    if (AC72CCiprev(t) > AC72_struc(n)%ac72(t)%CCiPot) then
-      AC72CCiprev(t) = AC72_struc(n)%ac72(t)%CCiPot
-    endif
-    if ((AC72CCiprev(t) < AC72_struc(n)%ac72(t)%CCoTotal) .and.&
-        (AC72_struc(n)%ac72(t)%simulation%SumEToStress == 0) .and.&
-        (AC72_struc(n)%ac72(t)%simulation%SumGDDfromDay1 &
-        <= AC72_struc(n)%ac72(t)%crop%GDDaysToSenescence)) then
-      AC72CCiprev(t) = AC72_struc(n)%ac72(t)%CCoTotal
-    endif
-    AC72_struc(n)%ac72(t)%CCiprev = AC72CCiprev(t)
-    AC72_struc(n)%ac72(t)%CCiActual = AC72CCiprev(t)
-    if ((AC72_struc(n)%ac72(t)%SumGDDadjCC > GDDtFinalCCx) .and. &
-        (AC72_struc(n)%ac72(t)%SumGDDadjCC < &
-        AC72_struc(n)%ac72(t)%crop%GDDaysToSenescence)) then
-      AC72_struc(n)%ac72(t)%crop%CCxAdjusted = AC72_struc(n)%ac72(t)%CCiActual
-    endif
-    if (AC72_struc(n)%ac72(t)%CCiActual > AC72_struc(n)%ac72(t)%CCiTopEarlySen) then
-      AC72_struc(n)%ac72(t)%CCiTopEarlySen = AC72_struc(n)%ac72(t)%CCiActual
-    endif
-    if (AC72_struc(n)%ac72(t)%Simulation%ProtectedSeedling == .false.) then
-      AC72_struc(n)%ac72(t)%SumWaBal%Biomass = AC72Biomass(t)
+    if (AC72_struc(n)%ac72(t)%SumGDDadjCC < &
+        AC72_struc(n)%ac72(t)%crop%GDDaysToSenescence) then
+      GDDtFinalCCx = AC72_struc(n)%AC72(t)%crop%GDDaysToFlowering &
+        + AC72_struc(n)%AC72(t)%crop%GDDLengthFlowering/2
+      if (AC72CCiprev(t) > AC72_struc(n)%ac72(t)%CCiPot) then
+        AC72CCiprev(t) = AC72_struc(n)%ac72(t)%CCiPot
+      endif
+      if ((AC72CCiprev(t) < AC72_struc(n)%ac72(t)%CCoTotal) .and.&
+          (AC72_struc(n)%ac72(t)%simulation%SumEToStress == 0) .and.&
+          (AC72_struc(n)%ac72(t)%simulation%SumGDDfromDay1 &
+          <= AC72_struc(n)%ac72(t)%crop%GDDaysToSenescence) .and.&
+          (AC72_struc(n)%ac72(t)%daynri > AC72_struc(n)%ac72(t)%Crop%Day1)) then
+        AC72CCiprev(t) = AC72_struc(n)%ac72(t)%CCoTotal
+      endif
+      AC72_struc(n)%ac72(t)%CCiprev = AC72CCiprev(t)
+      AC72_struc(n)%ac72(t)%CCiActual = AC72CCiprev(t)
+      if (AC72_struc(n)%ac72(t)%SumGDDadjCC > GDDtFinalCCx) then
+        AC72_struc(n)%ac72(t)%crop%CCxAdjusted = AC72_struc(n)%ac72(t)%CCiActual
+      endif
+      if (AC72_struc(n)%ac72(t)%CCiActual > AC72_struc(n)%ac72(t)%CCiTopEarlySen) then
+        AC72_struc(n)%ac72(t)%CCiTopEarlySen = AC72_struc(n)%ac72(t)%CCiActual
+      endif
+      if (AC72_struc(n)%ac72(t)%Simulation%ProtectedSeedling == .false.) then
+        AC72_struc(n)%ac72(t)%SumWaBal%Biomass = AC72Biomass(t)
+      endif
     endif
   enddo
   
