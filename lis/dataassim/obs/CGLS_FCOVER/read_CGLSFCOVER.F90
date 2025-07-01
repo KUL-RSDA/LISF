@@ -417,28 +417,27 @@ contains
     function is_valid_CGLSFCOVER_flag(flag) result(isvalid)
         implicit none
         integer, value :: flag
-        logical :: sea, filled, no_obs, FCOVER_invalid, climato_filled, gap_filled
+        logical :: land, EBF, interpolated
+        ! logical :: no_obs, FCOVER_invalid, climato_filled, gap_filled
         ! logical :: fapar_invalid, FCOVER_invalid, high_lat_correction, EBF, bare
         logical :: isvalid
 
-        sea = (iand(flag, 1) /= 0)
-        filled = (iand(flag, 4) /= 0)
-        no_obs = (iand(flag, 32) /= 0)
-        FCOVER_invalid = (iand(flag, 64) /= 0)
+        land = (iand(flag, 1) /= 0)
+        EBF = (iand(flag, 2) /= 0)
+        interpolated = (iand(flag, 4) /= 0)
+        ! no_obs = (iand(flag, 32) /= 0)
+        ! FCOVER_invalid = (iand(flag, 64) /= 0)
         ! fapar_invalid = (iand(flag, 128) /= 0)
         ! FCOVER_invalid = (iand(flag, 256) /= 0)
         ! high_lat_correction = (iand(flag, 512) /= 0)
         ! EBF = (iand(flag, 1024) /= 0)
         ! bare = (iand(flag, 2048) /= 0)
-        climato_filled = (iand(flag, 4096) /= 0)
-        gap_filled = (iand(flag, 8192) /= 0)
+        ! climato_filled = (iand(flag, 4096) /= 0)
+        ! gap_filled = (iand(flag, 8192) /= 0)
 
-        isvalid = .not. sea &
-            .and. .not. filled &
-            .and. .not. no_obs &
-            .and. .not. FCOVER_invalid &
-            .and. .not. climato_filled &
-            .and. .not. gap_filled
+        isvalid =       land &
+            .and. .not. EBF &
+            .and. .not. interpolated
 
     end function is_valid_CGLSFCOVER_flag
 
