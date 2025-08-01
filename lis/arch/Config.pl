@@ -853,6 +853,14 @@ if($use_petsc == 1) {
    }
 }
 
+print "Enable USAF LIS75 SM DA codes? (1-yes, 0-no, default=0): ";
+$use_usaf_lis75_smda=<stdin>;
+$use_usaf_lis75_smda=~s/ *#.*$//;
+chomp($use_usaf_lis75_smda);
+if($use_usaf_lis75_smda eq ""){
+   $use_usaf_lis75_smda=0;
+}
+
 if(defined($ENV{LIS_JPEG})){
    $libjpeg = "-L".$ENV{LIS_JPEG}."/lib"." -ljpeg";
 }
@@ -868,6 +876,11 @@ if ($ENV{ESMF_TRACE} eq '1') {
 # WRF_HYDRO does not prompt user
 if ($ENV{WRF_HYDRO} eq '1') {
    $use_wrf_hydro = 1;
+}
+
+# PARFLOW does not prompt user
+if ($ENV{PARFLOW} eq '1') {
+   $use_parflow = 1;
 }
 
 # MPDECOMP2 does not prompt user
@@ -1085,6 +1098,11 @@ if ($use_wrf_hydro == 1) {
    $fflags = $fflags." -DWRF_HYDRO";
 }
 
+if ($use_parflow == 1) {
+   $fflags77 = $fflags77." -DPARFLOW";
+   $fflags = $fflags." -DPARFLOW";
+}
+
 if ($use_mpdecomp2 == 1) {
    $fflags77 = $fflags77." -DMPDECOMP2";
    $fflags = $fflags." -DMPDECOMP2";
@@ -1235,6 +1253,13 @@ else{
 
 printf misc_file "%s\n","#undef INC_WATER_PTS";
 printf misc_file "%s\n","#undef COUPLED";
+
+if ($use_usaf_lis75_smda == 1) {
+    printf misc_file "%s\n","#define USAF_LIS75_SMDA ";
+} else {
+    printf misc_file "%s\n","#undef USAF_LIS75_SMDA ";
+}
+
 close(misc_file);
 
 open(netcdf_file,">LIS_NetCDF_inc.h");
