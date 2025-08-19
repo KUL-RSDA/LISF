@@ -30,6 +30,7 @@ module LIS_pluginIndices
 !  27 Jan 2014: Shugong Wang, added HRAP projection
 !   4 Nov 2014: Jonathan Case, added support for daily NESDIS/VIIRS GVF for Noah
 !  16 Aug 2016: Mahdi Navari, added PILDAS  
+!  24 Mar 2022: Samuel Scherrer, added VODOO in Radiative Transfer Models
 !
 !EOP
   PRIVATE
@@ -274,6 +275,8 @@ module LIS_pluginIndices
         "SMOS(NESDIS) soil moisture"
    character*50, public,  parameter :: LIS_NASASMAPsmobsId       = &
         "SMAP(NASA) soil moisture"
+   character*50, public,  parameter :: LIS_NASASMAPsmlaiobsId       = &
+        "SMAP(NASA) soil moisture with LAI update"
    character*50, public,  parameter :: LIS_CDFTRANSFERNASASMAPsmobsId = &
         "SMAP(NASA) soil moisture with CDF Transfer"                 !MN 
    character*50, public,  parameter :: LIS_SMOSNRTNNL2smobsId    = &
@@ -288,6 +291,22 @@ module LIS_pluginIndices
         "MODIS SPoRT LAI"
    character*50, public,  parameter :: LIS_MCD15A2HlaiobsId      = &
         "MCD15A2H LAI"
+   character*50, public,  parameter :: LIS_CGLSlaiobsId      = &
+        "CGLS LAI"
+   character*50, public,  parameter :: LIS_CGLSlaismobsId      = &
+        "CGLS LAI with soil moisture update"
+   character*50, public,  parameter :: LIS_CustomLAIobsId      = &
+        "Custom LAI"
+   character*50, public,  parameter :: LIS_CustomLAIsmobsId      = &
+        "Custom LAI with soil moisture update"
+   character*50, public,  parameter :: LIS_CustomVODobsId      = &
+        "Custom VOD"
+   character*50, public,  parameter :: LIS_CustomVODonlySMobsId      = &
+        "Custom VOD with only soil moisture update"
+   character*50, public,  parameter :: LIS_CustomVODonlyLAIobsId      = &
+        "Custom VOD with only LAI update"
+   character*50, public,  parameter :: LIS_CustomSSMobsId      = &
+        "Custom SSM"
    character*50, public,  parameter :: LIS_VIIRSgvfobsId         = &
         "VIIRS GVF"                                                  !YK
    character*50, public,  parameter :: LIS_CDFSgvfobsId          = &
@@ -359,6 +378,7 @@ module LIS_pluginIndices
    character*50, public, parameter :: LIS_crtm2EMId = "CRTM2EM"
    character*50, public, parameter :: LIS_cmem3Id = "CMEM"
    character*50, public, parameter :: LIS_tauomegaRTMId = "Tau Omega"
+   character*50, public, parameter :: LIS_VODOOId = "VODOO"
 !-------------------------------------------------------------------------
 ! Land Slide Models
 !-------------------------------------------------------------------------

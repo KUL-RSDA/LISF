@@ -318,6 +318,7 @@ module LIS_histDataMod
   public :: LIS_MOC_RTM_EMISSIVITY
   public :: LIS_MOC_RTM_TB
   public :: LIS_MOC_RTM_SM
+  public :: LIS_MOC_RTM_VOD
   ! Irrigation
   public :: LIS_MOC_IRRIGATEDWATER  
 
@@ -847,6 +848,7 @@ module LIS_histDataMod
    integer :: LIS_MOC_RTM_EMISSIVITY = -9999
    integer :: LIS_MOC_RTM_TB = -9999
    integer :: LIS_MOC_RTM_SM = -9999
+   integer :: LIS_MOC_RTM_VOD = -9999
 
    integer :: LIS_MOC_IRRIGATEDWATER
 
@@ -4369,6 +4371,17 @@ contains
        call register_dataEntry(LIS_MOC_RTM_COUNT,LIS_MOC_RTM_SM,&
             LIS_histData(n)%head_rtm_list,&
             n,1,ntiles,(/"m3/m3"/),1,(/"-"/),1,1,1)
+    endif
+
+    call ESMF_ConfigFindLabel(modelSpecConfig,"RTM VOD:",rc=rc)
+    call get_moc_attributes(modelSpecConfig, LIS_histData(n)%head_rtm_list,&
+         "RTM_VOD",&
+         "vegetation_optical_depth",&
+         "vegetation optical depth",rc)
+    if ( rc == 1 ) then
+       call register_dataEntry(LIS_MOC_RTM_COUNT,LIS_MOC_RTM_VOD,&
+            LIS_histData(n)%head_rtm_list,&
+            n,1,ntiles,(/"-"/),1,(/"-"/),1,1,1)
     endif
 
     call ESMF_ConfigFindLabel(modelSpecConfig,"Irrigated water:",rc=rc)

@@ -247,7 +247,7 @@ subroutine LIS_DAobs_plugin
     use pildassmobs_module,      only : pildassmobs_setup
 #endif
 
-#if ( defined DA_OBS_NASA_SMAPSM )
+#if ( defined DA_OBS_NASA_SMAPSM ) || ( defined DA_OBS_NASA_SMAPSMLAI )
     use NASASMAPsm_Mod,          only : NASASMAPsm_setup
 #endif
 
@@ -274,6 +274,21 @@ subroutine LIS_DAobs_plugin
 #endif
 #if ( defined DA_OBS_MCD15A2H_LAI )
     use MCD15A2HLAI_Mod,       only : MCD15A2Hlai_setup
+#endif
+#if ( defined DA_OBS_CGLS_LAI ) || ( defined DA_OBS_CGLS_LAI_SM )
+    use CGLSLAI_Mod,       only : CGLSlai_setup
+#endif
+#if ( defined DA_OBS_CUSTOM_LAI )
+    use CustomLAI_Mod,       only :&
+         CustomLAI_setup, read_CustomLAI, write_CustomLAI
+#endif
+#if ( defined DA_OBS_CUSTOM_VOD )
+    use CustomVOD_Mod,       only :&
+         CustomVOD_setup, read_CustomVOD, write_CustomVOD
+#endif
+#if ( defined DA_OBS_CUSTOM_SSM )
+    use CustomSSM_Mod,       only :&
+         CustomSSM_setup, read_CustomSSM, write_CustomSSM
 #endif
 
 !Y.Kwon
@@ -451,7 +466,7 @@ subroutine LIS_DAobs_plugin
     external read_pildassmobs, write_pildassmobs
 #endif
 
-#if ( defined DA_OBS_NASA_SMAPSM )
+#if ( defined DA_OBS_NASA_SMAPSM ) || ( defined DA_OBS_NASA_SMAPSMLAI )
     external read_NASASMAPsm, write_NASASMAPsmobs
 #endif
 
@@ -479,6 +494,10 @@ subroutine LIS_DAobs_plugin
 
 #if ( defined DA_OBS_MCD15A2H_LAI)
     external read_MCD15A2Hlai, write_MCD15A2Hlai
+#endif
+
+#if ( defined DA_OBS_CGLS_LAI ) || ( defined DA_OBS_CGLS_LAI_SM )
+    external read_CGLSlai, write_CGLSlai
 #endif
 
 #if ( defined DA_OBS_GLASS_Albedo)
@@ -846,6 +865,16 @@ subroutine LIS_DAobs_plugin
         write_NASASMAPsmobs)
 #endif
 
+#if ( defined DA_OBS_NASA_SMAPSMLAI )
+   call registerdaobsclass(trim(LIS_NASASMAPsmlaiobsId),"LSM")
+   call registerdaobssetup(trim(LIS_NASASMAPsmlaiobsId)//char(0),&
+        NASASMAPsm_setup)
+   call registerreaddaobs(trim(LIS_NASASMAPsmlaiobsId)//char(0),&
+        read_NASASMAPsm)
+   call registerwritedaobs(trim(LIS_NASASMAPsmlaiobsId)//char(0),&
+        write_NASASMAPsmobs)
+#endif
+
 #if ( defined DA_CDF_TRANSFER_NASA_SMAPSM )
    call registerdaobsclass(trim(LIS_CDFTRANSFERNASASMAPsmobsId),"LSM")
    call registerdaobssetup(trim(LIS_CDFTRANSFERNASASMAPsmobsId)//char(0),&
@@ -906,6 +935,80 @@ subroutine LIS_DAobs_plugin
         read_MCD15A2Hlai)
    call registerwritedaobs(trim(LIS_MCD15A2HlaiobsId)//char(0),&
         write_MCD15A2Hlai)
+#endif
+
+#if ( defined DA_OBS_CGLS_LAI )
+   call registerdaobsclass(trim(LIS_CGLSlaiobsId),"LSM")
+   call registerdaobssetup(trim(LIS_CGLSlaiobsId)//char(0),&
+        CGLSlai_setup)
+   call registerreaddaobs(trim(LIS_CGLSlaiobsId)//char(0),&
+        read_CGLSlai)
+   call registerwritedaobs(trim(LIS_CGLSlaiobsId)//char(0),&
+        write_CGLSlai)
+#endif
+
+#if ( defined DA_OBS_CGLS_LAI_SM )
+   call registerdaobsclass(trim(LIS_CGLSlaismobsId),"LSM")
+   call registerdaobssetup(trim(LIS_CGLSlaismobsId)//char(0),&
+        CGLSlai_setup)
+   call registerreaddaobs(trim(LIS_CGLSlaismobsId)//char(0),&
+        read_CGLSlai)
+   call registerwritedaobs(trim(LIS_CGLSlaismobsId)//char(0),&
+        write_CGLSlai)
+#endif
+
+#if ( defined DA_OBS_CUSTOM_LAI )
+   call registerdaobsclass(trim(LIS_CustomLAIobsId),"LSM")
+   call registerdaobssetup(trim(LIS_CustomLAIobsId)//char(0),&
+        CustomLAI_setup)
+   call registerreaddaobs(trim(LIS_CustomLAIobsId)//char(0),&
+        read_CustomLAI)
+   call registerwritedaobs(trim(LIS_CustomLAIobsId)//char(0),&
+        write_CustomLAI)
+#endif
+
+#if ( defined DA_OBS_CUSTOM_LAI_SM )
+   call registerdaobsclass(trim(LIS_CustomLAIsmobsId),"LSM")
+   call registerdaobssetup(trim(LIS_CustomLAIsmobsId)//char(0),&
+        CustomLAI_setup)
+   call registerreaddaobs(trim(LIS_CustomLAIsmobsId)//char(0),&
+        read_CustomLAI)
+   call registerwritedaobs(trim(LIS_CustomLAIsmobsId)//char(0),&
+        write_CustomLAI)
+#endif
+
+#if ( defined DA_OBS_CUSTOM_SSM )
+   call registerdaobsclass(trim(LIS_CustomSSMobsId),"LSM")
+   call registerdaobssetup(trim(LIS_CustomSSMobsId)//char(0),&
+        CustomSSM_setup)
+   call registerreaddaobs(trim(LIS_CustomSSMobsId)//char(0),&
+        read_CustomSSM)
+   call registerwritedaobs(trim(LIS_CustomSSMobsId)//char(0),&
+        write_CustomSSM)
+#endif
+
+#if ( defined DA_OBS_CUSTOM_VOD )
+   call registerdaobsclass(trim(LIS_CustomVODobsId),"LSM")
+   call registerdaobssetup(trim(LIS_CustomVODobsId)//char(0),&
+        CustomVOD_setup)
+   call registerreaddaobs(trim(LIS_CustomVODobsId)//char(0),&
+        read_CustomVOD)
+   call registerwritedaobs(trim(LIS_CustomVODobsId)//char(0),&
+        write_CustomVOD)
+   call registerdaobsclass(trim(LIS_CustomVODonlyLAIobsId),"LSM")
+   call registerdaobssetup(trim(LIS_CustomVODonlyLAIobsId)//char(0),&
+        CustomVOD_setup)
+   call registerreaddaobs(trim(LIS_CustomVODonlyLAIobsId)//char(0),&
+        read_CustomVOD)
+   call registerwritedaobs(trim(LIS_CustomVODonlyLAIobsId)//char(0),&
+        write_CustomVOD)
+   call registerdaobsclass(trim(LIS_CustomVODonlySMobsId),"LSM")
+   call registerdaobssetup(trim(LIS_CustomVODonlySMobsId)//char(0),&
+        CustomVOD_setup)
+   call registerreaddaobs(trim(LIS_CustomVODonlySMobsId)//char(0),&
+        read_CustomVOD)
+   call registerwritedaobs(trim(LIS_CustomVODonlySMobsId)//char(0),&
+        write_CustomVOD)
 #endif
 
 !Y.Kwon

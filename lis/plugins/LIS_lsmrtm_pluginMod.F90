@@ -23,6 +23,7 @@ module LIS_lsmrtm_pluginMod
 !  08 Feb 11    Yudong Tian; Reistered for CMEM3 
 !  18 Dec 18    Peter Shellito; Registered for NoahMp36 CMEM3
 !  21 Feb 19    Peter Shellito; Registered for Noah36 CMEM3
+!  24 Mar 22    Samuel Scherrer; Registered for NoahMp401 VODOO
 ! 
 !EOP  
   implicit none
@@ -88,6 +89,12 @@ subroutine LIS_lsmrtm_plugin
 #endif
 #if ( defined RTMS_CMEM )
    external noahmp36_sfc2cmem3
+#endif
+#endif
+
+#if ( defined SM_NOAHMP_4_0_1 )
+#if ( defined RTMS_VODOO )
+   external noahmp401_sfc2vod
 #endif
 #endif
 
@@ -171,6 +178,13 @@ subroutine LIS_lsmrtm_plugin
 #if ( defined RTMS_CMEM )
    call registerlsm2rtm(trim(LIS_cmem3Id)//"+"//&
         trim(LIS_noahmp36Id)//char(0), noahmp36_sfc2cmem3)
+#endif
+#endif
+
+#if ( defined SM_NOAHMP_4_0_1 )
+#if ( defined RTMS_VODOO )
+   call registerlsm2rtm(trim(LIS_VODOOId)//"+"//&
+        trim(LIS_noahmp401Id)//char(0), noahmp401_sfc2vod)
 #endif
 #endif
 

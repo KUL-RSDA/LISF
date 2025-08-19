@@ -13,6 +13,7 @@
 
 #
 # Process environment and configure options
+# 30 Mar 2022: Samuel Scherrer, added specification for USE_VODOO (VOD observation operator)
 #
 
 if(defined($ENV{LIS_ARCH})){
@@ -736,6 +737,13 @@ if($use_minpack == 1) {
 }
 
 
+print "Use LIS-VODOO? (1-yes, 0-no, default=0): ";
+$use_vodoo=<stdin>;
+chomp($use_vodoo);
+if($use_vodoo eq ""){
+   $use_vodoo=0;
+}
+
 print "Use LIS-CRTM? (1-yes, 0-no, default=0): ";
 $use_crtm=<stdin>;
 $use_crtm=~s/ *#.*$//;
@@ -1237,7 +1245,7 @@ else{
    printf misc_file "%s\n","#undef USE_MINPACK ";
 }
 
-if($use_crtm == 1 || $use_cmem == 1) {
+if($use_crtm == 1 || $use_cmem == 1 || $use_vodoo == 1) {
    printf misc_file "%s\n","#define RTMS ";
 }
 else{

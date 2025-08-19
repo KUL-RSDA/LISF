@@ -75,6 +75,12 @@ subroutine LIS_RTM_plugin
        TauOmegaRTM_run
 #endif
 
+#if ( defined RTMS_VODOO )
+   use VODOO_Mod, only : VODOO_initialize, VODOO_f2t,&
+       VODOO_geometry, &
+       VODOO_run
+#endif
+
 #if ( defined RTMS_CRTM )
 ! CRTM 1.x
 !   call registerrtminit(trim(LIS_crtmId)//char(0), CRTM_Kmatrix_initialize)
@@ -116,6 +122,14 @@ subroutine LIS_RTM_plugin
    call registergeometry2rtm(trim(LIS_tauomegartmId)//char(0), &
                              TauOmegaRTM_geometry)
    call registerrtmrun(trim(LIS_tauomegartmId)//char(0),TauOmegaRTM_run)
+#endif
+
+#if ( defined RTMS_VODOO )
+   call registerrtminit(trim(LIS_VODOOId)//char(0),VODOO_initialize)
+   call registerrtmf2t(trim(LIS_VODOOId)//char(0),VODOO_f2t)
+   call registergeometry2rtm(trim(LIS_VODOOId)//char(0), &
+                             VODOO_geometry)
+   call registerrtmrun(trim(LIS_VODOOId)//char(0),VODOO_run)
 #endif
 #endif
 end subroutine LIS_RTM_plugin
