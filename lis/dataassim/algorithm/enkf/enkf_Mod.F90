@@ -986,7 +986,7 @@ contains
 
        do v=1,LIS_rc%nstvars(k)
           call LIS_writevar_spread(ftn,n,k,ensspread_id(v), &
-               stvar(v,:),v)
+               stvar(v,:),v,LIS_rc%ensemstype(k))
        enddo
        
        deallocate(stvar)

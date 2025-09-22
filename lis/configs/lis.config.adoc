@@ -1317,6 +1317,22 @@ Acceptable values are:
 Data assimilation output ensemble spread: 0
 ....
 
+`Data assimilation ensemble spread type:` specifies the format in which
+to output the ensemble spread.
+Acceptable values are:
+
+|====
+|Value | Description
+
+|"`std`"      |  Output the standard deviation of the ensemble
+|"`max-min`"  |  Output the range of the ensemble (difference between the largest and smallest ensemble member)
+|====
+
+.Example _lis.config_ entry
+....
+Data assimilation ensemble spread type: "max-min"
+....
+
 
 `Data assimilation output processed observations:` specifies
 whether the processed, quality-controlled
