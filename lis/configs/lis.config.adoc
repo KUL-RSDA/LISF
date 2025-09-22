@@ -3117,6 +3117,7 @@ Acceptable values are:
 |====
 |Value    | Description
 
+|SPL2SMP  | Level 2 passive SMAP data
 |SPL3SMAP | Level 3 active passive SMAP data
 |SPL3SMP  | Level 3 passive SMAP data 
 |====
@@ -3127,6 +3128,19 @@ composite release ID included within the filename (e.g., R16).
 `SMAP(NASA) soil moisture use scaled standard deviation model:` specifies
 whether the observation error standard deviation is to be scaled using model
 and observation standard deviation.
+
+`SMAP(NASA) soil moisture dense vegetation flag option:` specifies whether the
+recommended quality flag for dense vegetation should be used. Option only implemented
+for Level 2 passive SMAP data (SPL2SMP).
+
+Acceptable values are:
+
+|====
+|Value    | Description
+
+|.true.   | Use recommended quality flag (only assimilate if VWC < 5 kg/m^2^)
+|.false.  | Don't use recommended quality flag (assimilate if VWC < 30 kg/m^2^)
+|====
 
 `SMAP(NASA) model CDF file:` specifies the name of the model CDF file
 (observations will be scaled into this climatology).
@@ -3159,6 +3173,7 @@ SMAP(NASA) soil moisture data directory:
 SMAP(NASA) soil moisture data designation:
 SMAP(NASA) soil moisture Composite Release ID:
 SMAP(NASA) soil moisture use scaled standard deviation model:
+SMAP(NASA) soil moisture dense vegetation flag option:
 SMAP(NASA) model CDF file:
 SMAP(NASA) observation CDF file:
 SMAP(NASA) soil moisture number of bins in the CDF:
