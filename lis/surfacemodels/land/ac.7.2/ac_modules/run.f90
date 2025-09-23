@@ -6568,7 +6568,7 @@ subroutine WriteEvaluationData(DAP)
 end subroutine WriteEvaluationData
 
 
-subroutine InitializeRunPart1(NrRun, TheProjectType,variable_CCx,CCx_config,CCx_range,ens_n_local,n_local)
+subroutine InitializeRunPart1(NrRun, TheProjectType,variable_CCx,CCx_config,CCx_range,ens_n_local,nensem)
     !! Part1 (before reading the climate) of the run initialization
     !! Loads the run input from the project file
     !! Initializes parameters and states
@@ -6579,6 +6579,7 @@ subroutine InitializeRunPart1(NrRun, TheProjectType,variable_CCx,CCx_config,CCx_
     real, intent(in), optional    :: CCx_config
     real, intent(in), optional    :: CCx_range
     integer, intent(in), optional :: ens_n_local
+    integer, intent(in), optional :: nensem
     real                          :: CCx_temp
     real                          :: GDD_endgrowth_temp
     real                          :: CCi_final_temp
