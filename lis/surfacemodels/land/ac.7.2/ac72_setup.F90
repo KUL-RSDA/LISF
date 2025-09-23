@@ -1092,7 +1092,7 @@ subroutine AC72_setup()
          ! InitializeRunPart1
          if (AC72_struc(n)%variable_CCx .and. (LIS_rc%nensem(n) .gt. 2)) then
             call InitializeRunPart1(int(AC72_struc(n)%irun, kind=int8), AC72_struc(n)%ac72(t)%TheProjectType,&
-               AC72_struc(n)%variable_CCx,CCx_temp,CCx_range_temp,ens_n,n)
+               AC72_struc(n)%variable_CCx,CCx_temp,CCx_range_temp,LIS_rc%nensem(n))
          else
             call InitializeRunPart1(int(AC72_struc(n)%irun, kind=int8), AC72_struc(n)%ac72(t)%TheProjectType,&
                AC72_struc(n)%variable_CCx)
