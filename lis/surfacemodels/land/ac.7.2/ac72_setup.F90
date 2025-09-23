@@ -583,7 +583,6 @@ subroutine AC72_setup()
 
   logical :: MultipleRunWithKeepSWC_temp
   real    :: MultipleRunConstZrx_temp
-  real    :: frac_lower
     
   real    :: CCx_temp
   real    :: CCx_range_temp
