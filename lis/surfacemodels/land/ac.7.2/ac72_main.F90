@@ -192,6 +192,13 @@ subroutine AC72_main(n)
        SetCrop_DaysToHIo,&
        SetCrop_DaysToMaxRooting,&
        SetCrop_DaysTosenescence,&
+       SetCrop_CCx,&
+       SetCrop_GDDCGC,&
+       SetCrop_GDDCDC,&
+       LoadCrop, &
+       SetSimulation_LinkCropToSimPeriod, &
+       SetCropFile, &
+       SetCropFilefull, &
        SetCRsalt,&
        SetCRwater,&
        SetDaySubmerged,&
@@ -503,6 +510,11 @@ subroutine AC72_main(n)
   integer              :: l
   integer              :: irr_record_flag, DNr ! for irri file management
   character(250)       :: TempStr
+  real                 :: CCx_temp
+  real                 :: CCx_range_temp
+  real                 :: GDD_endgrowth_temp
+  real                 :: CCi_final_temp
+  integer              :: ens_n
 
   real                 :: tmp_pres, tmp_precip, tmp_tmax, tmp_tmin   ! Weather Forcing
   real                 :: tmp_tdew, tmp_swrad, tmp_wind, tmp_eto     ! Weather Forcing
@@ -943,19 +955,66 @@ subroutine AC72_main(n)
 
            call SetTnxReferenceFile('(External)')
 
-           ! InitializeRunPart
-           call InitializeRunPart1(int(AC72_struc(n)%ac72(t)%irun,kind=int8), AC72_struc(n)%ac72(t)%TheProjectType)
-           call InitializeSimulationRunPart2()
-           AC72_struc(n)%ac72(t)%HarvestNow = .false. ! Initialize to false
-           ! Check if enough GDDays to complete cycle
-           if(GetCrop_ModeCycle().eq.ModeCycle_GDDays)then
-              if (((GetCrop_Day1()+GetCrop_DaysToHarvest()).gt.GetSimulation_ToDayNr()) &
-                   .or.(GetCrop_DaysToHarvest()<1)) then
-                 AC72_struc(n)%ac72(t)%cycle_complete = 0
-              else
-                 AC72_struc(n)%ac72(t)%cycle_complete = 1
-              endif
-           endif
+
+            ! Variable CCx
+            ! If the option is enabled in the lis configuration file, and there are at least 3 ensemble members,
+            ! this block will evenly spread the CCx values within the specified range around the CCx_config.
+            ! CGC and CDC are adapted to maintain the stages length consistent.
+            ! It has been built for a determinate crop in GDDs.
+            if ((AC72_struc(n)%variable_CCx) .and. (LIS_rc%nensem(n) .gt. 2)) then
+               ens_n = mod(t,LIS_rc%nensem(n))
+               if (ens_n == 0) then
+                  ens_n = LIS_rc%nensem(n)
+               endif
+               call SetSimulation_LinkCropToSimPeriod(.true.)
+               call SetCropFile(ProjectInput(int(AC72_struc(n)%irun, kind=int8))%Crop_Filename)
+               call SetCropFilefull(ProjectInput(int(AC72_struc(n)%irun, kind=int8))%Crop_Directory // GetCropFile())
+               call LoadCrop(GetCropFilefull())
+               ! GDD setup only!
+               CCx_temp = AC72_struc(n)%CCx_config
+               CCx_range_temp = AC72_struc(n)%CCx_range
+               GDD_endgrowth_temp = log(GetCrop_CCx()/(0.08*GetCrop_CCo()))/GetCrop_GDDCGC()
+               ! Determinate crop only!
+               if (GDD_endgrowth_temp .gt. (GetCrop_GDDaysToFlowering()&
+                     + GetCrop_GDDLengthFlowering() / 2)) then
+                  GDD_endgrowth_temp = GetCrop_GDDaysToFlowering() + GetCrop_GDDLengthFlowering() / 2
+               endif
+               CCi_final_temp = GetCrop_CCx() * (1 - 0.05 * (exp(3.33 * GetCrop_GDDCDC() / &
+                  (GetCrop_CCx() + 2.29) * (GetCrop_GDDaysToHarvest() - GetCrop_GDDaysToSenescence())) - 1))
+               if ((GetCrop_CCx() + AC72_struc(n)%CCx_range .gt. 1) .or.&
+                     (GetCrop_CCx() - AC72_struc(n)%CCx_range .lt. GetCrop_CCo())) then
+                  AC72_struc(n)%CCx_range = min(1 - GetCrop_CCx(), GetCrop_CCx() - GetCrop_CCo())
+               endif
+               if (ens_n .lt. LIS_rc%nensem(n)) then
+                  call SetCrop_CCx(GetCrop_CCx() - AC72_struc(n)%CCx_range + &
+                     (ens_n - 1) * 2 * AC72_struc(n)%CCx_range / (LIS_rc%nensem(n) - 2))
+                  call SetCrop_GDDCGC(log(GetCrop_CCx()/(0.08 * GetCrop_CCo())) / GDD_endgrowth_temp)
+                  call SetCrop_GDDCDC((GetCrop_CCx() + 2.29) / (3.33 *&
+                     (GetCrop_GDDaysToHarvest() - GetCrop_GDDaysToSenescence())) *&
+                     log((1-CCi_final_temp/GetCrop_CCx())/0.05 + 1))
+               endif
+            endif
+            ! End variable CCx
+
+            ! InitializeRunPart
+            if (AC72_struc(n)%variable_CCx .and. (LIS_rc%nensem(n) .gt. 2)) then
+               call InitializeRunPart1(int(AC72_struc(n)%irun, kind=int8), AC72_struc(n)%ac72(t)%TheProjectType,&
+                  AC72_struc(n)%variable_CCx,CCx_temp,CCx_range_temp,ens_n,n)
+            else
+               call InitializeRunPart1(int(AC72_struc(n)%irun, kind=int8), AC72_struc(n)%ac72(t)%TheProjectType,&
+               AC72_struc(n)%variable_CCx)
+            endif
+            call InitializeSimulationRunPart2()
+            AC72_struc(n)%ac72(t)%HarvestNow = .false. ! Initialize to false
+            ! Check if enough GDDays to complete cycle
+            if(GetCrop_ModeCycle().eq.ModeCycle_GDDays)then
+               if (((GetCrop_Day1()+GetCrop_DaysToHarvest()).gt.GetSimulation_ToDayNr()) &
+                     .or.(GetCrop_DaysToHarvest()<1)) then
+                  AC72_struc(n)%ac72(t)%cycle_complete = 0
+               else
+                  AC72_struc(n)%ac72(t)%cycle_complete = 1
+               endif
+            endif
 
            ! Overwrite the SMC to avoid problems when restarting
            do l=1, AC72_struc(n)%ac72(t)%NrCompartments

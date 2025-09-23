@@ -217,6 +217,27 @@ subroutine AC72_readcrd()
      endif
   enddo
 
+   ! Variable CCx method
+   do n=1, LIS_rc%nnest
+      call ESMF_ConfigFindLabel(LIS_config, "AquaCrop.7.2 variable CCx:", rc = rc)
+      if (rc == 0) then
+            call ESMF_ConfigGetAttribute(LIS_config, &
+               AC72_struc(n)%variable_CCx, rc=rc)
+            write(LIS_logunit, *)'[INFO] AC72 variable CCx turned ON'
+      else
+            AC72_struc(n)%variable_CCx = .false.
+            write(LIS_logunit, *)'[INFO] AC72 variable CCx turned OFF'
+      endif
+      if (AC72_struc(n)%variable_CCx) then
+         call ESMF_ConfigFindLabel(LIS_config, "AquaCrop.7.2 CCx:", rc = rc)
+         call ESMF_ConfigGetAttribute(LIS_config, AC72_struc(n)%CCx_config, rc=rc)
+         call LIS_verify(rc, "AquaCrop.7.2 CCx: not defined")
+         call ESMF_ConfigFindLabel(LIS_config, "AquaCrop.7.2 CCx range:", rc = rc)
+         call ESMF_ConfigGetAttribute(LIS_config, AC72_struc(n)%CCx_range, rc=rc)
+         call LIS_verify(rc, "AquaCrop.7.2 CCx range: not defined")
+      endif
+   enddo
+
   ! AquaCrop model soil parameter table
   call ESMF_ConfigFindLabel(LIS_config, "AquaCrop.7.2 soil parameter table:", rc = rc)
   do n=1, LIS_rc%nnest
