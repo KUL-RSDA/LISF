@@ -14,6 +14,7 @@
 !
 ! !REVISION HISTORY:
 !   04 NOV 2024, Louise Busschaert; initial implementation for AC72
+!  22 APR 2025, Louise Busschaert; added plating criterion
 !
 ! !INTERFACE:
 #include "LIS_misc.h"
@@ -104,6 +105,68 @@ subroutine AC72_readcrd()
      call LIS_verify(rc, "AquaCrop.7.2 starting month of crop period: not defined")
   enddo
 
+  ! Temperature criterion
+  call ESMF_ConfigFindLabel(LIS_config, "AquaCrop.7.2 temperature criterion for cropping start:", rc = rc)
+  if (rc == 0) then
+      do n=1, LIS_rc%nnest
+         call ESMF_ConfigGetAttribute(LIS_config, AC72_struc(n)%Temp_crit, rc=rc)
+         if (AC72_struc(n)%Temp_crit) then
+            write(LIS_logunit, *)'[INFO] AC72 temperature criterion for cropping start'
+            call ESMF_ConfigFindLabel(LIS_config, "AquaCrop.7.2 temperature criterion Tmin:", rc = rc)
+            call ESMF_ConfigGetAttribute(LIS_config, AC72_struc(n)%Temp_crit_tmin, rc=rc)
+            call LIS_verify(rc, "AquaCrop.7.2 temperature criterion Tmin: not defined")
+            call ESMF_ConfigFindLabel(LIS_config, "AquaCrop.7.2 temperature criterion consecutive days:", rc = rc)
+            call ESMF_ConfigGetAttribute(LIS_config, AC72_struc(n)%Temp_crit_days, rc=rc)
+            call LIS_verify(rc, "AquaCrop.7.2 temperature criterion consecutive days: not defined")
+            call ESMF_ConfigFindLabel(LIS_config, "AquaCrop.7.2 temperature criterion occurrence:", rc = rc)
+            call ESMF_ConfigGetAttribute(LIS_config, AC72_struc(n)%Temp_crit_occurrence, rc=rc)
+            call LIS_verify(rc, "AquaCrop.7.2 temperature criterion occurrence: not defined")
+            call ESMF_ConfigFindLabel(LIS_config, "AquaCrop.7.2 criterion search window length:", rc = rc)
+            call ESMF_ConfigGetAttribute(LIS_config, AC72_struc(n)%crit_window, rc=rc)
+            call LIS_verify(rc, "AquaCrop.7.2 criterion search window length: not defined")
+         else
+            write(LIS_logunit, *)'[INFO] AC72 no temperature criterion for cropping start'
+            AC72_struc(n)%Temp_crit = .false.
+         endif
+      enddo
+  else
+      write(LIS_logunit, *)'[INFO] AC72 no temperature criterion for cropping start'
+      do n=1, LIS_rc%nnest
+         AC72_struc(n)%Temp_crit = .false.
+      enddo
+  endif
+
+  ! Rainfall criterion
+  call ESMF_ConfigFindLabel(LIS_config, "AquaCrop.7.2 rainfall criterion for cropping start:", rc = rc)
+  if (rc == 0) then
+      do n=1, LIS_rc%nnest
+            call ESMF_ConfigGetAttribute(LIS_config, AC72_struc(n)%Rainfall_crit, rc=rc)
+            if (AC72_struc(n)%Rainfall_crit) then
+               write(LIS_logunit, *)'[INFO] AC72 rainfall criterion for cropping start'
+               call ESMF_ConfigFindLabel(LIS_config, "AquaCrop.7.2 rainfall criterion amount:", rc = rc)
+               call ESMF_ConfigGetAttribute(LIS_config, AC72_struc(n)%Rainfall_crit_amount, rc=rc)
+               call LIS_verify(rc, "AquaCrop.7.2 rainfall criterion amount: not defined")
+               call ESMF_ConfigFindLabel(LIS_config, "AquaCrop.7.2 rainfall criterion days:", rc = rc)
+               call ESMF_ConfigGetAttribute(LIS_config, AC72_struc(n)%Rainfall_crit_days, rc=rc)
+               call LIS_verify(rc, "AquaCrop.7.2 rainfall criterion days: not defined")
+               call ESMF_ConfigFindLabel(LIS_config, "AquaCrop.7.2 rainfall criterion occurrence:", rc = rc)
+               call ESMF_ConfigGetAttribute(LIS_config, AC72_struc(n)%Rainfall_crit_occurrence, rc=rc)
+               call LIS_verify(rc, "AquaCrop.7.2 rainfall criterion occurrence: not defined")
+               call ESMF_ConfigFindLabel(LIS_config, "AquaCrop.7.2 criterion search window length:", rc = rc)
+               call ESMF_ConfigGetAttribute(LIS_config, AC72_struc(n)%crit_window, rc=rc)
+               call LIS_verify(rc, "AquaCrop.7.2 criterion search window length: not defined")
+            else
+               AC72_struc(n)%Rainfall_crit = .false.
+               write(LIS_logunit, *)'[INFO] AC72 no rainfall criterion for cropping start'
+            endif
+      enddo
+  else
+      write(LIS_logunit, *)'[INFO] AC72 no rainfall criterion for cropping start'
+      do n=1, LIS_rc%nnest
+         AC72_struc(n)%Rainfall_crit = .false.
+      enddo
+  endif
+
   ! PathNameSimul
   call ESMF_ConfigFindLabel(LIS_config, "AquaCrop.7.2 input path:", rc = rc)
   do n=1, LIS_rc%nnest
@@ -153,6 +216,27 @@ subroutine AC72_readcrd()
         AC72_struc(n)%Irrigation_Filename = '(None)'
      endif
   enddo
+
+   ! Variable CCx method
+   do n=1, LIS_rc%nnest
+      call ESMF_ConfigFindLabel(LIS_config, "AquaCrop.7.2 variable CCx:", rc = rc)
+      if (rc == 0) then
+            call ESMF_ConfigGetAttribute(LIS_config, &
+               AC72_struc(n)%variable_CCx, rc=rc)
+            write(LIS_logunit, *)'[INFO] AC72 variable CCx turned ON'
+      else
+            AC72_struc(n)%variable_CCx = .false.
+            write(LIS_logunit, *)'[INFO] AC72 variable CCx turned OFF'
+      endif
+      if (AC72_struc(n)%variable_CCx) then
+         call ESMF_ConfigFindLabel(LIS_config, "AquaCrop.7.2 CCx:", rc = rc)
+         call ESMF_ConfigGetAttribute(LIS_config, AC72_struc(n)%CCx_config, rc=rc)
+         call LIS_verify(rc, "AquaCrop.7.2 CCx: not defined")
+         call ESMF_ConfigFindLabel(LIS_config, "AquaCrop.7.2 CCx range:", rc = rc)
+         call ESMF_ConfigGetAttribute(LIS_config, AC72_struc(n)%CCx_range, rc=rc)
+         call LIS_verify(rc, "AquaCrop.7.2 CCx range: not defined")
+      endif
+   enddo
 
   ! AquaCrop model soil parameter table
   call ESMF_ConfigFindLabel(LIS_config, "AquaCrop.7.2 soil parameter table:", rc = rc)

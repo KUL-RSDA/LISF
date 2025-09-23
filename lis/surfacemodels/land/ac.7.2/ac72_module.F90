@@ -19,6 +19,7 @@ module AC72_module
   !
   ! !REVISION HISTORY:
   !  04 NOV 2024; Louise Busschaert, initial implementation
+  !  22 APR 2025, Louise Busschaert; added plating criterion
   !
   !EOP
 
@@ -92,6 +93,8 @@ module AC72_module
      !-------------------------------------------------------------------------
      ! AC specific (all AC global variables + others)
      !-------------------------------------------------------------------------
+     real               :: CCiPot
+     real               :: SumGDDadjCC
      integer            :: cycle_complete
      integer            :: valid_sim
      real               :: tbase
@@ -236,6 +239,7 @@ module AC72_module
      logical  :: HarvestNow
      real(sp), pointer :: Tmax_record(:)
      real(sp), pointer :: Tmin_record(:)
+     real(sp), pointer :: pcp_record(:)
      integer :: irri_lnr
 
      logical :: NoMoreCrop
