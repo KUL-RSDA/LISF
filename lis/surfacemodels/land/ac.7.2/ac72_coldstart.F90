@@ -44,10 +44,16 @@ subroutine AC72_coldstart(mtype)
      if (trim(LIS_rc%startcode) .eq. "coldstart") then
         write(LIS_logunit,*) "MSG: AC72_coldstart -- cold-starting AC72"
         do t=1, LIS_rc%npatch(n,mtype)
-           do l=1, AC72_struc(n)%ac72(t)%NrCompartments
-              AC72_struc(n)%ac72(t)%smc(l) = AC72_struc(n)%init_smc(GetCompartment_Layer(l))
-           enddo
-        enddo
+           if (AC72_struc(n)%ac72(t)%valid_sim.eq.1) then
+            do l=1, AC72_struc(n)%ac72(t)%NrCompartments
+               AC72_struc(n)%ac72(t)%smc(l) = AC72_struc(n)%init_smc(GetCompartment_Layer(l))
+            enddo
+           else ! tile does not get initialized, set all compartments to -9999
+            do l = 1, 12
+               AC72_struc(n)%ac72(t)%smc(l) = -9999.0
+            enddo
+           endif
+        end do
      endif
 
      LIS_rc%yr = LIS_rc%syr
