@@ -6580,10 +6580,11 @@ subroutine InitializeRunPart1(NrRun, TheProjectType,variable_CCx,CCx_config,CCx_
     real, intent(in), optional    :: CCx_range
     integer, intent(in), optional :: ens_n_local
     integer, intent(in), optional :: nensem
+
     real                          :: CCx_temp
+    logical                       :: CCx_pert_flag
     real                          :: GDD_endgrowth_temp
     real                          :: CCi_final_temp
-
     type(rep_sum) :: SumWaBal_temp, PreviousSum_temp
 
     if (TheProjectType == typeproject_typenone) then
@@ -6593,8 +6594,14 @@ subroutine InitializeRunPart1(NrRun, TheProjectType,variable_CCx,CCx_config,CCx_
 
     call LoadSimulationRunProject(int(NrRun, kind=int32))
 
-    ! Variable CCx
-    if (variable_CCx) then
+    ! Variable CCx ! needed for perturbation of CCx
+    ! NL and LB July 2025
+    CCx_pert_flag = .false.
+    if (present(variable_CCx)) then
+        CCx_pert_flag = variable_CCx
+    end if ! if false, other variables are not needed 
+
+    if (CCx_pert_flag) then
         if (nensem .gt. 2) then
             ! GDD setup only!
             CCx_temp = CCx_config
