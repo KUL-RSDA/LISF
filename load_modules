@@ -43,7 +43,7 @@ elif [[ $VSC_INSTITUTE_CLUSTER == wice ]]; then
         fi
     fi
 elif [[ $VSC_INSTITUTE_CLUSTER == dodrio ]]; then
-    if [[ $VSC_ARCH_LOCAL == zen3 ]]; then
+    if [[ $VSC_ARCH_LOCAL == zen2 || $VSC_ARCH_LOCAL == zen3 ]]; then
         if [[ $VSC_OS_LOCAL == RHEL8 ]]; then
             prepend_module_path $ROOT/modules/dodrio/RHEL8/zen3-ib
             load_module LISF/intel-2023b
