@@ -19,70 +19,36 @@
 ! !INTERFACE:
 subroutine ac72_getsoilm(n, LSM_State)
 
-! !USES:
   use ESMF
   use LIS_coreMod, only : LIS_rc
   use LIS_logMod,  only  : LIS_verify
   use ac72_lsmMod
 
   implicit none
-! !ARGUMENTS: 
-  integer, intent(in)    :: n
-  type(ESMF_State)       :: LSM_State
-!
-! !DESCRIPTION:
-!
-!  Returns the soilmoisture related state prognostic variables for
-!  data assimilation
-! 
-!  The arguments are: 
-!  \begin{description}
-!  \item[n] index of the nest \newline
-!  \item[LSM\_State] ESMF State container for LSM state variables \newline
-!  \end{description}
-!EOP
-  type(ESMF_Field)       :: sm1Field
-  real, pointer          :: soilm1(:)
-  type(ESMF_Field)       :: sm2Field
-  real, pointer          :: soilm2(:)
-  type(ESMF_Field)       :: sm3Field
-  real, pointer          :: soilm3(:)
-  integer                :: t
-  integer                :: status
-  !character*100          :: lsm_state_objs(1)
 
-  !Layer 1
-  call ESMF_StateGet(LSM_State,"Soil Moisture Layer 1",sm1Field,rc=status)
-  call LIS_verify(status,'ESMF_StateGet failed for sm1 in ac72_getsoilm')
+  integer, intent(in)        :: n
+  type(ESMF_State)           :: LSM_State
 
-  call ESMF_FieldGet(sm1Field,localDE=0,farrayPtr=soilm1,rc=status)
-  call LIS_verify(status,'ESMF_FieldGet failed for sm1 in ac72_getsoilm')
+  ! Local variables
+  integer                    :: t, l, status
+  integer, parameter         :: n_layers = 10  ! Replace with variable if needed elsewhere
+  type(ESMF_Field)           :: smField
+  real, pointer              :: soilm(:)
+  character(len=100)         :: field_name
 
-  do t=1,LIS_rc%npatch(n,LIS_rc%lsm_index)
-     soilm1(t) = AC72_struc(n)%ac72(t)%smc(1)
-  enddo
-  
-  !Layer 2
-  call ESMF_StateGet(LSM_State,"Soil Moisture Layer 2",sm2Field,rc=status)
-  call LIS_verify(status,'ESMF_StateGet failed for sm2 in ac72_getsoilm')
+  do l = 1, n_layers
+     write(field_name, '(A,I0)') "Soil Moisture Layer ", l
 
-  call ESMF_FieldGet(sm2Field,localDE=0,farrayPtr=soilm2,rc=status)
-  call LIS_verify(status,'ESMF_FieldGet failed for sm2 in ac72_getsoilm')
+     call ESMF_StateGet(LSM_State, field_name, smField, rc=status)
+     call LIS_verify(status, 'ESMF_StateGet failed for '//trim(field_name)//' in ac72_getsoilm')
 
-  do t=1,LIS_rc%npatch(n,LIS_rc%lsm_index)
-     soilm2(t) = AC72_struc(n)%ac72(t)%smc(2)
-  enddo
+     call ESMF_FieldGet(smField, localDE=0, farrayPtr=soilm, rc=status)
+     call LIS_verify(status, 'ESMF_FieldGet failed for '//trim(field_name)//' in ac72_getsoilm')
 
-  !Layer 3
-  call ESMF_StateGet(LSM_State,"Soil Moisture Layer 3",sm3Field,rc=status)
-  call LIS_verify(status,'ESMF_StateGet failed for sm3 in ac72_getsoilm')
-
-  call ESMF_FieldGet(sm3Field,localDE=0,farrayPtr=soilm3,rc=status)
-  call LIS_verify(status,'ESMF_FieldGet failed for sm3 in ac72_getsoilm')
-
-  do t=1,LIS_rc%npatch(n,LIS_rc%lsm_index)
-     soilm3(t) = AC72_struc(n)%ac72(t)%smc(3)
-  enddo
+     do t = 1, LIS_rc%npatch(n, LIS_rc%lsm_index)
+        soilm(t) = AC72_struc(n)%ac72(t)%smc(l)
+     end do
+  end do
 
 end subroutine ac72_getsoilm
 

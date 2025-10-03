@@ -19,111 +19,49 @@
 ! !INTERFACE:
 subroutine ac72_qcsoilm(n, LSM_State)
 
-! !USES:
   use ESMF
-  use LIS_coreMod, only : LIS_rc
-  use LIS_logMod,  only  : LIS_verify
+  use LIS_coreMod
+  use LIS_logMod
   use ac72_lsmMod
 
   implicit none
-! !ARGUMENTS: 
-  integer, intent(in)    :: n
-  type(ESMF_State)       :: LSM_State
-!
-! !DESCRIPTION:
-!
-!  Returns the soilmoisture related state prognostic variables for
-!  data assimilation
-! 
-!  The arguments are: 
-!  \begin{description}
-!  \item[n] index of the nest \newline
-!  \item[LSM\_State] ESMF State container for LSM state variables \newline
-!  \end{description}
-!EOP
-  integer                :: t
-  integer                :: status
-  type(ESMF_Field)       :: sm1Field
-  real, pointer          :: soilm1(:)
-  real                   :: smmax1
-  real                   :: smmin1
-  type(ESMF_Field)       :: sm2Field
-  real, pointer          :: soilm2(:)
-  real                   :: smmax2
-  real                   :: smmin2
-  type(ESMF_Field)       :: sm3Field
-  real, pointer          :: soilm3(:)
-  real                   :: smmax3
-  real                   :: smmin3
- 
-  call ESMF_StateGet(LSM_State,"Soil Moisture Layer 1",sm1Field,rc=status)
-  call LIS_verify(status,&
-       "ESMF_StateGet for Soil Moisture Layer 1 failed in ac72_qcsoilm")
- 
-  call ESMF_FieldGet(sm1Field,localDE=0,farrayPtr=soilm1,rc=status)
-  call LIS_verify(status,&
-       "ESMF_FieldGet for Soil Moisture Layer 1 failed in ac72_qcsoilm")
 
-  call ESMF_AttributeGet(sm1Field,"Max Value",smmax1,rc=status)
-  call LIS_verify(status,&
-       "ESMF_AttributeGet: Max Value failed in ac72_qcsoilm")
+  integer, intent(in)        :: n
+  type(ESMF_State)           :: LSM_State
 
-  call ESMF_AttributeGet(sm1Field,"Min Value",smmin1,rc=status)
-  call LIS_verify(status,&
-       "ESMF_AttributeGet: Min Value failed in ac72_qcsoilm")
+  integer                    :: t, l, status
+  integer, parameter         :: n_layers = 10  ! Make this dynamic if needed
+  type(ESMF_Field)           :: smField
+  real, pointer              :: soilm(:)
+  real                       :: smmax(n_layers), smmin(n_layers)
+  character(len=100)         :: field_name
 
-  do t=1,LIS_rc%npatch(n,LIS_rc%lsm_index)
+  integer                    :: gid
+  logical                    :: update_flag(LIS_rc%ngrid(n))
+  real                       :: perc_violation(LIS_rc%ngrid(n))
+  integer                    :: N_ens
+  real                       :: state_tmp(LIS_rc%nensem(n)), state_mean
 
-     if(soilm1(t).gt.smmax1) soilm1(t) = smmax1
-     if(soilm1(t).lt.smmin1) soilm1(t) = smmin1
-  enddo
+  !--- Soil Moisture QC ---
+  do l = 1, n_layers
+     write(field_name, '(A,I0)') "Soil Moisture Layer ", l
 
-  ! Layer 2
-  call ESMF_StateGet(LSM_State,"Soil Moisture Layer 2",sm2Field,rc=status)
-  call LIS_verify(status,&
-       "ESMF_StateGet for Soil Moisture Layer 2 failed in ac72_qcsoilm")
- 
-  call ESMF_FieldGet(sm2Field,localDE=0,farrayPtr=soilm2,rc=status)
-  call LIS_verify(status,&
-       "ESMF_FieldGet for Soil Moisture Layer 2 failed in ac72_qcsoilm")
+     call ESMF_StateGet(LSM_State, field_name, smField, rc=status)
+     call LIS_verify(status, "ESMF_StateGet for "//trim(field_name)//" failed in ac72_qcsoilm")
 
-  call ESMF_AttributeGet(sm2Field,"Max Value",smmax2,rc=status)
-  call LIS_verify(status,&
-       "ESMF_AttributeGet: Max Value failed in ac72_qcsoilm")
+     call ESMF_FieldGet(smField, localDE=0, farrayPtr=soilm, rc=status)
+     call LIS_verify(status, "ESMF_FieldGet for "//trim(field_name)//" failed in ac72_qcsoilm")
 
-  call ESMF_AttributeGet(sm2Field,"Min Value",smmin2,rc=status)
-  call LIS_verify(status,&
-       "ESMF_AttributeGet: Min Value failed in ac72_qcsoilm")
+     call ESMF_AttributeGet(smField, "Max Value", smmax(l), rc=status)
+     call LIS_verify(status, "ESMF_AttributeGet Max Value failed for "//trim(field_name))
 
-  do t=1,LIS_rc%npatch(n,LIS_rc%lsm_index)
+     call ESMF_AttributeGet(smField, "Min Value", smmin(l), rc=status)
+     call LIS_verify(status, "ESMF_AttributeGet Min Value failed for "//trim(field_name))
 
-     if(soilm2(t).gt.smmax2) soilm2(t) = smmax2
-     if(soilm2(t).lt.smmin2) soilm2(t) = smmin2
-  enddo
-
-  ! Layer 3
-  call ESMF_StateGet(LSM_State,"Soil Moisture Layer 3",sm3Field,rc=status)
-  call LIS_verify(status,&
-       "ESMF_StateGet for Soil Moisture Layer 3 failed in ac72_qcsoilm")
- 
-  call ESMF_FieldGet(sm3Field,localDE=0,farrayPtr=soilm3,rc=status)
-  call LIS_verify(status,&
-       "ESMF_FieldGet for Soil Moisture Layer 3 failed in ac72_qcsoilm")
-
-  call ESMF_AttributeGet(sm3Field,"Max Value",smmax3,rc=status)
-  call LIS_verify(status,&
-       "ESMF_AttributeGet: Max Value failed in ac72_qcsoilm")
-
-  call ESMF_AttributeGet(sm3Field,"Min Value",smmin3,rc=status)
-  call LIS_verify(status,&
-       "ESMF_AttributeGet: Min Value failed in ac72_qcsoilm")
-
-  do t=1,LIS_rc%npatch(n,LIS_rc%lsm_index)
-
-     if(soilm3(t).gt.smmax3) soilm3(t) = smmax3
-     if(soilm3(t).lt.smmin3) soilm3(t) = smmin3
-  enddo
-
+     do t = 1, LIS_rc%npatch(n, LIS_rc%lsm_index)
+        if (soilm(t) > smmax(l)) soilm(t) = smmax(l)
+        if (soilm(t) < smmin(l)) soilm(t) = smmin(l)
+     end do
+  end do
 
 end subroutine ac72_qcsoilm
-

@@ -18,7 +18,7 @@
 ! 23 Nov 2022: Michel Bechtold, Modified for ac72 
 !
 ! !INTERFACE:
-subroutine ac72_getsmpred(n, k,obs_pred)
+subroutine ac72_getsmpred(n, k, obs_pred)
 ! !USES:
   use ESMF
   use LIS_constantsMod
@@ -46,26 +46,34 @@ subroutine ac72_getsmpred(n, k,obs_pred)
 !  \item[obs\_pred] model's estimate of observations \newline
 !  \end{description}
 !EOP
-  real                   :: obs_tmp
-  integer                :: i,t,m,gid,kk
-  real                   :: inputs_tp(6), sm_out
-  real                   :: w1, w2, w3
-  character*50           :: units_tp(6)
-  real                   :: smc1(LIS_rc%npatch(n,LIS_rc%lsm_index))
+  !-------------------------------
+  ! Parameters
+  !-------------------------------
+  integer, parameter     :: n_layers = 10   ! number of soil layers to use
 
+  !-------------------------------
+  ! Local variables
+  !-------------------------------
+  integer                :: t, l
+  real                   :: smc(LIS_rc%npatch(n,LIS_rc%lsm_index))
+  real                   :: w(n_layers)
 
+  ! Define weights equally distributed over n_layers
+  w(:) = 1.0 / real(n_layers)
+
+  ! Compute weighted soil moisture for each patch
   do t=1, LIS_rc%npatch(n,LIS_rc%lsm_index)
-     w2 = 0.15
-     w3 = 0.1
-     w1 = 1 - w2 - w3 
-     smc1(t) = w1*AC72_struc(n)%ac72(t)%smc(1) + & 
-               w2*AC72_struc(n)%ac72(t)%smc(2) + &
-               w3*AC72_struc(n)%ac72(t)%smc(3)
+     smc(t) = 0.0
+     do l=1, n_layers
+        smc(t) = smc(t) + w(l) * AC72_struc(n)%ac72(t)%smc(l)
+     enddo
   enddo
+
+  ! Convert to observation ensemble space
   call LIS_convertPatchSpaceToObsEnsSpace(n,k,&
        LIS_rc%lsm_index, &
-       smc1,&
+       smc,&
        obs_pred)
-  
+
 end subroutine ac72_getsmpred
 
