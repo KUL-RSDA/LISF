@@ -1,0 +1,34 @@
+#!/bin/bash
+
+load_module() {
+    local name="$1"
+    if ! printf '%s' "$LOADEDMODULES" | tr ':' '\n' | grep -xF -- "$name" > /dev/null; then
+        module load "$name"
+    fi
+}
+
+load_module Python/3.11.5-GCCcore-13.2.0
+load_module Perl/5.38.0-GCCcore-13.2.0
+load_module HDF5/1.14.3-iimpi-2023b
+load_module netCDF/4.9.2-iimpi-2023b
+load_module ecCodes/2.31.0-iimpi-2023b
+load_module ESMF/8.6.1-intel-2023b
+
+export LDT_ARCH=linux_ifc
+export LIS_ARCH=linux_ifc
+export LDT_FC=mpiifx
+export LIS_FC=mpiifx
+export LDT_CC=mpiicx
+export LIS_CC=mpiicx
+export LDT_MODESMF=${EBROOTESMF}/mod
+export LIS_MODESMF=${EBROOTESMF}/mod
+export LDT_LIBESMF=${EBROOTESMF}/lib
+export LIS_LIBESMF=${EBROOTESMF}/lib
+export LDT_JASPER=${EBROOTJASPER}
+export LIS_JASPER=${EBROOTJASPER}
+export LDT_ECCODES=${EBROOTECCODES}
+export LIS_ECCODES=${EBROOTECCODES}
+export LDT_NETCDF=${EBROOTNETCDF}
+export LIS_NETCDF=${EBROOTNETCDF}
+export LDT_HDF5=${EBROOTHDF5}
+export LIS_HDF5=${EBROOTHDF5}

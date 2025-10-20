@@ -363,7 +363,8 @@ $use_netcdf=1;
 if($use_netcdf == 1) {
    print "NETCDF version (3 or 4, default=4)?: ";
    $netcdf_v=<stdin>;
-   if($netcdf_v eq "\n"){
+   chomp($netcdf_v);
+   if($netcdf_v eq ""){
       $netcdf_v=4;
    }
    if(defined($ENV{LDT_NETCDF})){
@@ -383,17 +384,20 @@ if($use_netcdf == 1) {
    }
    print "NETCDF use shuffle filter? (1-yes, 0-no, default = 1): ";
    $netcdf_shuffle=<stdin>;
-   if($netcdf_shuffle eq "\n"){
+   chomp($netcdf_shuffle);
+   if($netcdf_shuffle eq ""){
       $netcdf_shuffle=1;
    }
    print "NETCDF use deflate filter? (1-yes, 0-no, default = 1): ";
    $netcdf_deflate=<stdin>;
-   if($netcdf_deflate eq "\n"){
+   chomp($netcdf_deflate);
+   if($netcdf_deflate eq ""){
       $netcdf_deflate=1;
    }
    print "NETCDF use deflate level? (1 to 9-yes, 0-no, default = 9): ";
    $netcdf_deflate_level=<stdin>;
-   if($netcdf_deflate_level eq "\n"){
+   chomp($netcdf_deflate_level);
+   if($netcdf_deflate_level eq ""){
       $netcdf_deflate_level=9;
    }
 }
@@ -401,7 +405,8 @@ if($use_netcdf == 1) {
 
 print "Use HDF4? (1-yes, 0-no, default=0): ";
 $use_hdf4=<stdin>;
-if($use_hdf4 eq "\n"){
+chomp($use_hdf4);
+if($use_hdf4 eq ""){
    $use_hdf4=0;
 }
 if($use_hdf4 == 1) {
@@ -427,7 +432,8 @@ if($use_hdf4 == 1) {
 
 print "Use HDF5? (1-yes, 0-no, default=1): ";
 $use_hdf5=<stdin>;
-if($use_hdf5 eq "\n"){
+chomp($use_hdf5);
+if($use_hdf5 eq ""){
    $use_hdf5=1;
 }
 if($use_hdf5 == 1) {
@@ -451,7 +457,8 @@ if($use_hdf5 == 1) {
 
 print "Use HDFEOS? (1-yes, 0-no, default=0): ";
 $use_hdfeos=<stdin>;
-if($use_hdfeos eq "\n"){
+chomp($use_hdfeos);
+if($use_hdfeos eq ""){
    $use_hdfeos=0;
 }
 if($use_hdfeos == 1) {
@@ -484,7 +491,8 @@ if($use_hdfeos == 1) {
 
 print "Enable GeoTIFF support? (1-yes, 0-no, default=0): ";
 $enable_geotiff=<stdin>;
-if($enable_geotiff eq "\n"){
+chomp($enable_geotiff);
+if($enable_geotiff eq ""){
    $enable_geotiff=0;
 }
 if($enable_geotiff == 1) {
@@ -530,7 +538,8 @@ if($enable_geotiff == 1) {
 # EMK...Add LIBGEOTIFF support for Air Force
 print "Enable LIBGEOTIFF support? (1-yes, 0-no, default=0): ";
 $enable_libgeotiff=<stdin>;
-if($enable_libgeotiff eq "\n"){
+chomp($enable_libgeotiff);
+if($enable_libgeotiff eq ""){
     $enable_libgeotiff=0;
 }
 if($enable_libgeotiff == 1) {
@@ -589,7 +598,8 @@ if($enable_libgeotiff == 1) {
 
 print "Include date/time stamp history? (1-yes, 0-no, default=1): ";
 $use_history=<stdin>;
-if($use_history eq "\n"){
+chomp($use_history);
+if($use_history eq ""){
    $use_history=1;
 }
 
@@ -767,13 +777,13 @@ if($enable_libgeotiff== 1){
 
 if($ENV{'VSC_INSTITUTE_CLUSTER'} eq "genius"){
     $fflags77 =~ s/-nomixed-str-len-arg/-nomixed_str_len_arg/;
-    $ldflags .= " -ltirpc -lmkl -lsz -lpioc";
+    $ldflags .= " -lmkl -lpioc";
 }
 elsif($ENV{'VSC_INSTITUTE_CLUSTER'} eq "wice"){
-    $ldflags .= " -ltirpc -lmkl -lsz -lpioc";
+    $ldflags .= " -lmkl -lpioc";
 }
 elsif($ENV{'VSC_INSTITUTE_CLUSTER'} eq "dodrio") {
-    $ldflags .= " -ltirpc -lmkl -lsz -lpioc";
+    $ldflags .= " -lmkl -lpioc";
 }
 $ldflags =~ s/-L([^\s]+)/-L$1 -Wl,-rpath=$1/g;
 

@@ -278,7 +278,7 @@ elsif($opt_lev == 0) {
 }
 elsif($opt_lev == 1) {
    $sys_opt = "-O1";
-   $sys_c_opt = "O1";
+   $sys_c_opt = "-O1";
 }
 elsif($opt_lev == 2) {
    if($sys_arch eq "cray_cray") {
@@ -578,7 +578,8 @@ if($use_netcdf == 1) {
    print "NETCDF version (3 or 4, default=4): ";
    $netcdf_v=<stdin>;
    $netcdf_v=~s/ *#.*$//;
-   if($netcdf_v eq "\n"){
+   chomp($netcdf_v);
+   if($netcdf_v eq ""){
       $netcdf_v=4;
    }
 
@@ -1132,13 +1133,13 @@ $ldflags = $ldflags." -lz";
 
 if($ENV{'VSC_INSTITUTE_CLUSTER'} eq "genius"){
     $fflags77 =~ s/-nomixed-str-len-arg/-nomixed_str_len_arg/;
-    $ldflags .= " -ltirpc -lmkl -lsz -lpioc";
+    $ldflags .= " -lmkl -lpioc";
 }
 elsif($ENV{'VSC_INSTITUTE_CLUSTER'} eq "wice"){
-    $ldflags .= " -ltirpc -lmkl -lsz -lpioc";
+    $ldflags .= " -lmkl -lpioc";
 }
 elsif($ENV{'VSC_INSTITUTE_CLUSTER'} eq "dodrio") {
-    $ldflags .= " -ltirpc -lmkl -lsz -lpioc";
+    $ldflags .= " -lmkl -lpioc";
 }
 $ldflags =~ s/-L([^\s]+)/-L$1 -Wl,-rpath=$1/g;
 

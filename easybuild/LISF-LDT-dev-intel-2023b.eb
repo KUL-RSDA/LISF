@@ -1,0 +1,42 @@
+easyblock = 'MakeCp'
+
+name = 'LISF-LDT'
+version = 'dev'
+
+homepage = 'https://lis.gsfc.nasa.gov'
+description = """The Land Information System (LIS) is a software framework for high performance terrestrial hydrology modeling and data assimilation developed with the goal of integrating satellite and ground-based observational data products and advanced modeling techniques to produce optimal fields of land surface states and fluxes."""
+
+toolchain = {'name': 'intel', 'version': '2023b'}
+
+builddependencies = [
+    ('Python', '3.11.5'),
+    ('Perl', '5.38.0'),
+]
+
+dependencies = [
+    ('ecCodes', '2.31.0'),
+    ('ESMF', '8.6.1'),
+    # ('GDAL', '3.9.0'), # LDT, LVT
+    # ('HDF', '4.2.16-2', '-w-fortran-no-netCDF'),
+    ('HDF5', '1.14.3'),
+    # ('HDF-EOS2', '3.0'),
+    # ('libgeotiff', '1.7.3'), # LDT
+    ('netCDF', '4.9.2'),
+]
+
+start_dir = 'ldt'
+
+with_configure = True
+preconfigopts = "LDT_ARCH=linux_ifc LDT_FC=mpiifx LDT_CC=mpiicx LDT_MODESMF=$EBROOTESMF/mod LDT_LIBESMF=$EBROOTESMF/lib LDT_JASPER=$EBROOTJASPER LDT_ECCODES=$EBROOTECCODES LDT_NETCDF=$EBROOTNETCDF LDT_HDF4=$EBROOTHDF LDT_HDF5=$EBROOTHDF5 LDT_HDFEOS=$EBROOTHDFMINEOS2"
+configure_without_installdir = True
+
+build_cmd = './compile'
+
+files_to_copy = [(['make/LDT'], 'bin')]
+
+sanity_check_paths = {
+    'files': ['bin/LDT'],
+    'dirs': []
+}
+
+moduleclass = 'geo'

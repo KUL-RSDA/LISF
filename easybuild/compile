@@ -1,0 +1,68 @@
+#!/bin/bash
+# Basically a convenience script that does: ./configure; ./compile -j <N>
+MYPWD="$(pwd)"
+trap 'cd "$MYPWD"' EXIT # ensure we always return to original pwd
+
+ROOT="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
+cd "$ROOT"
+
+declare -A submodules
+submodules[0]='ldt'
+submodules[1]='lis'
+
+source "$ROOT/load_modules"
+
+read -r -p "Please enter the submodule to build (0-ldt, 1-lis, default: 1): " submodule
+submodule="${submodule:-1}"
+cd "../${submodules[$submodule]}"
+
+# run configure and accept defaults or choose to compile, e.g., 'debug' version
+./configure
+
+read -r -p "Please enter how to compile (0-batch, 1-interactive, default: 1): " mode
+mode="${mode:-1}"
+read -r -p "Please enter how many processes to use to compile (default: 8): " c
+c="${c:-8}"
+
+if [[ "$mode" == "1" ]]; then
+    ./compile -j "$c"
+else
+    # build opts as an array to avoid word-splitting
+    opts=()
+
+    # set a sensible default account depending on cluster
+    defA=""
+    if [[ "${VSC_INSTITUTE_CLUSTER:-}" == "genius" || "${VSC_INSTITUTE_CLUSTER:-}" == "wice" ]]; then
+        read -r -p "Please enter the cluster on which to compile (default: cluster's default): " M
+        if [[ -n "${M:-}" ]]; then
+            opts+=("-M" "$M")
+        fi
+        defA="lp_ees_swm_ls_001"
+    elif [[ "${VSC_INSTITUTE_CLUSTER:-}" == "dodrio" ]]; then
+        defA="2022_203"
+    fi
+
+    read -r -p "Please enter the partition on which to compile (default: cluster's default): " p
+    if [[ -n "${p:-}" ]]; then
+        opts+=("-p" "$p")
+    fi
+
+    read -r -p "Please enter the account with which to compile (default: ${defA:-none}): " A
+    if [[ -n "${A:-$defA}" ]]; then
+        opts+=("-A" "${A:-$defA}")
+    fi
+
+    # Build sbatch command as array
+    cmd=(sbatch)
+    if (( ${#opts[@]} )); then
+        cmd+=("${opts[@]}")
+    fi
+    cmd+=("-c" "$c" "../easybuild/compile.slurm")
+
+    # show and run
+    printf '%q ' "${cmd[@]}"
+    echo
+    "${cmd[@]}"
+fi
+
+cd "$MYPWD"
