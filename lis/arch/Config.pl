@@ -278,7 +278,7 @@ elsif($opt_lev == 0) {
 }
 elsif($opt_lev == 1) {
    $sys_opt = "-O1";
-   $sys_c_opt = "O1";
+   $sys_c_opt = "-O1";
 }
 elsif($opt_lev == 2) {
    if($sys_arch eq "cray_cray") {

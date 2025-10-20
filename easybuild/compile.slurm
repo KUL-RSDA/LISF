@@ -10,4 +10,3 @@ cd $SLURM_SUBMIT_DIR
 source ../easybuild/load_modules
 
 ./compile -j $SLURM_CPUS_PER_TASK
-
