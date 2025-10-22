@@ -364,15 +364,21 @@ contains
 
 #if(defined USE_NETCDF3 || defined USE_NETCDF4) 
 
+       write(LIS_logunit,*) '[DEBUG] n, ncold, nrold = ', n, era5_struc(n)%ncold, era5_struc(n)%nrold
+
        allocate(era5_struc(n)%G2P(era5_struc(n)%ncold,&
                era5_struc(n)%nrold))
        
+       write(LIS_logunit,*) '[DEBUG] mapfile = ', trim(era5_struc(n)%mapfile)
+
        call LIS_verify(nf90_open(path=trim(era5_struc(n)%mapfile), &
             mode=NF90_NOWRITE, &
           ncid=ftn), 'nf90_open failed for '//trim(era5_struc(n)%mapfile))
 
        call LIS_verify(nf90_inq_varid(ftn,'G2P',G2PId), &
             'nf90_inq_varid failed for G2P in read_era5')
+
+       write(LIS_logunit,*) '[DEBUG] ftn, G2PId = ', ftn, G2PId
 
        call LIS_verify(nf90_get_var(ftn,G2PId, era5_struc(n)%G2P),&
             'nf90_get_var failed for G2P in read_era5') 
