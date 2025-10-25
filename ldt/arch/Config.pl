@@ -100,23 +100,19 @@ if($opt_lev == -3) {
    # Default flags for C.
     $sys_c_opt = "-g";
     if($sys_arch eq "linux_ifc"){
-	$sys_opt = "-g -warn";
-	$sys_opt .= 
-	    " -check bounds,format,output_conversion,pointers,stack,uninit";
-	$sys_opt .= " -fp-stack-check -ftrapuv ";
+      $sys_opt = "-g -O0 -traceback -fno-omit-frame-pointer";
+      # Compile-time checks
+      $sys_opt .= " -diag-disable=remark,8889,6717,5462 -warn all,nounused -nogen-interfaces"; # We do not care about 8889, 6717, 5462, unused warnings.
+      # Run-time checks
+      $sys_opt .= " -check all,nouninit,noarg_temp_created"; # nouninit triggers Memory Sanitizer. To avoid, because dependencies were not compiled with it. noarg_temp_created triggers too many warnings.
+      $sys_opt .= " -ftrapuv ";
 	
-	$sys_c_opt = "-g -Wall -Wcast-qual -Wcheck -Wdeprecated";
-	$sys_c_opt .= " -Wextra-tokens -Wformat";
-	$sys_c_opt .= " -Wformat-security -Wmissing-declarations";
-	$sys_c_opt .= " -Wmissing-prototypes -Wpointer-arith -Wremarks";
-	$sys_c_opt .= " -Wreturn-type -Wshadow -Wsign-compare";
-	$sys_c_opt .= " -Wstrict-prototypes -Wtrigraphs -Wuninitialized";
-	$sys_c_opt .= " -Wunused-function -Wunused-parameter";
-	$sys_c_opt .= " -Wunused-variable -Wwrite-strings";
-	# Run-time flags
-	$sys_c_opt .= " -check=conversions,stack,uninit";
-	$sys_c_opt .= " -fp-stack-check -fp-trap=common -fp-trap-all=common";
-	$sys_c_opt .= " -ftrapuv";
+      $sys_c_opt = "-g -O0 -traceback -fno-omit-frame-pointer";
+      # Compile-time checks
+      $sys_c_opt .= " -pedantic -Wall -Wno-empty-translation-unit -Wno-unused-command-line-argument -Wno-strict-prototypes -Wcomment -Wdeprecated -Wextra-tokens -Wformat -Wformat-security -Wmain -Wmissing-declarations -Wpointer-arith -Wreturn-type -Wshadow -Wsign-compare -Wstrict-aliasing -Wtrigraphs -Wuninitialized -Wunknown-pragmas -Wunused-function -Wwrite-strings";
+      # Run-time checks
+      # $sys_c_opt .= " -fsanitize=address,leak,undefined -fno-sanitize-recover=address,leak,undefined -fsanitize-address-use-after-scope -fsanitize-trap"; # Enable sanitizers and make them fatal. We disable this, because linking mixed C/Fortran code with sanitizers is nontrivial. We will postpone this to future vesions of Intel OneAPI compilers.
+      $sys_c_opt .= " -fstack-protector-strong -fstack-clash-protection -fstack-security-check -ftrapv";
     }
     elsif($sys_arch eq "linux_pgi") {
 	print "Optimization level $opt_lev is not defined for $sys_arch.\n";
@@ -413,9 +409,6 @@ if($use_hdf4 == 1) {
    if(defined($ENV{LDT_HDF4})){
       $sys_hdf4_path = $ENV{LDT_HDF4};
       $inc = "/include/";
-      if($ENV{'VSC_INSTITUTE_CLUSTER'} eq "genius"){
-         $inc .= "hdf/";
-      }
       $lib = "/lib/";
       $inc_hdf4=$sys_hdf4_path.$inc;
       $lib_hdf4=$sys_hdf4_path.$lib;
@@ -775,16 +768,7 @@ if($enable_libgeotiff== 1){
     $ldflags = $ldflags." -L\$(LIB_LIBGEOTIFF) ".$tiffpath." -ltiff -lgeotiff -lm -lz ".$libjpeg." ".$tiffdeps;
 }
 
-if($ENV{'VSC_INSTITUTE_CLUSTER'} eq "genius"){
-    $fflags77 =~ s/-nomixed-str-len-arg/-nomixed_str_len_arg/;
-    $ldflags .= " -lmkl -lpioc";
-}
-elsif($ENV{'VSC_INSTITUTE_CLUSTER'} eq "wice"){
-    $ldflags .= " -lmkl -lpioc";
-}
-elsif($ENV{'VSC_INSTITUTE_CLUSTER'} eq "dodrio") {
-    $ldflags .= " -lmkl -lpioc";
-}
+$ldflags .= " -lmkl -lpioc";
 $ldflags =~ s/-L([^\s]+)/-L$1 -Wl,-rpath=$1/g;
 
 open(conf_file,">configure.ldt");
