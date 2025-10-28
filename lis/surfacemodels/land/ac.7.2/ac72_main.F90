@@ -185,6 +185,7 @@ subroutine AC72_main(n)
        SetEndSeason,&
        SetEpot,&
        SetETo,&
+       SetEToFile,&
        SetEToRecord,&
        SetEvapoEntireSoilSurface,&
        SetGenerateDepthMode,&
@@ -219,6 +220,7 @@ subroutine AC72_main(n)
        SetPerennialPeriod,&
        SetPreDay,&
        SetRain,&
+       SetRainFile,&
        SetRainRecord,&
        SetRootingDepth,&
        SetRootZoneSalt,&
@@ -792,6 +794,8 @@ subroutine AC72_main(n)
          call SetOut3Prof(.true.) ! needed for correct rootzone sm
          call SetOutDaily(.true.)
          call SetTemperatureFile("(External)") ! to provent writing to console
+         call SetEToFile("(External)") ! avoids going into the wrong if statement in AdvanceOneTimeStep
+         call SetRainFile("(External)") ! same as for SetEToFile
 
          call SetTminRun(AC72_struc(n)%ac72(t)%Tmin_record)
          call SetTmaxRun(AC72_struc(n)%ac72(t)%Tmax_record)
