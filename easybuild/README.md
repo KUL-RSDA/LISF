@@ -10,7 +10,7 @@ Next, source the `load_easybuild.sh` script. This will ask you where to install 
 ```bash
 source /data/leuven/314/vsc31497/software/src/HPC/tools/stable/easybuild/load_easybuild.sh
 ```
-A directory in your `$VSC_DATA` is proposed according to the convention within RSDA. Please accept it unless you have good reasons not to.
+A directory in your `$VSC_DATA` is proposed. Please accept it unless you know what you are doing.
 
 Now, you are ready to start building LIS or LDT. First, make sure you are in the top directory of LISF, so not in the `ldt` or the `lis` subdirectory. Then run:
 ```bash
