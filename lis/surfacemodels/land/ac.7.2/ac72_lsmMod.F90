@@ -75,6 +75,10 @@ module AC72_lsmMod
   !   reference height of forcings u and v
   ! \item[tempcli_refyr]
   !   reference year for climatology record for stress functions
+  ! \item[InitializeRun]
+  !   flag for AquaCrop simulation initialization
+  ! \item[read_Trecord]
+  !   flag for AquaCrop to read the meteo record of the next simulation year
 
   !
   ! !REVISION HISTORY:
@@ -143,6 +147,9 @@ module AC72_lsmMod
      real               :: refz_tq
      real               :: refz_uv
      integer            :: tempcli_refyr
+     integer            :: InitializeRun
+     integer            :: read_Trecord
+     integer            :: irun
      type(AC72dec), pointer :: ac72(:)
   end type AC72_type_dec
 
