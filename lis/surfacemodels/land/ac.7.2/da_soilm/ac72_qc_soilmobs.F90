@@ -12,8 +12,7 @@
 ! \label{ac72_qc_soilmobs}
 !
 ! !REVISION HISTORY:
-! 25Feb2008: Sujay Kumar: Initial Specification
-! 1 Aug 2016: Mahdi Navari; Modified for ac72 
+! 19 Nov 2025: Michel Bechtold; initial implementation
 !
 ! !INTERFACE:
 subroutine ac72_qc_soilmobs(n,k,OBS_State)
@@ -57,43 +56,15 @@ subroutine ac72_qc_soilmobs(n,k,OBS_State)
   real                     :: lat,lon
 
 ! mn
-  real                     :: smc1(LIS_rc%npatch(n,LIS_rc%lsm_index))
-  real                     :: smc2(LIS_rc%npatch(n,LIS_rc%lsm_index))
-  real                     :: smc3(LIS_rc%npatch(n,LIS_rc%lsm_index))
-  real                     :: smc4(LIS_rc%npatch(n,LIS_rc%lsm_index))
-  real                     :: smcwlt(LIS_rc%npatch(n,LIS_rc%lsm_index))
+  real                     :: smcmin(LIS_rc%npatch(n,LIS_rc%lsm_index))
   real                     :: smcmax(LIS_rc%npatch(n,LIS_rc%lsm_index))
-  real                     :: sh2o1(LIS_rc%npatch(n,LIS_rc%lsm_index))
-  real                     :: sh2o2(LIS_rc%npatch(n,LIS_rc%lsm_index))
-  real                     :: sh2o3(LIS_rc%npatch(n,LIS_rc%lsm_index))
-  real                     :: sh2o4(LIS_rc%npatch(n,LIS_rc%lsm_index))
-  real                     :: stc1(LIS_rc%npatch(n,LIS_rc%lsm_index))
-  real                     :: stc2(LIS_rc%npatch(n,LIS_rc%lsm_index))
-  real                     :: stc3(LIS_rc%npatch(n,LIS_rc%lsm_index))
-  real                     :: stc4(LIS_rc%npatch(n,LIS_rc%lsm_index))
-  real                     :: vegt(LIS_rc%npatch(n,LIS_rc%lsm_index))
 
   real                     :: rainf_obs(LIS_rc%obs_ngrid(k))
   real                     :: sneqv_obs(LIS_rc%obs_ngrid(k))
   real                     :: sca_obs(LIS_rc%obs_ngrid(k))
   real                     :: shdfac_obs(LIS_rc%obs_ngrid(k))
-  real                     :: t1_obs(LIS_rc%obs_ngrid(k))
-  real                     :: smcwlt_obs(LIS_rc%obs_ngrid(k))
   real                     :: smcmax_obs(LIS_rc%obs_ngrid(k))
-  real                     :: smc1_obs(LIS_rc%obs_ngrid(k))
-  real                     :: smc2_obs(LIS_rc%obs_ngrid(k))
-  real                     :: smc3_obs(LIS_rc%obs_ngrid(k))
-  real                     :: smc4_obs(LIS_rc%obs_ngrid(k))
-  real                     :: sh2o1_obs(LIS_rc%obs_ngrid(k))
-  real                     :: sh2o2_obs(LIS_rc%obs_ngrid(k))
-  real                     :: sh2o3_obs(LIS_rc%obs_ngrid(k))
-  real                     :: sh2o4_obs(LIS_rc%obs_ngrid(k))
-  real                     :: stc1_obs(LIS_rc%obs_ngrid(k))
-  real                     :: stc2_obs(LIS_rc%obs_ngrid(k))
-  real                     :: stc3_obs(LIS_rc%obs_ngrid(k))
-  real                     :: stc4_obs(LIS_rc%obs_ngrid(k))
-  real                     :: vegt_obs(LIS_rc%obs_ngrid(k))
-  ! MB
+  real                     :: smcmin_obs(LIS_rc%obs_ngrid(k))
   real                     :: TMIN_ac(LIS_rc%npatch(n,LIS_rc%lsm_index))
   real                     :: TMIN_ac_obs(LIS_rc%obs_ngrid(k))
 
@@ -106,9 +77,8 @@ subroutine ac72_qc_soilmobs(n,k,OBS_State)
        "ESMF_FieldGet failed in ac72_qc_soilmobs")
   
   do t=1, LIS_rc%npatch(n,LIS_rc%lsm_index)
-     smc1(t) = ac72_struc(n)%ac72(t)%smc(1)
      smcmax(t) = AC72_struc(n)%ac72(t)%SoilLayer(1)%sat/100.
-     smcwlt(t) = AC72_struc(n)%ac72(t)%SoilLayer(1)%wp/100.
+     smcmin(t) = 0.0
      TMIN_ac(t)    = AC72_struc(n)%ac72(t)%tmin  - LIS_CONST_TKFRZ
   enddo
 
@@ -118,31 +88,28 @@ subroutine ac72_qc_soilmobs(n,k,OBS_State)
        smcmax_obs)
   call LIS_convertPatchSpaceToObsSpace(n,k,&
        LIS_rc%lsm_index, &
-       smcwlt,&
-       smcwlt_obs)
-  call LIS_convertPatchSpaceToObsSpace(n,k,&
-       LIS_rc%lsm_index, &
-       smc1,&
-       smc1_obs)
+       smcmin,&
+       smcmin_obs)
   call LIS_convertPatchSpaceToObsSpace(n,k,&
        LIS_rc%lsm_index, &
        TMIN_ac,&
        TMIN_ac_obs)
 
-  do t = 1,LIS_rc%obs_ngrid(k)
 
+
+  do t = 1,LIS_rc%obs_ngrid(k)
      if(smobs(t).ne.LIS_rc%udef) then 
 ! MB: check for frozen soil
-        if(TMIN_ac_obs(t) .lt. -300.0) then 
+! AquaCrop does not have a temperature model
+! Filtering is based on air temperature 
+! Currently turned off for soil moisture DA assuming it is flagged in the retrieval already
+        if(TMIN_ac_obs(t) .lt. -9999.0) then 
            smobs(t) = LIS_rc%udef
 !too close to the tails, could be due to scaling, so reject. 
         elseif(AC72_struc(n)%QC_opt.eq..true.) then
-            !write(LIS_logunit,*) '[MB] smcmax_obs(t) ', smcmax_obs(t)
-            !write(LIS_logunit,*) '[MB] smcwlt_obs(t) ', smcwlt_obs(t)
-            !write(LIS_logunit,*) '[MB] smobs(t) ', smobs(t)
             if(smcmax_obs(t)-smobs(t).lt.0.02) then 
                smobs(t) = LIS_rc%udef
-            elseif(smobs(t) - smcwlt_obs(t).lt.0.02) then 
+            elseif(smobs(t)-smcmin_obs(t).lt.0.02) then 
                smobs(t) = LIS_rc%udef
            endif
         endif

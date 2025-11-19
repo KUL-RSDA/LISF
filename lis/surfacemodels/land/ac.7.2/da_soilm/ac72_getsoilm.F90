@@ -12,11 +12,8 @@
 ! \label{ac72_getsoilm}
 !
 ! !REVISION HISTORY:
-! 27Feb2005: Sujay Kumar; Initial Specification
-! 25Jun2006: Sujay Kumar: Updated for the ESMF design
-! 1 Aug 2016: Mahdi Navari; Modified for ac72 
-!   To do: makes it general for x layers (currently hard coded for 4 layers)
-! 18 Jun 2021: Michel Bechtold: SM and Biomass updating with S1 backscatter w/ WCM
+! 19 Nov 2025: Michel Bechtold; initial implementation
+!
 ! !INTERFACE:
 subroutine ac72_getsoilm(n, LSM_State)
 

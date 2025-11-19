@@ -12,10 +12,7 @@
 ! \label{ac72_getsmpred}
 !
 ! !REVISION HISTORY:
-! 27Feb2005: Sujay Kumar; Initial Specification
-! 25Jun2006: Sujay Kumar: Updated for the ESMF design
-! 9 Sep 2016: Mahdi Navari 
-! 23 Nov 2022: Michel Bechtold, Modified for ac72 
+! 19 Nov 2025: Michel Bechtold; initial implementation
 !
 ! !INTERFACE:
 subroutine ac72_getsmpred(n, k,obs_pred)
@@ -55,22 +52,18 @@ subroutine ac72_getsmpred(n, k,obs_pred)
 
 
   do t=1, LIS_rc%npatch(n,LIS_rc%lsm_index)
-     w1 = 0.1
+     w1 = 1.0/6.0
      smc1(t) = w1*AC72_struc(n)%ac72(t)%smc(1) + & 
                w1*AC72_struc(n)%ac72(t)%smc(2) + &
                w1*AC72_struc(n)%ac72(t)%smc(3) + &
                w1*AC72_struc(n)%ac72(t)%smc(4) + &
                w1*AC72_struc(n)%ac72(t)%smc(5) + &
-               w1*AC72_struc(n)%ac72(t)%smc(6) + &
-               w1*AC72_struc(n)%ac72(t)%smc(7) + &
-               w1*AC72_struc(n)%ac72(t)%smc(8) + &
-               w1*AC72_struc(n)%ac72(t)%smc(9) + &
-               w1*AC72_struc(n)%ac72(t)%smc(10)
+               w1*AC72_struc(n)%ac72(t)%smc(6)
   enddo
   call LIS_convertPatchSpaceToObsEnsSpace(n,k,&
        LIS_rc%lsm_index, &
        smc1,&
        obs_pred)
-  
+
 end subroutine ac72_getsmpred
 

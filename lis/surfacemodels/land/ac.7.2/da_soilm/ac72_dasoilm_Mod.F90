@@ -17,8 +17,7 @@ module ac72_dasoilm_Mod
 !  
 ! !REVISION HISTORY:
 
-! Sujay Kumar; Initial Code
-! 9 Sep 2016: Mahdi Navari; Modified for ac72 !
+! 19 Nov 2025: Michel Bechtold; initial implementation 
 
 ! !USES:        
   use ESMF

@@ -12,10 +12,7 @@
 ! \label{ac72_qcsoilm}
 !
 ! !REVISION HISTORY:
-! 27Feb2005: Sujay Kumar; Initial Specification
-! 25Jun2006: Sujay Kumar: Updated for the ESMF design
-! 1 Aug 2016: Mahdi Navari; Modified for ac72 
-! 18 Jun 2021: Michel Bechtold: SM and Biomass updating with S1 backscatter w/ WCM
+! 19 Nov 2025: Michel Bechtold; initial implementation
 !
 ! !INTERFACE:
 subroutine ac72_qcsoilm(n, LSM_State)
@@ -45,20 +42,6 @@ subroutine ac72_qcsoilm(n, LSM_State)
   type(ESMF_Field)       :: sm1Field
   type(ESMF_Field)       :: sm2Field
   type(ESMF_Field)       :: sm3Field
-  integer                :: t
-  integer                :: status
-  real, pointer          :: soilm1(:)
-  real, pointer          :: soilm2(:)
-  real, pointer          :: soilm3(:)
-  real                   :: smmax1,smmax2,smmax3
-  real                   :: smmin1,smmin2,smmin3
-  integer                :: gid
-
-  logical                :: update_flag(LIS_rc%ngrid(n))
-  real                   :: perc_violation(LIS_rc%ngrid(n))
-  integer                :: N_ens
-  real                   :: state_tmp(LIS_rc%nensem(n)),state_mean
-
   type(ESMF_Field)       :: sm4Field
   type(ESMF_Field)       :: sm5Field
   type(ESMF_Field)       :: sm6Field
@@ -66,7 +49,11 @@ subroutine ac72_qcsoilm(n, LSM_State)
   type(ESMF_Field)       :: sm8Field
   type(ESMF_Field)       :: sm9Field
   type(ESMF_Field)       :: sm10Field
-
+  integer                :: t
+  integer                :: status
+  real, pointer          :: soilm1(:)
+  real, pointer          :: soilm2(:)
+  real, pointer          :: soilm3(:)
   real, pointer          :: soilm4(:)
   real, pointer          :: soilm5(:)
   real, pointer          :: soilm6(:)
@@ -74,11 +61,18 @@ subroutine ac72_qcsoilm(n, LSM_State)
   real, pointer          :: soilm8(:)
   real, pointer          :: soilm9(:)
   real, pointer          :: soilm10(:)
-
+  real                   :: smmax1,smmax2,smmax3
+  real                   :: smmin1,smmin2,smmin3
   real                   :: smmax4, smmax5, smmax6, smmax7, smmax8, smmax9, smmax10
   real                   :: smmin4, smmin5, smmin6, smmin7, smmin8, smmin9, smmin10
+  integer                :: gid
 
+  logical                :: update_flag(LIS_rc%ngrid(n))
+  real                   :: perc_violation(LIS_rc%ngrid(n))
+  integer                :: N_ens
+  real                   :: state_tmp(LIS_rc%nensem(n)),state_mean
 
+  ! Layer 1
   call ESMF_StateGet(LSM_State,"Soil Moisture Layer 1",sm1Field,rc=status)
   call LIS_verify(status,&
        "ESMF_StateGet for Soil Moisture Layer 1 failed in ac72_qcsoilm")

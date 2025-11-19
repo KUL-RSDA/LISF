@@ -2677,6 +2677,26 @@ subroutine LIS_lsmda_plugin
    call registerlsmdaupdatestate(trim(LIS_ac72Id)//"+"//&
         trim(LIS_NASASMAPsmobsId )//char(0),ac72_updatesoilm)
 
+! aquacrop.7.2 SMAP(NASA) root zone soil moisture
+   call registerlsmdainit(trim(LIS_ac72Id)//"+"//&
+        trim(LIS_SMAP_AC72rzmcobsId )//char(0),ac72_dasoilm_init)
+   call registerlsmdagetstatevar(trim(LIS_ac72Id)//"+"//&
+        trim(LIS_SMAP_AC72rzmcobsId )//char(0),ac72_getsoilm)
+   call registerlsmdasetstatevar(trim(LIS_ac72Id)//"+"//&
+        trim(LIS_SMAP_AC72rzmcobsId )//char(0),ac72_setsoilm)
+   call registerlsmdagetobspred(trim(LIS_ac72Id)//"+"//&
+        trim(LIS_SMAP_AC72rzmcobsId )//char(0),ac72_getsmpred)
+   call registerlsmdaqcstate(trim(LIS_ac72Id)//"+"//&
+        trim(LIS_SMAP_AC72rzmcobsId )//char(0),ac72_qcsoilm)
+   call registerlsmdaqcobsstate(trim(LIS_ac72Id)//"+"//&
+        trim(LIS_SMAP_AC72rzmcobsId )//char(0),ac72_qc_soilmobs)
+   call registerlsmdascalestatevar(trim(LIS_ac72Id)//"+"//&
+        trim(LIS_SMAP_AC72rzmcobsId )//char(0),ac72_scale_soilm)
+   call registerlsmdadescalestatevar(trim(LIS_ac72Id)//"+"//&
+        trim(LIS_SMAP_AC72rzmcobsId )//char(0),ac72_descale_soilm)
+   call registerlsmdaupdatestate(trim(LIS_ac72Id)//"+"//&
+        trim(LIS_SMAP_AC72rzmcobsId )//char(0),ac72_updatesoilm)
+
 #endif
 
 #if ( defined SM_NOAHMP_4_0_1 )

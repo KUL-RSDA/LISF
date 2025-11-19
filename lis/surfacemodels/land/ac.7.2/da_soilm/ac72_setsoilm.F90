@@ -12,11 +12,7 @@
 !  \label{ac72_setsoilm}
 !
 ! !REVISION HISTORY:
-! 27Feb2005: Sujay Kumar; Initial Specification
-! 25Jun2006: Sujay Kumar: Updated for the ESMF design
-! 9 Sep 2016: Mahdi Navari: Modified for ac72 
-! 18Apr 2018: Mahdi Navari: Bug fixed
-! 18 Jun 2021: Michel Bechtold: SM and  updating with S1 backscatter w/ WCM
+! 19 Nov 2025: Michel Bechtold; initial implementation, based on NoahMP4.0.1 SM DA module
 ! 
 ! Apply the update if it met the update conditions
 ! Update conditions: 
@@ -52,7 +48,7 @@ subroutine ac72_setsoilm(n, LSM_State)
 ! 
 !EOP
   real, parameter        :: MIN_THRESHOLD = 0.02 
-  real                   :: MAX_threshold
+  real                   :: MAX_THRESHOLD
   real                   :: sm_threshold
   type(ESMF_Field) :: sm1Field, sm2Field, sm3Field, sm4Field, sm5Field, sm6Field, sm7Field, sm8Field, sm9Field, sm10Field
   real, pointer          :: soilm1(:), soilm2(:), soilm3(:), soilm4(:), soilm5(:)

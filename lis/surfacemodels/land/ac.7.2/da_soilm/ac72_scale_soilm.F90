@@ -12,9 +12,7 @@
 ! \label{ac72_scale_soilm}
 !
 ! !REVISION HISTORY:
-! 27Feb2005: Sujay Kumar; Initial Specification
-! 25Jun2006: Sujay Kumar: Updated for the ESMF design
-! 1 Aug 2016: Mahdi Navari; Modified for ac72 
+! 19 Nov 2025: Michel Bechtold; initial implementation
 !
 ! !INTERFACE:
 subroutine ac72_scale_soilm(n, LSM_State)

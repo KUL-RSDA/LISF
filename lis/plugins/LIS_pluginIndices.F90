@@ -237,6 +237,7 @@ module LIS_pluginIndices
    character*50, public,  parameter :: LIS_NASA_AMSREsmobsId   = "AMSR-E(NASA) soil moisture"
    character*50, public,  parameter :: LIS_LPRM_AMSREsmobsId   = "AMSR-E(LPRM) soil moisture"
    character*50, public,  parameter :: LIS_ESACCIsmobsId       = "ESA CCI soil moisture"
+   character*50, public,  parameter :: LIS_SMAP_AC72rzmcobsId  = "SMAP AC72 root zone soil moisture"
    character*50, public,  parameter :: LIS_WindSatsmobsId      = "Windsat"
    character*50, public,  parameter :: LIS_WindSatCsmobsId     = "Windsat C-band"
    character*50, public,  parameter :: LIS_snodepobsId         = "SNODEP"
