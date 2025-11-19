@@ -2899,6 +2899,30 @@ contains
 #endif
     endif ! minMaxOpt
 
+    ! Now handle _std, if requested.
+    if (dataEntry%stdOpt.gt.0) then
+       call LIS_verify(nf90_def_var(ftn, &
+            trim(dataEntry%short_name)//"_std", &
+            nf90_float, &
+            dimids = dimID(start:end), &
+            varID=dataEntry%varId_std), &
+            'nf90_def_var for ' // &
+            trim(dataEntry%short_name) // "_std" // &
+            'failed in defineNETCDFheadervar')
+#if(defined USE_NETCDF4)
+       call LIS_verify(nf90_def_var_fill(ftn, &
+            dataEntry%varId_std, &
+            1, fill_value), 'nf90_def_var_fill failed for '// &
+            trim(dataEntry%short_name)//"_std")
+       call LIS_verify(nf90_def_var_deflate(ftn, &
+            dataEntry%varId_std, &
+            shuffle, deflate, deflate_level), &
+            'nf90_def_var_deflate for '// &
+            trim(dataEntry%short_name)//"_std" // &
+            'failed in defineNETCDFheadervar')
+#endif
+    endif ! stdOpt
+
     ! Now add attributes
     call LIS_verify(nf90_put_att(ftn,dataEntry%varId_def, &
          "units", trim(dataEntry%units)), &
@@ -3021,6 +3045,39 @@ contains
             'nf90_put_att for vmax failed in defineNETCDFheaderVar')
     endif
 
+    ! Add metadata for std variables
+    if (dataEntry%stdOpt.gt.0) then
+
+       ! Min metadata
+       call LIS_verify(nf90_put_att(ftn, dataEntry%varId_std, &
+            "units", trim(dataEntry%units)), &
+            'nf90_put_att for units failed in defineNETCDFheaderVar')
+       call LIS_verify(nf90_put_att(ftn, dataEntry%varId_std, &
+            "standard_name", trim(dataEntry%standard_name)), &
+            'nf90_put_att for standard_name failed in defineNETCDFheaderVar')
+       call LIS_verify(nf90_put_att(ftn, dataEntry%varId_std, &
+            "long_name", trim(dataEntry%long_name)), &
+            'nf90_put_att for long_name failed in defineNETCDFheaderVar')
+       call LIS_verify(nf90_put_att(ftn,dataEntry%varId_std, &
+            "scale_factor", 1.0), &
+            'nf90_put_att for scale_factor failed in defineNETCDFheaderVar')
+       call LIS_verify(nf90_put_att(ftn, dataEntry%varId_std, &
+            "add_offset", 0.0), &
+            'nf90_put_att for add_offset failed in defineNETCDFheaderVar')
+       call LIS_verify(nf90_put_att(ftn, dataEntry%varId_std, &
+            "missing_value", LIS_rc%udef), &
+            'nf90_put_att for missing_value failed in defineNETCDFheaderVar')
+       call LIS_verify(nf90_put_att(ftn, dataEntry%varId_std, &
+            "_FillValue", LIS_rc%udef), &
+            'nf90_put_att for _FillValue failed in defineNETCDFheaderVar')
+       call LIS_verify(nf90_put_att(ftn, dataEntry%varId_std, &
+            "vmin", dataEntry%valid_min), &
+            'nf90_put_att for vmin failed in defineNETCDFheaderVar')
+       call LIS_verify(nf90_put_att(ftn, dataEntry%varId_std, &
+            "vmax", dataEntry%valid_max), &
+            'nf90_put_att for vmax failed in defineNETCDFheaderVar')
+    endif
+
 #endif
   end subroutine defineNETCDFheaderVar
 
@@ -3060,7 +3117,7 @@ contains
 !     writes a variable into a netcdf formatted file. 
 !   \end{description}
 !EOP    
-    integer       :: i,k,m,t
+    integer       :: k,m,t
     integer       :: nmodel_status
 
     nmodel_status = 0
@@ -3137,7 +3194,15 @@ contains
                   trim(dataEntry%short_name)//'_max ('//&
                   trim(dataEntry%units)//')',&
                   dataEntry%form,nmodel_status,dim1=k)
-             
+          endif
+          ! Instantaneous stdev
+          if( dataEntry%stdOpt.ne.0) then 
+             call LIS_writevar_netcdf(ftn,ftn_stats, n,&
+                  dataEntry%std(:,k),&
+                  dataEntry%varId_std, &
+                  trim(dataEntry%short_name)//'_std ('//&
+                  trim(dataEntry%units)//')',&
+                  dataEntry%form,nmodel_status,dim1=k)
           endif
        enddo
     endif
