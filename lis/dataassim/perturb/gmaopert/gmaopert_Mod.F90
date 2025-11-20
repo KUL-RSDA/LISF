@@ -49,6 +49,7 @@ module gmaopert_Mod
   PUBLIC :: gmaoperturb
   PUBLIC :: gmaopert_readrestart
   PUBLIC :: gmaopert_writerestart
+  PUBLIC :: forcPert, forcpertdec
 
   type forcpertdec
      integer                                     :: N_x, N_y

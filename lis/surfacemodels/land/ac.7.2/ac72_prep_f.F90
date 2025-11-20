@@ -120,10 +120,10 @@ contains
     use LIS_coreMod,        only: LIS_rc, LIS_surface, LIS_resetTimeMgr
     use LIS_FORC_AttributesMod
     use LIS_logMod,         only: LIS_logunit, LIS_verify
-    use LIS_metForcingMod,  only: LIS_get_met_forcing, LIS_FORC_State
+    use LIS_metForcingMod,  only: LIS_get_met_forcing, LIS_perturb_forcing, LIS_FORC_State
     use LIS_PRIV_rcMod,     only: lisrcdec
     use LIS_timeMgrMod,     only: LIS_advance_timestep, LIS_is_last_step
-    use gmaopert_Mod,       only: forcPert
+    use gmaopert_Mod,       only: forcPert, forcpertdec
 
 
     !
@@ -160,8 +160,8 @@ contains
     allocate(forcPert_saved(LIS_rc%nforcepert))
     do k = 1, LIS_rc%nforcepert
       ! allocate deep copies
-      allocate(forcPert_saved(k)%Forcepert_rseed, source=forcPert(k)%Forcepert_rseed)
-      allocate(forcPert_saved(k)%Forcepert_ntrmdt, source=forcPert(k)%Forcepert_ntrmdt)
+      allocate(forcPert_saved(k)%Forcepert_rseed, source=forcPert(n,k)%Forcepert_rseed)
+      allocate(forcPert_saved(k)%Forcepert_ntrmdt, source=forcPert(n,k)%Forcepert_ntrmdt)
     end do
 
     ! Re-initialize met forcings
@@ -237,8 +237,8 @@ contains
     LIS_rc = LIS_rc_saved
     ! Restore full forcing perturbation state
     do k = 1, LIS_rc%nforcepert
-      forcPert(k)%Forcepert_rseed  = forcPert_saved(k)%Forcepert_rseed
-      forcPert(k)%Forcepert_ntrmdt = forcPert_saved(k)%Forcepert_ntrmdt
+      forcPert(n,k)%Forcepert_rseed  = forcPert_saved(k)%Forcepert_rseed
+      forcPert(n,k)%Forcepert_ntrmdt = forcPert_saved(k)%Forcepert_ntrmdt
     end do
     deallocate(forcPert_saved)
 
