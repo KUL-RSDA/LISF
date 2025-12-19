@@ -69,8 +69,6 @@ module AC72_lsmMod
   !   maximum number of compartments (=12)
   ! \item[Thickness]
   !   thickness of soil layers
-  ! \item[refz_tq]
-  !   reference height of forcings T and q
   ! \item[refz_uv]
   !   reference height of forcings u and v
   ! \item[tempcli_refyr]
@@ -144,7 +142,6 @@ module AC72_lsmMod
      integer            :: NrSoilLayers
      integer            :: max_No_compartments
      real, pointer      :: Thickness(:)
-     real               :: refz_tq
      real               :: refz_uv
      integer            :: tempcli_refyr
      integer            :: InitializeRun
