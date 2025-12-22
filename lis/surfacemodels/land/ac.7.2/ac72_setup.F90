@@ -631,12 +631,16 @@ subroutine AC72_setup()
               row = LIS_surface(n, mtype)%tile(t)%row
 
               ! Apply lapse-rate correction if turned on (to 2 m above surface)
-              if (LIS_rc%met_ecor(m) == "lapse-rate") then
-                 tmp = placeholder(col, row) + (lapse * &
-                       (LIS_domain(n)%tile(t)%elev &
-                       - LIS_forc(n,m)%modelelev(LIS_domain(n)%tile(t)%index) + 2))
+              if (LIS_forc(n,m)%modelelev(LIS_domain(n)%tile(t)%index).ne.-9999.) then
+                 if (LIS_rc%met_ecor(m) == "lapse-rate") then
+                    tmp = placeholder(col, row) + (lapse * &
+                          (LIS_domain(n)%tile(t)%elev &
+                          - LIS_forc(n,m)%modelelev(LIS_domain(n)%tile(t)%index) + 2))
+                 else
+                    tmp = placeholder(col, row)
+                 endif
               else
-                 tmp = placeholder(col, row)
+                 tmp = -9999.
               endif
               ! Climatology is rounded to 2 decimals in AquaCrop and converted to degree Celsius
               AC72_struc(n)%ac72(t)%tmincli_monthly(k) = anint(tmp*100)/100 - LIS_CONST_TKFRZ
@@ -652,12 +656,16 @@ subroutine AC72_setup()
               row = LIS_surface(n, mtype)%tile(t)%row
 
               ! Apply lapse-rate correction if turned on (to 2 m above surface)
-              if (LIS_rc%met_ecor(m) == "lapse-rate") then
-                 tmp = placeholder(col, row) + (lapse * &
-                       (LIS_domain(n)%tile(t)%elev &
-                       - LIS_forc(n,m)%modelelev(LIS_domain(n)%tile(t)%index) + 2))
+              if (LIS_forc(n,m)%modelelev(LIS_domain(n)%tile(t)%index).ne.-9999.) then
+                 if (LIS_rc%met_ecor(m) == "lapse-rate") then
+                    tmp = placeholder(col, row) + (lapse * &
+                          (LIS_domain(n)%tile(t)%elev &
+                          - LIS_forc(n,m)%modelelev(LIS_domain(n)%tile(t)%index) + 2))
+                 else
+                    tmp = placeholder(col, row)
+                 endif
               else
-                 tmp = placeholder(col, row)
+                 tmp = -9999.
               endif
 
               ! Climatology is rounded to 2 decimals in AquaCrop
