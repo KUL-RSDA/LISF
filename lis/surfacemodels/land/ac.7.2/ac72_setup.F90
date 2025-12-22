@@ -643,7 +643,7 @@ subroutine AC72_setup()
            enddo
         enddo
 
-        write(LIS_logunit,*) "[INFO] AC72: reading parameter AC_Tmin_clim_"//trim(LIS_rc%metforc(m))//" from ",&
+        write(LIS_logunit,*) "[INFO] AC72: reading parameter AC_Tmax_clim_"//trim(LIS_rc%metforc(m))//" from ",&
               trim(LIS_rc%paramfile(n))
         do k = 1, 12
            call AC72_read_MULTILEVEL_param(n, trim(AC72_struc(n)%LDT_ncvar_tmaxcli_monthly)//"_"//trim(LIS_rc%metforc(m)), k, placeholder)
@@ -664,7 +664,7 @@ subroutine AC72_setup()
               AC72_struc(n)%ac72(t)%tmaxcli_monthly(k) = anint(tmp*100)/100 - LIS_CONST_TKFRZ
            enddo
         enddo
-     enddo ! en met forcing source loop
+     enddo ! end met forcing source loop
      deallocate(placeholder)
      ! Read soil table
      call SOIL_PARM_AC72(AC72_struc(n)%soil_tbl_name)
