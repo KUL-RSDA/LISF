@@ -138,52 +138,65 @@ contains
 
 
        !! Read temperature climatology file
+       ! allocate variables with number of frocing sources
+       allocate(LDT_config,AquaCrop_struc(n)%tempclimdir(LDT_rc%nmetforc))
+       allocate(LDT_config,AquaCrop_struc(n)%tempcli_refyr(LDT_rc%nmetforc))
+       allocate(LDT_config,AquaCrop_struc(n)%tempclim_gridtransform(LDT_rc%nmetforc))
+
        ! Read options from ldt.config
        call ESMF_ConfigFindLabel(LDT_config,"AquaCrop temperature climatology directory:",rc=rc)
-       call ESMF_ConfigGetAttribute(LDT_config,AquaCrop_struc(n)%tempclimdir,rc=rc)
        call LDT_verify(rc,"AquaCrop temperature climatology directory: not defined")
+       do i=1,LDT_rc%nmetforc
+          call ESMF_ConfigGetAttribute(LDT_config,AquaCrop_struc(n)%tempclimdir(i),rc=rc)
+       enddo
 
        call ESMF_ConfigFindLabel(LDT_config,"AquaCrop reference year for climatology:",rc=rc)
-       call ESMF_ConfigGetAttribute(LDT_config,AquaCrop_struc(n)%tempcli_refyr,rc=rc)
        call LDT_verify(rc,"AquaCrop reference year for climatology: not defined")
+       do i=1,LDT_rc%nmetforc
+          call ESMF_ConfigGetAttribute(LDT_config,AquaCrop_struc(n)%tempcli_refyr(i),rc=rc)
+       enddo
 
        call ESMF_ConfigFindLabel(LDT_config,"AquaCrop temperature climatology spatial transform:",rc=rc)
-       call ESMF_ConfigGetAttribute(LDT_config,AquaCrop_struc(n)%tempclim_gridtransform,rc=rc)
        call LDT_verify(rc,"AquaCrop temperature climatology spatial transform: not defined")
+       do i=1,LDT_rc%nmetforc
+          call ESMF_ConfigGetAttribute(LDT_config,AquaCrop_struc(n)%tempclim_gridtransform(i),rc=rc)
+       enddo
 
        LDT_rc%monthlyData(n) = .true.
 
-       ! tmin
-       call set_param_attribs(Aquacrop_struc(n)%tmin_cli, "AC_Tmin_clim",&
-            units="K", &
-            full_name="minimum temperature climatology")
-       Aquacrop_struc(n)%tmin_cli%vlevels = 12
-       Aquacrop_struc(n)%tmin_cli%num_bins = 12
-       allocate(Aquacrop_struc(n)%tmin_cli%value(&
-            LDT_rc%lnc(n),LDT_rc%lnr(n),&
-            Aquacrop_struc(n)%tmin_cli%vlevels))
+       do m = 1, LDT_rc%nmetforc
+         ! tmin
+         call set_param_attribs(Aquacrop_struc(n)%tmin_cli, "AC_Tmin_clim_"//trim(LDT_rc%metforc(m)),&
+               units="K", &
+               full_name="minimum temperature climatology ("//trim(LDT_rc%metforc(m))//")")
+         Aquacrop_struc(n)%tmin_cli%vlevels = 12
+         Aquacrop_struc(n)%tmin_cli%num_bins = 12
+         allocate(Aquacrop_struc(n)%tmin_cli%value(&
+               LDT_rc%lnc(n),LDT_rc%lnr(n),&
+               Aquacrop_struc(n)%tmin_cli%vlevels))
 
-       ! tmax
-       call set_param_attribs(Aquacrop_struc(n)%tmax_cli, "AC_Tmax_clim",&
-            units="K", &
-            full_name="maximum temperature climatology")
-       Aquacrop_struc(n)%tmax_cli%vlevels = 12
-       Aquacrop_struc(n)%tmax_cli%num_bins = 12
-       allocate(Aquacrop_struc(n)%tmax_cli%value(&
-            LDT_rc%lnc(n),LDT_rc%lnr(n),&
-            Aquacrop_struc(n)%tmax_cli%vlevels))
+         ! tmax
+         call set_param_attribs(Aquacrop_struc(n)%tmax_cli, "AC_Tmax_clim_"//trim(LDT_rc%metforc(m)),&
+               units="K", &
+               full_name="maximum temperature climatology ("//trim(LDT_rc%metforc(m))//")")
+         Aquacrop_struc(n)%tmax_cli%vlevels = 12
+         Aquacrop_struc(n)%tmax_cli%num_bins = 12
+         allocate(Aquacrop_struc(n)%tmax_cli%value(&
+               LDT_rc%lnc(n),LDT_rc%lnr(n),&
+               Aquacrop_struc(n)%tmax_cli%vlevels))
 
-       ! Call function to read monthly data
-       do k = 1,12
-          AquaCrop_struc(n)%tempclimfile = &
-               trim(AquaCrop_struc(n)%tempclimdir)//'tmin.'//&
-               trim(months(k))//'.txt'
-          call read_AC_Tclim(n, AquaCrop_struc(n)%tmin_cli%value(:,:,k))
-          AquaCrop_struc(n)%tempclimfile = &
-               trim(AquaCrop_struc(n)%tempclimdir)//'tmax.'//&
-               trim(months(k))//'.txt'
-          call read_AC_Tclim(n, AquaCrop_struc(n)%tmax_cli%value(:,:,k))
-       enddo ! end months
+         ! Call function to read monthly data
+         do k = 1,12
+            AquaCrop_struc(n)%tempclimfile = &
+                  trim(AquaCrop_struc(n)%tempclimdir)//'tmin.'//&
+                  trim(months(k))//'.txt'
+            call read_AC_Tclim(n, m, AquaCrop_struc(n)%tmin_cli%value(:,:,k))
+            AquaCrop_struc(n)%tempclimfile = &
+                  trim(AquaCrop_struc(n)%tempclimdir)//'tmax.'//&
+                  trim(months(k))//'.txt'
+            call read_AC_Tclim(n, m, AquaCrop_struc(n)%tmax_cli%value(:,:,k))
+         enddo ! end months
+      enddo ! end met forcing sources
 
     enddo ! End nest
 
@@ -236,10 +249,14 @@ contains
        write (str, '(i0)') i
        call LDT_verify(nf90_put_att(ftn,NF90_GLOBAL,"THICKNESS_LAYER_"//trim(str),&
             AquaCrop_struc(n)%lthickness(i)))
-       ! Add Reference year for temperature climatology
-       call LDT_verify(nf90_put_att(ftn,NF90_GLOBAL,"AC_CLIM_REF_YEAR", &
-            AquaCrop_struc(n)%tempcli_refyr))
     enddo
+
+    ! Add Reference year for temperature climatology
+    do m = 1, LDT_rc%nmetforc
+       call LDT_verify(nf90_put_att(ftn,NF90_GLOBAL,"AC_CLIM_REF_YEAR_"//trim(LDT_rc%metforc(m)), &
+           AquaCrop_struc(n)%tempcli_refyr))
+    enddo
+
 #endif
 
   end subroutine AquaCropParms_writeHeader

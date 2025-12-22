@@ -16,7 +16,7 @@
 !  2 Oct 2024: Louise Busschaert; Initial Specification
 !
 ! !INTERFACE:
-subroutine read_AC_Tclim(n, array)
+subroutine read_AC_Tclim(n, m, array)
 
   ! !USES:
   use AquaCrop_parmsMod
@@ -31,6 +31,7 @@ subroutine read_AC_Tclim(n, array)
 
   ! !ARGUMENTS:
   integer,    intent(in) :: n
+  integer,    intent(in) :: m
   real,    intent(inout) :: array(LDT_rc%lnc(n),LDT_rc%lnr(n))
 
   ! !DESCRIPTION:
@@ -49,7 +50,7 @@ subroutine read_AC_Tclim(n, array)
 
   integer   :: ftn
   logical   :: file_exists
-  integer   :: c, r, i, m, iret
+  integer   :: c, r, i, iret
   integer   :: ncols, nrows
   real      :: xllcorner, yllcorner
   real      :: cellxsize, cellysize
@@ -84,6 +85,8 @@ subroutine read_AC_Tclim(n, array)
   external :: bilinear_interp
 
   ! __________________________________________________________________________________________
+
+  lapse = -0.0065
 
   array = LDT_rc%udef
 
@@ -210,20 +213,6 @@ subroutine read_AC_Tclim(n, array)
      call LDT_endrun
   end select
 
-  ! Lapse-rate correction of Tmin and Tmax if turned on
-  lapse = -0.0065
-  do m = 1, LDT_rc%nmetforc
-    if( LDT_rc%met_ecor_parms(m) == "lapse-rate" ) then
-      write(LDT_logunit,*) "[INFO] Lapse-rate correction of Tmin/Tmax climatology for AquaCrop"
-      do i=1,LDT_rc%ntiles(n)
-         if(go1(i).gt.0) then 
-            go1(i) = go1(i)+(lapse*(LDT_domain(n)%tile(i)%elev-&
-                     LDT_force_struc(n,m)%forcelev%value(LDT_domain(n)%tile(i)%index)))
-         endif
-      end do
-    endif
-  enddo
-
   !- Convert 1D to 2D grid output arrays:
   i = 0
   do r = 1, LDT_rc%lnr(n)
@@ -233,7 +222,13 @@ subroutine read_AC_Tclim(n, array)
              .or.(LDT_LSMparam_struc(n)%landmask%value(c,r,1).eq.0) ) then
            array(c,r) = LDT_rc%udef
         else
-           array(c,r) = go1(i)
+           if( LDT_rc%met_ecor_parms(m) == "lapse-rate" ) then
+              ! apply lape-rate correction to climatology
+              array(c,r) = go1(i) + (lapse * &
+                          LDT_force_struc(n,m)%forcelev%value(c,r,1))
+           else
+              array(c,r) = go1(i)
+           endif
         endif
      enddo
   enddo
