@@ -625,7 +625,7 @@ subroutine AC72_setup()
         write(LIS_logunit,*) "[INFO] AC72: reading parameter AC_Tmin_clim_"//trim(LIS_rc%metforc(m))//" from ",&
                                 trim(LIS_rc%paramfile(n))
         do k = 1, 12
-           call AC72_read_MULTILEVEL_param(n, trim(AC72_struc(n)%LDT_ncvar_tmincli_monthly)//trim(LIS_rc%metforc(m)), k, placeholder)
+           call AC72_read_MULTILEVEL_param(n, trim(AC72_struc(n)%LDT_ncvar_tmincli_monthly)//"_"//trim(LIS_rc%metforc(m)), k, placeholder)
            do t = 1, LIS_rc%npatch(n, mtype)
               col = LIS_surface(n, mtype)%tile(t)%col
               row = LIS_surface(n, mtype)%tile(t)%row
@@ -643,7 +643,7 @@ subroutine AC72_setup()
            enddo
         enddo
 
-        write(LIS_logunit,*) "[INFO] AC72: reading parameter AC_Tmin_clim_"//trim(LIS_rc%metforc(m))//" from ",&
+        write(LIS_logunit,*) "[INFO] AC72: reading parameter AC_Tmin_clim_"//"_"//trim(LIS_rc%metforc(m))//" from ",&
               trim(LIS_rc%paramfile(n))
         do k = 1, 12
            call AC72_read_MULTILEVEL_param(n, trim(AC72_struc(n)%LDT_ncvar_tmaxcli_monthly)//trim(LIS_rc%metforc(m)), k, placeholder)
