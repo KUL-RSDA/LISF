@@ -60,6 +60,7 @@ subroutine read_AC_Tclim(n, array)
   logical*1,allocatable :: li1(:)        ! input logical mask (to match gi)
   real      :: go1(LDT_rc%lnc(n)*LDT_rc%lnr(n))  ! output lis 1d grid
   logical*1 :: lo1(LDT_rc%lnc(n)*LDT_rc%lnr(n))  ! output logical mask (to match go)
+  real      :: lapse
 
   !- Grid transform arrays:
   integer, allocatable     :: n11(:)     ! Map array for aggregating methods
@@ -80,6 +81,7 @@ subroutine read_AC_Tclim(n, array)
   external :: neighbor_interp
   external :: bilinear_interp_input
   external :: bilinear_interp
+  external :: LDT_force_struc
 
   ! __________________________________________________________________________________________
 
@@ -207,6 +209,20 @@ subroutine read_AC_Tclim(n, array)
      write(LDT_logunit,*) "Program stopping ...."
      call LDT_endrun
   end select
+
+  ! Lapse-rate correction of Tmin and Tmax if turned on
+  lapse = -0.0065
+  do m = 1, LDT_rc%nmetforc
+    if( LDT_rc%met_ecor_parms(m) == "lapse-rate" ) then
+      write(LDT_logunit,*) "[INFO] Lapse-rate correction of Tmin/Tmax climatology for AquaCrop"
+      do i=1,LDT_rc%ntiles(nest)
+         if(go1(i).gt.0) then 
+            go1(i) = go1(i)+(lapse*(LDT_domain(nest)%tile(i)%elev-&
+                     LDT_force_struc(n,m)%forcelev%value(LDT_domain(nest)%tile(i)%index)))
+         endif
+      end do
+    endif
+  enddo
 
   !- Convert 1D to 2D grid output arrays:
   i = 0
