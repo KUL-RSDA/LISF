@@ -49,7 +49,7 @@ module AquaCrop_parmsMod
      integer :: nlayers !  number of soil layers
      real :: lthickness(5) ! thickness of layers, max 5 layers for AC
      integer :: max_comp ! fixed to 12
-     integer, allocatable :: tempcli_refyr(:) ! reference year for cli
+     integer :: tempcli_refyr ! reference year for cli, if nmetforcings>1, set to same value
      character(len=LDT_CONST_PATH_LEN), allocatable :: tempclimdir(:)
      character(len=LDT_CONST_PATH_LEN), allocatable :: tempclimfile(:)
      character(125), allocatable :: tempclim_gridtransform(:)
@@ -140,7 +140,6 @@ contains
        !! Read temperature climatology file
        ! allocate variables with number of frocing sources
        allocate(AquaCrop_struc(n)%tempclimdir(LDT_rc%nmetforc))
-       allocate(AquaCrop_struc(n)%tempcli_refyr(LDT_rc%nmetforc))
        allocate(AquaCrop_struc(n)%tempclim_gridtransform(LDT_rc%nmetforc))
        allocate(Aquacrop_struc(n)%tmin_cli(LDT_rc%nmetforc))
        allocate(Aquacrop_struc(n)%tmax_cli(LDT_rc%nmetforc))
@@ -154,9 +153,7 @@ contains
 
        call ESMF_ConfigFindLabel(LDT_config,"AquaCrop reference year for climatology:",rc=rc)
        call LDT_verify(rc,"AquaCrop reference year for climatology: not defined")
-       do m=1,LDT_rc%nmetforc
-          call ESMF_ConfigGetAttribute(LDT_config,AquaCrop_struc(n)%tempcli_refyr(m),rc=rc)
-       enddo
+       call ESMF_ConfigGetAttribute(LDT_config,AquaCrop_struc(n)%tempcli_refyr,rc=rc)
 
        call ESMF_ConfigFindLabel(LDT_config,"AquaCrop temperature climatology spatial transform:",rc=rc)
        call LDT_verify(rc,"AquaCrop temperature climatology spatial transform: not defined")
@@ -257,10 +254,8 @@ contains
     enddo
 
     ! Add Reference year for temperature climatology
-    do m = 1, LDT_rc%nmetforc
-       call LDT_verify(nf90_put_att(ftn,NF90_GLOBAL,"AC_CLIM_REF_YEAR_"//trim(LDT_rc%metforc(m)), &
-           AquaCrop_struc(n)%tempcli_refyr(m)))
-    enddo
+    call LDT_verify(nf90_put_att(ftn,NF90_GLOBAL,"AC_CLIM_REF_YEAR"), &
+       AquaCrop_struc(n)%tempcli_refyr))
 
 #endif
 
