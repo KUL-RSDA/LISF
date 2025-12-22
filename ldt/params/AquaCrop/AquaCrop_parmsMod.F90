@@ -87,7 +87,7 @@ contains
 
     integer, intent(in) :: flag
 
-    integer  :: n,k
+    integer  :: n,k,m
     integer  :: rc
 
     external :: read_CONSTANT_AC_crop
@@ -139,29 +139,29 @@ contains
 
        !! Read temperature climatology file
        ! allocate variables with number of frocing sources
-       allocate(LDT_config,AquaCrop_struc(n)%tempclimdir(LDT_rc%nmetforc))
-       allocate(LDT_config,AquaCrop_struc(n)%tempcli_refyr(LDT_rc%nmetforc))
-       allocate(LDT_config,AquaCrop_struc(n)%tempclim_gridtransform(LDT_rc%nmetforc))
+       allocate(AquaCrop_struc(n)%tempclimdir(LDT_rc%nmetforc))
+       allocate(AquaCrop_struc(n)%tempcli_refyr(LDT_rc%nmetforc))
+       allocate(AquaCrop_struc(n)%tempclim_gridtransform(LDT_rc%nmetforc))
        allocate(Aquacrop_struc(n)%tmin_cli(LDT_rc%nmetforc))
        allocate(Aquacrop_struc(n)%tmax_cli(LDT_rc%nmetforc))
 
        ! Read options from ldt.config
        call ESMF_ConfigFindLabel(LDT_config,"AquaCrop temperature climatology directory:",rc=rc)
        call LDT_verify(rc,"AquaCrop temperature climatology directory: not defined")
-       do i=1,LDT_rc%nmetforc
-          call ESMF_ConfigGetAttribute(LDT_config,AquaCrop_struc(n)%tempclimdir(i),rc=rc)
+       do m=1,LDT_rc%nmetforc
+          call ESMF_ConfigGetAttribute(LDT_config,AquaCrop_struc(n)%tempclimdir(m),rc=rc)
        enddo
 
        call ESMF_ConfigFindLabel(LDT_config,"AquaCrop reference year for climatology:",rc=rc)
        call LDT_verify(rc,"AquaCrop reference year for climatology: not defined")
-       do i=1,LDT_rc%nmetforc
-          call ESMF_ConfigGetAttribute(LDT_config,AquaCrop_struc(n)%tempcli_refyr(i),rc=rc)
+       do m=1,LDT_rc%nmetforc
+          call ESMF_ConfigGetAttribute(LDT_config,AquaCrop_struc(n)%tempcli_refyr(m),rc=rc)
        enddo
 
        call ESMF_ConfigFindLabel(LDT_config,"AquaCrop temperature climatology spatial transform:",rc=rc)
        call LDT_verify(rc,"AquaCrop temperature climatology spatial transform: not defined")
-       do i=1,LDT_rc%nmetforc
-          call ESMF_ConfigGetAttribute(LDT_config,AquaCrop_struc(n)%tempclim_gridtransform(i),rc=rc)
+       do m=1,LDT_rc%nmetforc
+          call ESMF_ConfigGetAttribute(LDT_config,AquaCrop_struc(n)%tempclim_gridtransform(m),rc=rc)
        enddo
 
        LDT_rc%monthlyData(n) = .true.
@@ -178,7 +178,7 @@ contains
                Aquacrop_struc(n)%tmin_cli(m)%vlevels))
 
          ! tmax
-         call set_param_attribs(Aquacrop_struc(n)%tmax_cli, "AC_Tmax_clim_"//trim(LDT_rc%metforc(m)),&
+         call set_param_attribs(Aquacrop_struc(n)%tmax_cli(m), "AC_Tmax_clim_"//trim(LDT_rc%metforc(m)),&
                units="K", &
                full_name="maximum temperature climatology ("//trim(LDT_rc%metforc(m))//")")
          Aquacrop_struc(n)%tmax_cli(m)%vlevels = 12
@@ -208,6 +208,7 @@ contains
 
     use LDT_historyMod, only: LDT_writeNetcdfDataHeader
     use LDT_logMod, only: LDT_verify
+    use LDT_coreMod, only: LDT_rc
 #if(defined USE_NETCDF3 || defined USE_NETCDF4)
     use netcdf
 #endif
@@ -219,7 +220,7 @@ contains
     integer, intent(in) :: dimID(3)
     integer, intent(in) :: monthID
 
-    integer :: i
+    integer :: i, m
     integer   :: ndimID(3)  ! 3D, vlevel>1
     character(25) :: str
 
@@ -238,10 +239,12 @@ contains
          Aquacrop_struc(n)%comp_size)
 
     ndimID(3) = monthID
-    call LDT_writeNETCDFdataHeader(n,ftn,ndimID,&
-         Aquacrop_struc(n)%tmin_cli)
-    call LDT_writeNETCDFdataHeader(n,ftn,ndimID,&
-         Aquacrop_struc(n)%tmax_cli)
+    do m = 1, LDT_rc%nmetforc
+      call LDT_writeNETCDFdataHeader(n,ftn,ndimID,&
+            Aquacrop_struc(n)%tmin_cli(m))
+      call LDT_writeNETCDFdataHeader(n,ftn,ndimID,&
+            Aquacrop_struc(n)%tmax_cli(m))
+    enddo
 
     ! Add number of soil layers
     call LDT_verify(nf90_put_att(ftn,NF90_GLOBAL,"SOIL_LAYERS", &
@@ -256,7 +259,7 @@ contains
     ! Add Reference year for temperature climatology
     do m = 1, LDT_rc%nmetforc
        call LDT_verify(nf90_put_att(ftn,NF90_GLOBAL,"AC_CLIM_REF_YEAR_"//trim(LDT_rc%metforc(m)), &
-           AquaCrop_struc(n)%tempcli_refyr))
+           AquaCrop_struc(n)%tempcli_refyr(m))
     enddo
 
 #endif
@@ -266,11 +269,14 @@ contains
   subroutine AquaCropParms_writeData(n,ftn)
 
     use LDT_historyMod, only: LDT_writeNetcdfData
+    use LDT_coreMod, only: LDT_rc
 
     implicit none
 
     integer, intent(in) :: n
     integer, intent(in) :: ftn
+
+    integer :: m
 
     call LDT_writeNETCDFdata(n,ftn,AquaCrop_struc(n)%cropt)
     call LDT_writeNETCDFdata(n,ftn,AquaCrop_struc(n)%comp_size)
