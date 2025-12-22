@@ -630,11 +630,11 @@ subroutine AC72_setup()
               col = LIS_surface(n, mtype)%tile(t)%col
               row = LIS_surface(n, mtype)%tile(t)%row
 
-              ! Apply lapse-rate correction if turned on
+              ! Apply lapse-rate correction if turned on (to 2 m above surface)
               if (LIS_rc%met_ecor(m) == "lapse-rate") then
                  tmp = placeholder(col, row) + (lapse * &
                        (LIS_domain(n)%tile(t)%elev &
-                       - LIS_forc(n,m)%modelelev(LIS_domain(n)%tile(t)%index)))
+                       - LIS_forc(n,m)%modelelev(LIS_domain(n)%tile(t)%index) + 2))
               else
                  tmp = placeholder(col, row)
               endif
@@ -651,11 +651,11 @@ subroutine AC72_setup()
               col = LIS_surface(n, mtype)%tile(t)%col
               row = LIS_surface(n, mtype)%tile(t)%row
 
-              ! Apply lapse-rate correction if turned on
+              ! Apply lapse-rate correction if turned on (to 2 m above surface)
               if (LIS_rc%met_ecor(m) == "lapse-rate") then
                  tmp = placeholder(col, row) + (lapse * &
                        (LIS_domain(n)%tile(t)%elev &
-                       - LIS_forc(n,m)%modelelev(LIS_domain(n)%tile(t)%index)))
+                       - LIS_forc(n,m)%modelelev(LIS_domain(n)%tile(t)%index) + 2))
               else
                  tmp = placeholder(col, row)
               endif
