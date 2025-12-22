@@ -222,14 +222,7 @@ subroutine read_AC_Tclim(n, m, array)
              .or.(LDT_LSMparam_struc(n)%landmask%value(c,r,1).eq.0) ) then
            array(c,r) = LDT_rc%udef
         else
-           if( LDT_rc%met_ecor_parms(m) == "lapse-rate" ) then
-              ! apply lape-rate correction to climatology
-              array(c,r) = go1(i) + (lapse * &
-                  (LDT_LSMparam_struc(n)%elevation%value(c,r,1) &
-                  - LDT_force_struc(n,m)%forcelev%value(c,r,1)))
-           else
-              array(c,r) = go1(i)
-           endif
+           array(c,r) = go1(i)
         endif
      enddo
   enddo
