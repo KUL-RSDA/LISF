@@ -25,6 +25,7 @@ subroutine read_AC_Tclim(n, array)
   use LDT_logMod,        only : LDT_logunit, LDT_getNextUnitNumber, &
        LDT_releaseUnitNumber, LDT_endrun
   use LDT_paramDataMod, only: LDT_LSMparam_struc
+  use LDT_metforcingParmsMod, only: LDT_force_struc
 
   implicit none
 
@@ -48,7 +49,7 @@ subroutine read_AC_Tclim(n, array)
 
   integer   :: ftn
   logical   :: file_exists
-  integer   :: c, r, i, iret
+  integer   :: c, r, i, m, iret
   integer   :: ncols, nrows
   real      :: xllcorner, yllcorner
   real      :: cellxsize, cellysize
@@ -81,7 +82,6 @@ subroutine read_AC_Tclim(n, array)
   external :: neighbor_interp
   external :: bilinear_interp_input
   external :: bilinear_interp
-  external :: LDT_force_struc
 
   ! __________________________________________________________________________________________
 
@@ -215,10 +215,10 @@ subroutine read_AC_Tclim(n, array)
   do m = 1, LDT_rc%nmetforc
     if( LDT_rc%met_ecor_parms(m) == "lapse-rate" ) then
       write(LDT_logunit,*) "[INFO] Lapse-rate correction of Tmin/Tmax climatology for AquaCrop"
-      do i=1,LDT_rc%ntiles(nest)
+      do i=1,LDT_rc%ntiles(n)
          if(go1(i).gt.0) then 
-            go1(i) = go1(i)+(lapse*(LDT_domain(nest)%tile(i)%elev-&
-                     LDT_force_struc(n,m)%forcelev%value(LDT_domain(nest)%tile(i)%index)))
+            go1(i) = go1(i)+(lapse*(LDT_domain(n)%tile(i)%elev-&
+                     LDT_force_struc(n,m)%forcelev%value(LDT_domain(n)%tile(i)%index)))
          endif
       end do
     endif
