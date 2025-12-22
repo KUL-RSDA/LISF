@@ -203,7 +203,7 @@ subroutine AC72_f2t(n)
      ! Calculate Magnitude of Wind Speed (m/s)
      wind_tmp = SQRT(uwind(tid)**2 + vwind(tid)**2)
 
-     ! Correct to 2 m if not provided at another height
+     ! Correct to 2 m if provided at another height
      wind_tmp = wind_tmp * (4.87/LOG(67.8*AC72_struc(n)%refz_uv-5.42))
 
      AC72_struc(n)%ac72(t)%wndspd = AC72_struc(n)%ac72(t)%wndspd + wind_tmp

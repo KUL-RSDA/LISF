@@ -523,6 +523,7 @@ subroutine AC72_setup()
   use LIS_fileIOMod, only: LIS_read_param
   use LIS_logMod,    only: LIS_logunit, LIS_verify, LIS_endrun
   use LIS_timeMgrMod, only: LIS_get_julhr
+  use LIS_metforcingMod, only: LIS_forc
 
   use module_sf_aclsm_72, only: &
        WP, SAT, FC, INFRATE, SD, CL, SI
@@ -564,6 +565,8 @@ subroutine AC72_setup()
   logical :: MultipleRunWithKeepSWC_temp
   real    :: MultipleRunConstZrx_temp
   real    :: frac_lower
+  real    :: tmp
+  real, parameter :: lapse = -0.0065
 
   external :: ac72_read_croptype
   external :: ac72_read_multilevel_param
@@ -612,29 +615,56 @@ subroutine AC72_setup()
         enddo
      endif
 
-     write(LIS_logunit,*) "[INFO] AC72: reading parameter AC_Tmin_clim from ",&
-          trim(LIS_rc%paramfile(n))
-     do k = 1, 12
-        call AC72_read_MULTILEVEL_param(n, AC72_struc(n)%LDT_ncvar_tmincli_monthly, k, placeholder)
-        do t = 1, LIS_rc%npatch(n, mtype)
-           col = LIS_surface(n, mtype)%tile(t)%col
-           row = LIS_surface(n, mtype)%tile(t)%row
-           ! Climatology is rounded to 2 decimals in AquaCrop
-           AC72_struc(n)%ac72(t)%tmincli_monthly(k) = anint(placeholder(col, row)*100)/100 - LIS_CONST_TKFRZ
-        enddo
-     enddo
+     ! Read and correct climatology
+     do m = 1, LIS_rc%nmetforc ! loop over met forcing sources (only works with overlay is m > 1)
+        if (trim(LIS_rc%metforc_blend_alg).ne."overlay") then
+           write(LIS_logunit,*) "[ERR] AC72 only runs with overlay option for the met forcing blending."
+           write(LIS_logunit,*) "[ERR] Program stopping ..."
+           call LIS_endrun
+        endif
+        write(LIS_logunit,*) "[INFO] AC72: reading parameter AC_Tmin_clim_"//trim(LIS_rc%metforc(m))//" from ",&
+                                trim(LIS_rc%paramfile(n))
+        do k = 1, 12
+           call AC72_read_MULTILEVEL_param(n, AC72_struc(n)%LDT_ncvar_tmincli_monthly//trim(LIS_rc%metforc(m)), k, placeholder)
+           do t = 1, LIS_rc%npatch(n, mtype)
+              col = LIS_surface(n, mtype)%tile(t)%col
+              row = LIS_surface(n, mtype)%tile(t)%row
 
-     write(LIS_logunit,*) "[INFO] AC72: reading parameter AC_Tmax_clim from ",&
-          trim(LIS_rc%paramfile(n))
-     do k = 1, 12
-        call AC72_read_MULTILEVEL_param(n, AC72_struc(n)%LDT_ncvar_tmaxcli_monthly, k, placeholder)
-        do t = 1, LIS_rc%npatch(n, mtype)
-           col = LIS_surface(n, mtype)%tile(t)%col
-           row = LIS_surface(n, mtype)%tile(t)%row
-           ! Climatology is rounded to 2 decimals in AquaCrop
-           AC72_struc(n)%ac72(t)%tmaxcli_monthly(k) = anint(placeholder(col, row)*100)/100 - LIS_CONST_TKFRZ
+              ! Apply lapse-rate correction if turned on
+              if (LIS_rc%met_ecor_parms(m) == "lapse-rate") then
+                 tmp = placeholder(col, row) + (lapse * &
+                       (LIS_domain(n)%tile(t)%elev &
+                       - LIS_forc(n,m)%modelelev))
+              else
+                 tmp = placeholder(col, row)
+              endif
+              ! Climatology is rounded to 2 decimals in AquaCrop and converted to degree Celsius
+              AC72_struc(n)%ac72(t)%tmincli_monthly(k) = anint(tmp*100)/100 - LIS_CONST_TKFRZ
+           enddo
         enddo
-     enddo
+
+        write(LIS_logunit,*) "[INFO] AC72: reading parameter AC_Tmin_clim_"//trim(LIS_rc%metforc(m))//" from ",&
+              trim(LIS_rc%paramfile(n))
+        do k = 1, 12
+           call AC72_read_MULTILEVEL_param(n, AC72_struc(n)%LDT_ncvar_tmaxcli_monthly//trim(LIS_rc%metforc(m)), k, placeholder)
+           do t = 1, LIS_rc%npatch(n, mtype)
+              col = LIS_surface(n, mtype)%tile(t)%col
+              row = LIS_surface(n, mtype)%tile(t)%row
+
+              ! Apply lapse-rate correction if turned on
+              if (LIS_rc%met_ecor_parms(m) == "lapse-rate") then
+                 tmp = placeholder(col, row) + (lapse * &
+                       (LIS_domain(n)%tile(t)%elev &
+                       - LIS_forc(n,m)%modelelev))
+              else
+                 tmp = placeholder(col, row)
+              endif
+
+              ! Climatology is rounded to 2 decimals in AquaCrop
+              AC72_struc(n)%ac72(t)%tmaxcli_monthly(k) = anint(tmp*100)/100 - LIS_CONST_TKFRZ
+           enddo
+        enddo
+     enddo ! en met forcing source loop
      deallocate(placeholder)
      ! Read soil table
      call SOIL_PARM_AC72(AC72_struc(n)%soil_tbl_name)
