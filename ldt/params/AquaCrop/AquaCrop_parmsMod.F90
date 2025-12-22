@@ -259,7 +259,7 @@ contains
     ! Add Reference year for temperature climatology
     do m = 1, LDT_rc%nmetforc
        call LDT_verify(nf90_put_att(ftn,NF90_GLOBAL,"AC_CLIM_REF_YEAR_"//trim(LDT_rc%metforc(m)), &
-           AquaCrop_struc(n)%tempcli_refyr(m))
+           AquaCrop_struc(n)%tempcli_refyr(m)))
     enddo
 
 #endif
