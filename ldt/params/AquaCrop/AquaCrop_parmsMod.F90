@@ -186,11 +186,11 @@ contains
 
          ! Call function to read monthly data
          do k = 1,12
-            AquaCrop_struc(n)%tempclimfile = &
+            AquaCrop_struc(n)%tempclimfile(m) = &
                   trim(AquaCrop_struc(n)%tempclimdir(m))//'tmin.'//&
                   trim(months(k))//'.txt'
             call read_AC_Tclim(n, m, AquaCrop_struc(n)%tmin_cli(m)%value(:,:,k))
-            AquaCrop_struc(n)%tempclimfile = &
+            AquaCrop_struc(n)%tempclimfile(m) = &
                   trim(AquaCrop_struc(n)%tempclimdir(m))//'tmax.'//&
                   trim(months(k))//'.txt'
             call read_AC_Tclim(n, m, AquaCrop_struc(n)%tmax_cli(m)%value(:,:,k))
