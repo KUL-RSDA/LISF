@@ -140,6 +140,7 @@ contains
        !! Read temperature climatology file
        ! allocate variables with number of frocing sources
        allocate(AquaCrop_struc(n)%tempclimdir(LDT_rc%nmetforc))
+       allocate(AquaCrop_struc(n)%tempclimfile(LDT_rc%nmetforc))
        allocate(AquaCrop_struc(n)%tempclim_gridtransform(LDT_rc%nmetforc))
        allocate(Aquacrop_struc(n)%tmin_cli(LDT_rc%nmetforc))
        allocate(Aquacrop_struc(n)%tmax_cli(LDT_rc%nmetforc))
