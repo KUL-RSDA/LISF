@@ -62,7 +62,6 @@ subroutine read_AC_Tclim(n, m, array)
   logical*1,allocatable :: li1(:)        ! input logical mask (to match gi)
   real      :: go1(LDT_rc%lnc(n)*LDT_rc%lnr(n))  ! output lis 1d grid
   logical*1 :: lo1(LDT_rc%lnc(n)*LDT_rc%lnr(n))  ! output logical mask (to match go)
-  real      :: lapse
 
   !- Grid transform arrays:
   integer, allocatable     :: n11(:)     ! Map array for aggregating methods
@@ -85,8 +84,6 @@ subroutine read_AC_Tclim(n, m, array)
   external :: bilinear_interp
 
   ! __________________________________________________________________________________________
-
-  lapse = -0.0065
 
   array = LDT_rc%udef
 
