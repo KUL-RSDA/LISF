@@ -254,8 +254,8 @@ contains
     enddo
 
     ! Add Reference year for temperature climatology
-    call LDT_verify(nf90_put_att(ftn,NF90_GLOBAL,"AC_CLIM_REF_YEAR"), &
-       AquaCrop_struc(n)%tempcli_refyr)
+    call LDT_verify(nf90_put_att(ftn,NF90_GLOBAL,"AC_CLIM_REF_YEAR", &
+       AquaCrop_struc(n)%tempcli_refyr))
 
 #endif
 
