@@ -524,6 +524,7 @@ subroutine AC72_setup()
   use LIS_logMod,    only: LIS_logunit, LIS_verify, LIS_endrun
   use LIS_timeMgrMod, only: LIS_get_julhr
   use LIS_metforcingMod, only: LIS_forc
+  use merra2_forcingMod, only: merra2_struc
 
   use module_sf_aclsm_72, only: &
        WP, SAT, FC, INFRATE, SD, CL, SI
