@@ -4816,7 +4816,7 @@ subroutine LoadCrop(FullName)
     character(len=*), intent(in) :: FullName
 
     integer :: fhandle
-    integer(int32) :: XX, YY
+    integer(int32) :: XX, YY, rc
     real(sp) :: VersionNr
     integer(int8) :: TempShortInt, perenperiod_onsetOcc_temp
     integer(int8) :: perenperiod_endOcc_temp
@@ -4830,6 +4830,7 @@ subroutine LoadCrop(FullName)
     real(sp) :: perenperiod_onsetTV_temp, perenperiod_endTV_temp
     real(sp) :: Crop_SmaxTop_temp, Crop_SmaxBot_temp
     character(len=1024) :: CropDescriptionLocal
+    character(len=64) :: buffer
 
     open(newunit=fhandle, file=trim(FullName), status='old', action='read')
     read(fhandle, '(a)') CropDescriptionLocal
@@ -4887,8 +4888,10 @@ subroutine LoadCrop(FullName)
 
     ! required growing degree days to complete the crop cycle
     ! (is identical as to maturity)
-    read(fhandle, *) TempInt
-    if (GetTemperatureFile() /= '(External)') then
+    ! When 'External' is set for GDD parameters, do not set GDD Crop parameters
+    read(fhandle, '(A)') buffer
+    read(buffer, *, iostat=rc) TempInt
+    if (rc == 0) then
        call SetCrop_GDDaysToHarvest(TempInt)
     endif
 
@@ -5134,34 +5137,49 @@ subroutine LoadCrop(FullName)
     end if
 
     ! growing degree days
-    read(fhandle, *) TempInt
-    if (GetTemperatureFile() /= '(External)') then
-      call SetCrop_GDDaysToGermination(TempInt)
+    ! When 'External' is set for GDD parameters, do not set GDD Crop parameters
+    read(fhandle, '(A)') buffer
+    read(buffer, *, iostat=rc) TempInt
+    if (rc == 0) then
+       call SetCrop_GDDaysToGermination(TempInt)
     endif
-    read(fhandle, *) TempInt
-    if (GetTemperatureFile() /= '(External)') then
-      call SetCrop_GDDaysToMaxRooting(TempInt)
+    ! When 'External' is set for GDD parameters, do not set GDD Crop parameters
+    read(fhandle, '(A)') buffer
+    read(buffer, *, iostat=rc) TempInt
+    if (rc == 0) then
+       call SetCrop_GDDaysToMaxRooting(TempInt)
     endif
-    read(fhandle, *) TempInt
-    if (GetTemperatureFile() /= '(External)') then
-      call SetCrop_GDDaysToSenescence(TempInt)
+    ! When 'External' is set for GDD parameters, do not set GDD Crop parameters
+    read(fhandle, '(A)') buffer
+    read(buffer, *, iostat=rc) TempInt
+    if (rc == 0) then
+       call SetCrop_GDDaysToSenescence(TempInt)
     endif
-    read(fhandle, *) TempInt
-    if (GetTemperatureFile() /= '(External)') then
-      call SetCrop_GDDaysToHarvest(TempInt)
+    ! When 'External' is set for GDD parameters, do not set GDD Crop parameters
+    read(fhandle, '(A)') buffer
+    read(buffer, *, iostat=rc) TempInt
+    if (rc == 0) then
+       call SetCrop_GDDaysToHarvest(TempInt)
     endif
+
     read(fhandle, *) TempInt
     call SetCrop_GDDaysToFlowering(TempInt)
     read(fhandle, *) TempInt
     call SetCrop_GDDLengthFlowering(TempInt)
-    read(fhandle, *) TempDouble
-    if (GetTemperatureFile() /= '(External)') then
-      call SetCrop_GDDCGC(TempDouble)
+
+    ! When 'External' is set for GDD parameters, do not set GDD Crop parameters
+    read(fhandle, '(A)') buffer
+    read(buffer, *, iostat=rc) TempDouble
+    if (rc == 0) then
+       call SetCrop_GDDCGC(TempDouble)
     endif
-    read(fhandle, *) TempDouble
-    if (GetTemperatureFile() /= '(External)') then
-      call SetCrop_GDDCDC(TempDouble)
+    ! When 'External' is set for GDD parameters, do not set GDD Crop parameters
+    read(fhandle, '(A)') buffer
+    read(buffer, *, iostat=rc) TempDouble
+    if (rc == 0) then
+       call SetCrop_GDDCDC(TempDouble)
     endif
+
     read(fhandle, *) TempInt
     call SetCrop_GDDaysToHIo(TempInt)
 

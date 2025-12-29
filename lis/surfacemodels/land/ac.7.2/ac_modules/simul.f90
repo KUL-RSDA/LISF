@@ -5286,21 +5286,7 @@ subroutine DetermineCCi(CCxTotal, CCoTotal, StressLeaf, FracAssim, &
         if (CCiToFind <= CCx/2._sp) then
             CGCx = (log(CCiToFind/CCo))/VirtualTimeCC
         else
-            if (abs(CCx-CCiToFind) <  epsilon(0._sp)) then
-                CGCx = (log((0.25_sp*CCx*CCx/CCo)/(CCx-CCiToFind+epsilon(0._sp))))/VirtualTimeCC
-                write(*,*) 'MB CATCH1'
-            elseif (abs(CCo) <  epsilon(0._sp)) then
-                CGCx = (log((0.25_sp*CCx*CCx/(CCo+epsilon(0._sp)))/(CCx-CCiToFind)))/VirtualTimeCC
-                write(*,*) 'MB CATCH2'
-            elseif (VirtualTimeCC <  epsilon(0._sp)) then
-                CGCx = (log((0.25_sp*CCx*CCx/CCo)/(CCx-CCiToFind)))/epsilon(0._sp)
-                write(*,*) 'MB CATCH3'
-            elseif (((0.25_sp*CCx*CCx/CCo)/(CCx-CCiToFind))<epsilon(0._sp)) then
-                CGCx = log(epsilon(0._sp))/VirtualTimeCC
-                write(*,*) 'MB CATCH4'
-            else
-                CGCx = (log((0.25_sp*CCx*CCx/CCo)/(CCx-CCiToFind)))/VirtualTimeCC
-            end if
+            CGCx = (log((0.25_sp*CCx*CCx/CCo)/(CCx-CCiToFind)))/VirtualTimeCC
         end if
         ! 2. Required time
         RequiredTimeNew = VirtualTimeCC * CGCx/CGCadjusted

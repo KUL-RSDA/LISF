@@ -151,6 +151,9 @@ module AC72_lsmMod
      real               :: refz_uv
      integer            :: tempcli_refyr
      type(AC72dec), pointer :: ac72(:)
+
+     logical :: GDDfromLDT
+
   end type AC72_type_dec
 
   type(AC72_type_dec), pointer :: AC72_struc(:)

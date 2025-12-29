@@ -573,6 +573,8 @@ subroutine AC72_setup()
   external :: ac72_read_croptype
   external :: ac72_read_multilevel_param
   external :: soil_parm_ac72
+  
+  logical :: LIS_param_has_var
 
   mtype = LIS_rc%lsm_index
 
@@ -646,67 +648,68 @@ subroutine AC72_setup()
      !call SetCropFile(trim(AC72_struc(n)%ac72(1)%cropt)//'.CRO')
      !call SetCropFilefull(trim(AC72_struc(n)%PathCropFiles)//GetCropFile())
      !call LoadCrop(GetCropFilefull())
- 
-     !if(GetCrop_ModeCycle().eq.ModeCycle_GDDays)then
-         write(LIS_logunit,*) "AC72: reading parameter GDD_CCo from ", trim(LIS_rc%paramfile(n))
-         call LIS_read_param(n, trim(AC72_struc(n)%LDT_ncvar_gdd_cco), placeholder)
-         do t = 1, LIS_rc%npatch(n, mtype)
-             col = LIS_surface(n, mtype)%tile(t)%col
-             row = LIS_surface(n, mtype)%tile(t)%row
-             AC72_struc(n)%ac72(t)%GDDaysToGermination = placeholder(col, row)
-         enddo 
-     !endif
- 
-     !if(GetCrop_ModeCycle().eq.ModeCycle_GDDays)then
-         write(LIS_logunit,*) "AC72: reading parameter GDD_maturity from ", trim(LIS_rc%paramfile(n))
-         call LIS_read_param(n, trim(AC72_struc(n)%LDT_ncvar_gdd_maturity), placeholder)
-         do t = 1, LIS_rc%npatch(n, mtype)
-             col = LIS_surface(n, mtype)%tile(t)%col
-             row = LIS_surface(n, mtype)%tile(t)%row
-             AC72_struc(n)%ac72(t)%GDDaysToHarvest = placeholder(col, row)
-         enddo 
-     !endif
- 
-     !if(GetCrop_ModeCycle().eq.ModeCycle_GDDays)then
-         write(LIS_logunit,*) "AC72: reading parameter GDD_senescence from ", trim(LIS_rc%paramfile(n))
-         call LIS_read_param(n, trim(AC72_struc(n)%LDT_ncvar_gdd_senescence), placeholder)
-         do t = 1, LIS_rc%npatch(n, mtype)
-             col = LIS_surface(n, mtype)%tile(t)%col
-             row = LIS_surface(n, mtype)%tile(t)%row
-             AC72_struc(n)%ac72(t)%GDDaysToSenescence = placeholder(col, row)
-         enddo 
-     !endif
- 
-     !if(GetCrop_ModeCycle().eq.ModeCycle_GDDays)then
-         write(LIS_logunit,*) "AC72: reading parameter GDD_maxR from ", trim(LIS_rc%paramfile(n))
-         call LIS_read_param(n, trim(AC72_struc(n)%LDT_ncvar_gdd_maxr), placeholder)
-         do t = 1, LIS_rc%npatch(n, mtype)
-             col = LIS_surface(n, mtype)%tile(t)%col
-             row = LIS_surface(n, mtype)%tile(t)%row
-             AC72_struc(n)%ac72(t)%GDDaysToMaxRooting = placeholder(col, row)
-         enddo 
-     !endif
- 
-     !if(GetCrop_ModeCycle().eq.ModeCycle_GDDays)then
-         write(LIS_logunit,*) "AC72: reading parameter CGC from ", trim(LIS_rc%paramfile(n))
-         call LIS_read_param(n, trim(AC72_struc(n)%LDT_ncvar_cgc), placeholder)
-         do t = 1, LIS_rc%npatch(n, mtype)
-             col = LIS_surface(n, mtype)%tile(t)%col
-             row = LIS_surface(n, mtype)%tile(t)%row
-             AC72_struc(n)%ac72(t)%GDDCGC = placeholder(col, row)
-         enddo 
-     !endif
- 
-     !if(GetCrop_ModeCycle().eq.ModeCycle_GDDays)then
-         write(LIS_logunit,*) "AC72: reading parameter CDC from ", trim(LIS_rc%paramfile(n))
-         call LIS_read_param(n, trim(AC72_struc(n)%LDT_ncvar_cdc), placeholder)
-         do t = 1, LIS_rc%npatch(n, mtype)
-             col = LIS_surface(n, mtype)%tile(t)%col
-             row = LIS_surface(n, mtype)%tile(t)%row
-             AC72_struc(n)%ac72(t)%GDDCDC = placeholder(col, row)
-         enddo 
-     !endif
- 
+     
+     AC72_struc(n)%GDDfromLDT = .false.
+     ! Check if GDD parameters are in nc file
+     if ( &
+        LIS_param_has_var(n, trim(AC72_struc(n)%LDT_ncvar_gdd_cco))        .and. &
+        LIS_param_has_var(n, trim(AC72_struc(n)%LDT_ncvar_gdd_maturity))  .and. &
+        LIS_param_has_var(n, trim(AC72_struc(n)%LDT_ncvar_gdd_senescence)).and. &
+        LIS_param_has_var(n, trim(AC72_struc(n)%LDT_ncvar_gdd_maxr))      .and. &
+        LIS_param_has_var(n, trim(AC72_struc(n)%LDT_ncvar_cgc))           .and. &
+        LIS_param_has_var(n, trim(AC72_struc(n)%LDT_ncvar_cdc)) ) then
+
+        AC72_struc(n)%GDDfromLDT = .true.
+
+        write(LIS_logunit,*) "AC72: reading parameter GDD_CCo from ", trim(LIS_rc%paramfile(n))
+        call LIS_read_param(n, trim(AC72_struc(n)%LDT_ncvar_gdd_cco), placeholder)
+        do t = 1, LIS_rc%npatch(n, mtype)
+           col = LIS_surface(n, mtype)%tile(t)%col
+           row = LIS_surface(n, mtype)%tile(t)%row
+           AC72_struc(n)%ac72(t)%GDDaysToGermination = placeholder(col, row)
+        enddo 
+
+        write(LIS_logunit,*) "AC72: reading parameter GDD_maturity from ", trim(LIS_rc%paramfile(n))
+        call LIS_read_param(n, trim(AC72_struc(n)%LDT_ncvar_gdd_maturity), placeholder)
+        do t = 1, LIS_rc%npatch(n, mtype)
+            col = LIS_surface(n, mtype)%tile(t)%col
+            row = LIS_surface(n, mtype)%tile(t)%row
+            AC72_struc(n)%ac72(t)%GDDaysToHarvest = placeholder(col, row)
+        enddo 
+
+        write(LIS_logunit,*) "AC72: reading parameter GDD_senescence from ", trim(LIS_rc%paramfile(n))
+        call LIS_read_param(n, trim(AC72_struc(n)%LDT_ncvar_gdd_senescence), placeholder)
+        do t = 1, LIS_rc%npatch(n, mtype)
+            col = LIS_surface(n, mtype)%tile(t)%col
+            row = LIS_surface(n, mtype)%tile(t)%row
+            AC72_struc(n)%ac72(t)%GDDaysToSenescence = placeholder(col, row)
+        enddo 
+
+        write(LIS_logunit,*) "AC72: reading parameter GDD_maxR from ", trim(LIS_rc%paramfile(n))
+        call LIS_read_param(n, trim(AC72_struc(n)%LDT_ncvar_gdd_maxr), placeholder)
+        do t = 1, LIS_rc%npatch(n, mtype)
+            col = LIS_surface(n, mtype)%tile(t)%col
+            row = LIS_surface(n, mtype)%tile(t)%row
+            AC72_struc(n)%ac72(t)%GDDaysToMaxRooting = placeholder(col, row)
+        enddo 
+
+        write(LIS_logunit,*) "AC72: reading parameter CGC from ", trim(LIS_rc%paramfile(n))
+        call LIS_read_param(n, trim(AC72_struc(n)%LDT_ncvar_cgc), placeholder)
+        do t = 1, LIS_rc%npatch(n, mtype)
+            col = LIS_surface(n, mtype)%tile(t)%col
+            row = LIS_surface(n, mtype)%tile(t)%row
+            AC72_struc(n)%ac72(t)%GDDCGC = placeholder(col, row)
+        enddo 
+
+        write(LIS_logunit,*) "AC72: reading parameter CDC from ", trim(LIS_rc%paramfile(n))
+        call LIS_read_param(n, trim(AC72_struc(n)%LDT_ncvar_cdc), placeholder)
+        do t = 1, LIS_rc%npatch(n, mtype)
+            col = LIS_surface(n, mtype)%tile(t)%col
+            row = LIS_surface(n, mtype)%tile(t)%row
+            AC72_struc(n)%ac72(t)%GDDCDC = placeholder(col, row)
+        enddo 
+     endif
+   
      deallocate(placeholder)
      ! Read soil table
      call SOIL_PARM_AC72(AC72_struc(n)%soil_tbl_name)
@@ -1013,14 +1016,14 @@ subroutine AC72_setup()
         call SetSoil(AC72_struc(n)%ac72(t)%Soil)
         call SetNrCompartments(AC72_struc(n)%ac72(t)%NrCompartments)
 
-        !if(GetCrop_ModeCycle().eq.ModeCycle_GDDays)then
+        if ( AC72_struc(n)%GDDfromLDT ) then
             call SetCrop_GDDaysToGermination(AC72_struc(n)%ac72(t)%GDDaysToGermination)
             call SetCrop_GDDaysToHarvest(AC72_struc(n)%ac72(t)%GDDaysToHarvest)
             call SetCrop_GDDaysToMaxRooting(AC72_struc(n)%ac72(t)%GDDaysToMaxRooting)
             call SetCrop_GDDaysToSenescence(AC72_struc(n)%ac72(t)%GDDaysToSenescence)
             call SetCrop_GDDCGC(AC72_struc(n)%ac72(t)%GDDCGC)
             call SetCrop_GDDCDC(AC72_struc(n)%ac72(t)%GDDCDC)
-        !endif
+        endif
 
         call SetPathNameProg('')
         !
@@ -1540,4 +1543,37 @@ subroutine ac72_read_croptype(n)
 
 end subroutine ac72_read_croptype
 
+logical function LIS_param_has_var(n, pname)
+#if (defined USE_NETCDF3 || defined USE_NETCDF4)
+  use netcdf
+#endif
+  use LIS_coreMod, only : LIS_rc
+  use LIS_logMod,  only : LIS_logunit, LIS_verify
+  implicit none
+
+  integer, intent(in)    :: n
+  character(len=*), intent(in) :: pname
+
+  integer :: nid, varid, ios
+  logical :: file_exists
+
+  LIS_param_has_var = .false.
+
+#if (defined USE_NETCDF3 || defined USE_NETCDF4)
+
+  inquire(file=trim(LIS_rc%paramfile(n)), exist=file_exists)
+  if (.not. file_exists) return
+
+  ios = nf90_open(trim(LIS_rc%paramfile(n)), NF90_NOWRITE, nid)
+  if (ios /= NF90_NOERR) return
+
+  ios = nf90_inq_varid(nid, trim(pname), varid)
+  if (ios == NF90_NOERR) LIS_param_has_var = .true.
+
+  ! close netcdf file
+  ios = nf90_close(nid)
+  call LIS_verify(ios, 'Error in nf90_close in LIS_param_has_var')
+
+#endif
+end function LIS_param_has_var
 

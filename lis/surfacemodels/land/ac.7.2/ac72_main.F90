@@ -769,7 +769,7 @@ subroutine AC72_main(n)
         call SetGDDayi(AC72_struc(n)%ac72(t)%GDDayi)
         call SetNoMoreCrop(AC72_struc(n)%AC72(t)%NoMoreCrop)
         ! Set variables for GDD mode in case of spatially variable parameters
-        if(GetCrop_ModeCycle().eq.ModeCycle_GDDays)then
+        if ( GetCrop_ModeCycle() .eq. ModeCycle_GDDays .and. AC72_struc(n)%GDDfromLDT ) then
            call SetCrop_GDDaysToGermination(AC72_struc(n)%AC72(t)%GDDaysToGermination)
            call SetCrop_GDDaysToHarvest(AC72_struc(n)%AC72(t)%GDDaysToHarvest)
            call SetCrop_GDDaysToMaxRooting(AC72_struc(n)%AC72(t)%GDDaysToMaxRooting)
