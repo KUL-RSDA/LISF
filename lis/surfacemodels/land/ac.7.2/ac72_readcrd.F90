@@ -204,16 +204,6 @@ subroutine AC72_readcrd()
      AC72_struc(n)%dt = AC72_struc(n)%ts
   enddo
 
-  ! reference height of forcings (u and v)
-  call ESMF_ConfigFindLabel(LIS_config, &
-       "AquaCrop.7.2 reference height of u and v:", rc = rc)
-  do n=1, LIS_rc%nnest
-     call ESMF_ConfigGetAttribute(LIS_config, AC72_struc(n)%refz_uv, rc=rc)
-     call LIS_verify(rc, &
-          "AquaCrop.7.2 reference height of u and v: "//&
-          "not defined")
-  enddo
-
   do n=1,LIS_rc%nnest
      ios = nf90_close(nids(n))
      call LIS_verify(ios,'Error in nf90_close in '//trim(LIS_rc%paramfile(n))//' in AC72_readcrd')
