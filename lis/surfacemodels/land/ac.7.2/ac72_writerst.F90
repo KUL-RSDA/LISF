@@ -28,6 +28,9 @@ subroutine AC72_writerst(n)
   use LIS_logMod, only     : LIS_logunit, LIS_getNextUnitNumber, &
        LIS_releaseUnitNumber , LIS_verify
   use LIS_timeMgrMod, only : LIS_isAlarmRinging
+#if (defined SPMD)
+  use LIS_mpiMod
+#endif
 #if (defined USE_NETCDF3 || defined USE_NETCDF4)
   use netcdf
 #endif
@@ -57,18 +60,30 @@ subroutine AC72_writerst(n)
   logical       :: alarmCheck, alarmCheck_sf
   integer       :: ftn
   integer       :: status
+  integer       :: InitializeRun_flag
+  integer       :: ierr
 
   external :: AC72_dump_restart
 
   ! set restart alarm
   alarmCheck = LIS_isAlarmRinging(LIS_rc, "AC72 restart alarm")
+
+  ! Check if end of AquaCrop simulation period
+  ! Only check if surface model alarm is ringing
   alarmCheck_sf = LIS_isAlarmRinging(LIS_rc, "AC72 model alarm")
+  if (alarmCheck_sf) then
+     InitializeRun_flag = 0
+     ! Get InitializeRun_flag
+     call MPI_ALLREDUCE(AC72_struc(n)%InitializeRun, InitializeRun_flag, 1, &
+          MPI_INTEGER, MPI_MAX,&
+          LIS_mpi_comm, ierr)
+  endif
 
   ! set restart file format (read from LIS configration file_
   wformat = trim(AC72_struc(n)%rformat)
 
   if(alarmCheck .or. (LIS_rc%endtime ==1) .or. &
-       ((AC72_struc(n)%ac72(1)%InitializeRun.eq.1).and.alarmCheck_sf)) then
+       ((InitializeRun_flag.eq.1).and.alarmCheck_sf)) then
      ! Writes restart file at the end of AquaCrop simulation period
      If (LIS_masterproc) Then
         call LIS_create_output_directory("SURFACEMODEL")

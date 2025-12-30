@@ -253,7 +253,7 @@ subroutine NoahMP401_qc_soilmobs(n,k,OBS_State)
            smobs(t) = LIS_rc%udef 
         elseif(t1_obs(t).le.LIS_CONST_TKFRZ) then ! Var name Noah36 --> t1
            smobs(t) = LIS_rc%udef
-        elseif(vegt_obs(t).le.4) then !forest types ! Var name Noah36 --> vegt
+        elseif((vegt_obs(t).le.4).and.(NOAHMP401_struc(n)%forestDA_opt.eq..false.)) then !forest types ! Var name Noah36 --> vegt
            smobs(t) = LIS_rc%udef
  ! MN: check for snow  
         elseif(sneqv_obs(t).gt.0.001) then 
@@ -261,16 +261,19 @@ subroutine NoahMP401_qc_soilmobs(n,k,OBS_State)
         elseif(sca_obs(t).gt.0.0001) then  ! Var name sca 
            smobs(t) = LIS_rc%udef
  ! MN: check for green vegetation fraction NOTE: threshold incerased from 0.5 to 0.7 
-        elseif(shdfac_obs(t).gt.0.9) then  ! var name Noah36 shdfac 12-month green veg. frac.  
+        elseif((shdfac_obs(t).gt.0.9).and.(NOAHMP401_struc(n)%forestDA_opt.eq..false.)) then  
+                                           ! var name Noah36 shdfac 12-month green veg. frac.  
                                            ! The threshold has been tuned for spatial coverage
                                            ! Higher than Noah.3.9 because max greenness is used for shdfac in Noah-MP.4.0.1
                                            ! while Noah3.9 uses monthly climatological greenness. 
            smobs(t) = LIS_rc%udef        
 !too close to the tails, could be due to scaling, so reject. 
-        elseif(smcmax_obs(t)-smobs(t).lt.0.02) then 
-           smobs(t) = LIS_rc%udef
-        elseif(smobs(t) - smcwlt_obs(t).lt.0.02) then 
-           smobs(t) = LIS_rc%udef
+        elseif(NOAHMP401_struc(n)%QC_opt.eq..true.) then
+            if(smcmax_obs(t)-smobs(t).lt.0.02) then 
+                 smobs(t) = LIS_rc%udef
+            elseif(smobs(t) - smcwlt_obs(t).lt.0.02) then 
+                 smobs(t) = LIS_rc%udef
+            endif
         endif
      endif
   enddo

@@ -165,6 +165,8 @@ contains
     allocate(daily_tmax_arr(LIS_rc%npatch(n,LIS_rc%lsm_index),366))
     allocate(daily_tmin_arr(LIS_rc%npatch(n,LIS_rc%lsm_index),366))
     allocate(subdaily_arr(LIS_rc%npatch(n,LIS_rc%lsm_index),met_ts))
+    daily_tmax_arr = 0
+    daily_tmin_arr = 0
 
     ! Set LIS_rc time to beginning of simulation period (in case of restart)
     ! Check in which year the simulation did start (assuming a 365-366 sim period)

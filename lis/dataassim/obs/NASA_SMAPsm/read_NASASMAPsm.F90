@@ -726,6 +726,8 @@ subroutine read_SMAPL2sm_data(n, k,fname, smobs_inp, time)
   character*100,    parameter    :: sm_gr_name = "Soil_Moisture_Retrieval_Data"
   character*100,    parameter    :: sm_field_name = "soil_moisture"
   character*100,    parameter    :: sm_qa_name = "retrieval_qual_flag"
+!ZH
+  character*100,    parameter    :: sm_surface_flag_name = "surface_flag"
 !YK
   character*100,    parameter    :: vwc_field_name = "vegetation_water_content"
 
@@ -734,12 +736,13 @@ subroutine read_SMAPL2sm_data(n, k,fname, smobs_inp, time)
   integer(hid_t)                 :: file_id
   integer(hid_t)                 :: dspace_id
   integer(hid_t)                 :: row_id, col_id
-  integer(hid_t)                 :: sm_gr_id,sm_field_id, sm_qa_id
+  integer(hid_t)                 :: sm_gr_id,sm_field_id, sm_qa_id, sm_surface_flag_id
   integer(hid_t)                 :: sm_gr_id_A,sm_field_id_A
   integer(hid_t)                 :: vwc_field_id ! YK
   real,             allocatable  :: sm_field(:)
   real,             allocatable  :: vwc_field(:)! YK
   integer,          allocatable  :: sm_qa(:)
+  integer,          allocatable  :: sm_surface_flag(:) ! ZH
   integer,          allocatable  :: ease_row(:)
   integer,          allocatable  :: ease_col(:)
   integer                        :: c,r,t
@@ -772,6 +775,10 @@ subroutine read_SMAPL2sm_data(n, k,fname, smobs_inp, time)
   call h5dopen_f(sm_gr_id, sm_qa_name,sm_qa_id, status)
   call LIS_verify(status, 'Error opening QA field in SMAP L2 file')
 
+!ZH
+  call h5dopen_f(sm_gr_id, sm_surface_flag_name,sm_surface_flag_id, status)
+  call LIS_verify(status, 'Error opening surface field in SMAP L2 file')
+
 !YK 
   call h5dopen_f(sm_gr_id, vwc_field_name,vwc_field_id, status)
   call LIS_verify(status, 'Error opening Veg water content field in SMAP L2 file')
@@ -788,6 +795,7 @@ subroutine read_SMAPL2sm_data(n, k,fname, smobs_inp, time)
 
   allocate(sm_field(maxdims(1)))
   allocate(sm_qa(maxdims(1)))    !YK
+  allocate(sm_surface_flag(maxdims(1))) !ZH
   allocate(vwc_field(maxdims(1)))    !YK
   allocate(ease_row(maxdims(1)))
   allocate(ease_col(maxdims(1)))
@@ -803,7 +811,11 @@ subroutine read_SMAPL2sm_data(n, k,fname, smobs_inp, time)
 
 !YK
   call h5dread_f(sm_qa_id, H5T_NATIVE_INTEGER,sm_qa,dims,status)
-  call LIS_verify(status, 'Error extracting SM field from SMAP L2 file')
+  call LIS_verify(status, 'Error extracting QA field from SMAP L2 file')
+
+!ZH
+  call h5dread_f(sm_surface_flag_id, H5T_NATIVE_INTEGER,sm_surface_flag,dims,status)
+  call LIS_verify(status, 'Error extracting surface field from SMAP L2 file')
 
 !YK get the vegetation water content
   call h5dread_f(vwc_field_id, H5T_NATIVE_REAL,vwc_field,dims,status)
@@ -811,6 +823,10 @@ subroutine read_SMAPL2sm_data(n, k,fname, smobs_inp, time)
 
 !YK
   call h5dclose_f(sm_qa_id,status)
+  call LIS_verify(status,'Error in H5DCLOSE call')
+
+!ZH
+  call h5dclose_f(sm_surface_flag_id,status)
   call LIS_verify(status,'Error in H5DCLOSE call')
 
 !YK 
@@ -863,18 +879,30 @@ subroutine read_SMAPL2sm_data(n, k,fname, smobs_inp, time)
         sm_data(ease_col(t) + &
              (ease_row(t)-1)*NASASMAPsm_struc(n)%nc) = sm_field(t)
 
-        if(vwc_field(t).gt.5) then !YK Aply QC : if VWC > 5 kg/m2
+        if(vwc_field(t).gt.5 .and. NASASMAPsm_struc(n)%vegetation_flag.eq.1) then !YK Aply QC : if VWC > 5 kg/m2 !ZH: make this optional
            sm_data(ease_col(t) + &
                 (ease_row(t)-1)*NASASMAPsm_struc(n)%nc) = LIS_rc%udef
         else
            if(sm_data(ease_col(t) + &
-                   (ease_row(t)-1)*NASASMAPsm_struc(n)%nc).ne.-9999.0) then
+                    (ease_row(t)-1)*NASASMAPsm_struc(n)%nc).ne.-9999.0) then
               if(ibits(sm_qa(t),0,1).eq.0) then
+              ! retrieval has the recommended quality 
+              ! (not the case when VWC > 5 kg/m2, and/or other reasons)
                  sm_data_b(ease_col(t) + &
+                    (ease_row(t)-1)*NASASMAPsm_struc(n)%nc) = .true.
+              ! ZH: check if it is only the dense vegetation (bit 10) causing the retrieval
+              ! not to have the recommended quality, still assimilate in this case, if retrieval was successful
+              elseif(NASASMAPsm_struc(n)%vegetation_flag.eq.0 .and. ibits(sm_qa(t),2,1).eq.0 .and. &
+                 ibits(sm_surface_flag(t),0,1).eq.0 .and. ibits(sm_surface_flag(t),1,1).eq.0 .and. &
+                 ibits(sm_surface_flag(t),2,1).eq.0 .and. ibits(sm_surface_flag(t),3,1).eq.0 .and. &
+                 ibits(sm_surface_flag(t),4,1).eq.0 .and. ibits(sm_surface_flag(t),5,1).eq.0 .and. &
+                 ibits(sm_surface_flag(t),6,1).eq.0 .and. ibits(sm_surface_flag(t),7,1).eq.0 .and. &
+                 ibits(sm_surface_flag(t),8,1).eq.0 .and. ibits(sm_surface_flag(t),9,1).eq.0) then
+                    sm_data_b(ease_col(t) + &
                     (ease_row(t)-1)*NASASMAPsm_struc(n)%nc) = .true.
               else
                  sm_data(ease_col(t) + &
-                      (ease_row(t)-1)*NASASMAPsm_struc(n)%nc) = LIS_rc%udef
+                       (ease_row(t)-1)*NASASMAPsm_struc(n)%nc) = LIS_rc%udef
               endif
            endif
         endif
@@ -895,7 +923,8 @@ subroutine read_SMAPL2sm_data(n, k,fname, smobs_inp, time)
 
 
   deallocate(sm_field)
-!  deallocate(sm_qa)
+  deallocate(sm_qa)
+  deallocate(sm_surface_flag)
   deallocate(ease_row)
   deallocate(ease_col)
 

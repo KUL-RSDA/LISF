@@ -2241,8 +2241,8 @@ module gmaopert_Mod
                         enddo
                      enddo
                   enddo
+                  deallocate(pertdata1d_obs_int)
                endif
-               deallocate(pertdata1d_obs_int)
 
             enddo
          else

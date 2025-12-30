@@ -26,6 +26,8 @@ module LDT_pluginIndices
 !  17 Jul 2012: KR Arsenault -- Updated entries with capitalization rules
 !  01 Mar 2020: Yeosang Yoon -- Added MERIT DEM
 !  28 Jun 2022: Eric Kemp -- Added NAFPA background precipitation
+!  24 Apr 2025: Yeosang Yoon -- Added RAPID
+!  08 Jul 2025: Eric Kemp -- Added SNIP
 !
 !EOP
   PRIVATE
@@ -45,6 +47,7 @@ module LDT_pluginIndices
    character*50, public,  parameter :: LDT_MetTDscaleprocId = "Metforce temporal downscaling"
    character*50, public,  parameter :: LDT_StatDscaleMetforcprocId = "Statistical downscaling of met forcing"
    character*50, public,  parameter :: LDT_usafsiId = "USAFSI analysis"
+   character*50, public,  parameter :: LDT_snipId = "SNIP analysis"
    character*50, public,  parameter :: LDT_OPTUEparamprocId   = "OPTUE parameter processing"
    character*50, public,  parameter :: LDT_obsSimprocId   = "Observation simulator"
    character*50, public,  parameter :: LDT_LISHydropreprocId  = "LISHydro preprocessing for WRFHydro"
@@ -382,6 +385,7 @@ module LDT_pluginIndices
 !-------------------------------------------------------------------------
    character*50, public, parameter  :: LDT_HYMAPId  = "HYMAP"
    character*50, public, parameter  :: LDT_HYMAP2Id = "HYMAP2"
+   character*50, public, parameter  :: LDT_RAPIDId = "RAPID"
 
 !-------------------------------------------------------------------------
 ! ANN data sources

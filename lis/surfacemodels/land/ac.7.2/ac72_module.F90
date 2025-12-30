@@ -90,9 +90,11 @@ module AC72_module
      !-------------------------------------------------------------------------
      real, pointer      :: smc(:)
      !-------------------------------------------------------------------------
-     ! AC specific (all AC global variables)
+     ! AC specific (all AC global variables + others)
      !-------------------------------------------------------------------------
-     real               :: cycle_complete
+     integer            :: cycle_complete
+     integer            :: valid_sim
+     real               :: tbase
      integer            :: daynri
      real               :: RootZoneWC_Actual
      real               :: RootZoneWC_FC
@@ -150,9 +152,6 @@ module AC72_module
      integer(int8) :: OutputAggregate
 
      integer(int32) :: NrRuns
-     integer :: irun
-     integer(int32) :: InitializeRun
-     integer(int32) :: read_Trecord
      integer(intEnum) :: TheProjectType
 
      logical :: EvapoEntireSoilSurface

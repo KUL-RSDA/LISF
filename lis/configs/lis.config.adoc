@@ -1054,6 +1054,7 @@ Acceptable values are:
 |"`NLDAS router`"  | use the NLDAS router
 |"`HYMAP router`"  | use the HyMAP router
 |"`HYMAP2 router`" | use the HyMAP2 router
+|"`HYMAP3 router`" | use the HyMAP3 router
 |"`RAPID router`" | use the RAPID router
 |====
 
@@ -1245,7 +1246,8 @@ Acceptable values are:
 |"`SMOS(NESDIS) soil moisture`" | NESDIS SMOS soil moisture
 |"`SNODEP`"                     | AFWA SNODEP
 |"`USAFSI`"                     | USAF Snow and Ice Analysis
-|"`SMAP(NASA) vegetation optical depth`"  | NASA L-band vegetation optical depth 
+|"`SNIP`"                     | USAF SNow and Ice Product
+|"`SMAP(NASA) vegetation optical depth`"  | NASA L-band vegetation optical depth
 |"`MCD15A2H LAI`"               | MODIS MCD15A2H v006 LAI product
 |"`SMOS NRT NN soil moisture`"  | SMOS Level 2 Soil Moisture Near Real Time Neural Network
 |"`THySM`"                      | Thermal Hydraulic disaggregation of Soil Moisture
@@ -1315,6 +1317,22 @@ Acceptable values are:
 .Example _lis.config_ entry
 ....
 Data assimilation output ensemble spread: 0
+....
+
+`Data assimilation ensemble spread type:` specifies the format in which
+to output the ensemble spread.
+Acceptable values are:
+
+|====
+|Value | Description
+
+|"`std`"      |  Output the standard deviation of the ensemble
+|"`max-min`"  |  Output the range of the ensemble (difference between the largest and smallest ensemble member)
+|====
+
+.Example _lis.config_ entry
+....
+Data assimilation ensemble spread type: "max-min"
 ....
 
 
@@ -2087,6 +2105,22 @@ be "`usafsi_yyyymmddhh.nc.`"
 ....
 USAFSI data directory:                  ./FORCING/USAFSI
 USAFSI netcdf filename prefix:         usafsi
+....
+
+[[sssec_snipda,SNIP Assimilation]]
+==== SNIP Assimilation
+
+`SNIP data directory:` specifies the directory for the
+SNIP data.
+
+`SNIP netcdf filename prefix:` specifies the prefix of
+the SNIP dataset. If prefix is "`SNIP`", then the file name will
+be "`SNIP_yyyymmddhh.nc.`"
+
+.Example _lis.config_ entry
+....
+SNIP data directory:                  ./FORCING/SNIP
+SNIP netcdf filename prefix:         SNIP
 ....
 
 [[sssec_ansasweda,ANSA SWE Assimilation]]
@@ -2949,6 +2983,15 @@ moisture data.
 |"`combined`" | combined sensor type
 |===
 
+`ESA CCI soil moisture assimilate over barren grounds:` specifies whether to ignore the advisory flag for barren grounds
+in the ESA CCI product from v7.1 onwards
+Acceptable values are:
+|====
+|Value   | Description
+|.true.  | Assimilate over barren grounds
+|.false. | Don't assimilate over barren grounds
+|====
+
 `ESA CCI use scaled standard deviation model:` specifies if the observation
 error standard deviation is to be scaled using model and observation standard
 deviation.
@@ -2960,6 +3003,24 @@ deviation.
 
 `ESA CCI soil moisture number of bins in the CDF:` specifies the number of
 bins in the CDF.
+
+`ESA CCI CDF read option:` specifies whether to read all months at once
+or to read month by month from a monthly CDF file.
+Acceptable values are:
+|====
+|Value    | Description
+|0 | Read all months
+|1 | Read month by month
+|====
+NOTE: Select 0 for yearly CDF data.
+`ESA CCI soil moisture assimilate at 0UTC:` specifies whether to assimilate at 00:00 UTC
+or at local noon (note that ESA CCI retrievals are centered around 00:00 UTC).
+Acceptable values are:
+|====
+|Value   | Description
+|.true.  | Assimilate at 00:00 UTC
+|.false. | Assimilate at local noon
+|====
 
 .Example _lis.config_ entry
 ....
@@ -3101,6 +3162,7 @@ Acceptable values are:
 |====
 |Value    | Description
 
+|SPL2SMP  | Level 2 passive SMAP data
 |SPL3SMAP | Level 3 active passive SMAP data
 |SPL3SMP  | Level 3 passive SMAP data 
 |====
@@ -3111,6 +3173,19 @@ composite release ID included within the filename (e.g., R16).
 `SMAP(NASA) soil moisture use scaled standard deviation model:` specifies
 whether the observation error standard deviation is to be scaled using model
 and observation standard deviation.
+
+`SMAP(NASA) soil moisture dense vegetation flag option:` specifies whether the
+recommended quality flag for dense vegetation should be used. Option only implemented
+for Level 2 passive SMAP data (SPL2SMP).
+
+Acceptable values are:
+
+|====
+|Value    | Description
+
+|.true.   | Use recommended quality flag (only assimilate if VWC < 5 kg/m^2^)
+|.false.  | Don't use recommended quality flag (assimilate if VWC < 30 kg/m^2^)
+|====
 
 `SMAP(NASA) model CDF file:` specifies the name of the model CDF file
 (observations will be scaled into this climatology).
@@ -3143,6 +3218,7 @@ SMAP(NASA) soil moisture data directory:
 SMAP(NASA) soil moisture data designation:
 SMAP(NASA) soil moisture Composite Release ID:
 SMAP(NASA) soil moisture use scaled standard deviation model:
+SMAP(NASA) soil moisture dense vegetation flag option:
 SMAP(NASA) model CDF file:
 SMAP(NASA) observation CDF file:
 SMAP(NASA) soil moisture number of bins in the CDF:
@@ -7144,11 +7220,25 @@ run mode. Currently, only the forecast mode is supported.
 `GALWEM-GE forecast number of ensemble members:` specifies the number of ensembles
 of the GALWEM-GE forecast forcing data.
 
+`Apply GALWEM-GE precipitation bias correction:` specifies whether to enable the precipitation
+bias correction. Acceptable values are:
+
+|====
+|Value | Description
+
+|0     | Do not enable
+|1     | Enable
+|====
+
+`GALWEM-GE model CDF directory:` specifies the location of the GALWEM-GE model CDF files.
+
 .Example _lis.config_ entry
 ....
-GALWEM-GE forecast forcing directory:          ./GALWEM_GE
-GALWEM-GE forecast run mode:                   forecast    # forecast | analysis
-GALWEM-GE forecast number of ensemble members: 21
+GALWEM-GE forecast forcing directory:          ./input/GALWEM_GE
+GALWEM-GE forecast run mode:                   forecast   
+GALWEM-GE forecast number of ensemble members: 10
+Apply GALWEM-GE precipitation bias correction: 1 #enter 1 - use; or 0
+GALWEM-GE model CDF directory:                 ./input/cdf/
 ....
 
 [[sssec_mogrepsgforecast,MOGREPS-G forecast]]
@@ -8888,6 +8978,14 @@ the _lis.config_ file, the default value of 2000.0 mm is used.
 This maximum only applies to tiles identified as glacier in the
 landcover classification.
 
+`Noah-MP.4.0.1 apply soil moisture observation QC:` specifies whether
+quality control should reject observations which are too close to the
+soil moisture boundaries. Defaults to `.true.`.
+
+`Noah-MP.4.0.1 apply soil moisture DA over forests:` specifies whether
+soil moisture data assimilaion may be performed over forests. Defaults
+to `.false.`.
+
 .Example _lis.config_ entry
 ....
 Noah-MP.4.0.1 model timestep:                15mn
@@ -8929,6 +9027,8 @@ Noah-MP.4.0.1 initial water table depth:                    2.5
 Noah-MP.4.0.1 initial water in the aquifer:                 4900.0
 Noah-MP.4.0.1 initial water in aquifer and saturated soil:  4900.0
 Noah-MP.4.0.1 snow depth glacier model option:              2000
+Noah-MP.4.0.1 apply soil moisture observation QC:           .true.
+Noah-MP.4.0.1 apply soil moisture DA over forests:          .false.
 ....
 
 
@@ -10930,7 +11030,192 @@ HYMAP2 routing model start mode: "coldstart"
 HYMAP2 routing model restart interval: "1mo"
 HYMAP2 routing model restart file: "./OL/ROUTING/197901/LIS_RST_HYMAP2_router_197901030000.d01.nc
 HYMAP2 enable 2-way coupling: 0
-HYMAP2 2-way coupling flooded fraction threshold: 2.0
+HYMAP2 2-way coupling flooded fraction threshold: 0.1
+....
+
+
+[[sssec_hymap3routing,HYMAP3 routing]]
+==== HYMAP3 routing
+
+`HYMAP3 routing model time step:` specifies the timestep for
+the HyMAP3 router.
+
+See Section <<ssec_timeinterval>> for a description
+of how to specify a time interval.
+
+`HYMAP3 routing model output interval:` defines the output
+writing interval for the HyMAP3 router.
+
+See Section <<ssec_timeinterval>> for a description
+of how to specify a time interval.
+
+`HYMAP3 run in ensemble mode:` specifies whether to run the HyMAP3 router in ensemble mode.
+
+Acceptable values are:
+
+|====
+|Value | Description
+
+|0     | Do not run in ensemble mode
+|1     | Run in ensemble mode
+|====
+
+`HYMAP3 routing method:` specifies the HyMAP3 routing method to use.
+
+Acceptable values are:
+
+|====
+|Value              | Description
+
+|kinematic          | use kinematic method
+|diffusive          | use diffusive method
+|"`local inertia`"  | use local inertia method
+|hybrid             | use hybrid method (requires a river flow map from LDT)
+|urban             | use urban hydrology method (requires river flow and urban drainage outlet maps from LDT, and an additional lis.config_ entry)
+|====
+`HYMAP3 urban drainage parameter file:` specifies the text file name containing gutter and drainage network parameters. This config entry is only used when ` HYMAP3 routing method:` is set to `urban`.
+
+`HYMAP3 routing model time step method:` specifies the HyMAP3
+routing model time step method to use. This option is elective. If not defined,  HYMAP3 adopts `adaptive` by default. 
+
+Acceptable values are:
+
+|====
+|Value     | Description
+
+|constant  | use constant timestep
+|adaptive  | use adaptive (time-varying) timesteps (must provide an alfa coefficient value)
+|====
+
+`HYMAP3 routing model adaptive time step alfa coefficient:`
+specifies the adaptive time step alfa coefficient (a real number)
+for the HyMAP3 router.  This option is elective. If not defined,  HYMAP3 adopts 0.5 by default. This coefficient is not needed if using the `constant` time step method.
+
+`HYMAP3 floodplain dynamics:` specifies whether simulate
+floodplain dynamics in the HyMAP3 router.
+
+Acceptable values are:
+
+|====
+|Value | Description
+
+|0     | Do not use
+|1     | Use
+|====
+
+`HYMAP3 reservoir operation option:` specifies whether to use reservoir operations in the HyMAP3 router.  This option is elective. If not defined,  HYMAP3 does not use reservoir operation.
+
+Acceptable values are:
+
+|====
+|Value | Description
+
+|0     | Do not use
+|1     | Use data-driven model (additional _lis.config_ entries required)
+|2     | Use parameter-based model (additional _lis.config_ entries required)
+|3     | Use beaver dam module (additional _lis.config_ entries required)
+|====
+additional _lis.config_ entries for  data-driven model
+
+`HYMAP3 reservoir operation input directory:` specifies the input
+directory for the reservoir operation files to be used when using
+reservoir operations with the HyMAP3 router.  This config entry is
+only used when `HYMAP3 reservoir operation option:` is set to 1.
+
+`HYMAP3 reservoir operation header filename:` specifies the filename
+header for the reservoir operation files to be used when using
+reservoir operations with the HyMAP3 router.  This config entry is
+only used when `HYMAP3 reservoir operation option:` is set to 1.
+
+additional _lis.config_ entries for parameter-based model 
+`HYMAP3 reservoir operation input file:` specifies NetCDF file containing reservoir parameters. This config entry is only used when `HYMAP3 reservoir operation option:` is set to 2.
+
+`HYMAP3 reservoir list:` specifies text file containing the list of reservoirs. This config entry is only used when `HYMAP3 reservoir operation option:` is set to 2.
+
+`HYMAP3 levee:` specifies whether to account for levees. This option is elective. If not defined,  HYMAP3 does not account for levees.
+
+Acceptable values are:
+
+|====
+|Value | Description
+
+|0     | Do not use
+|1     | Use (requires a levee map from LDT)
+|====
+
+`HYMAP3 sea level:` specifies whether to account for sea levels as downstream boundary condition. This option is elective. If not defined,  HYMAP3 does not account for sea levels. 
+
+Acceptable values are:
+
+|====
+|Value | Description
+
+|0     | Do not use
+|1     | Use (requires additional lis.config_ entries)
+|====
+
+`HYMAP3 sea level input directory:` specifies the directory where data is found when using sea levels as downstream boundary condition with the HyMAP3 router.  This config entry is only used when `HYMAP3 sea level:` is set to 1.
+
+`HYMAP3 sea level header filename:` specifies the filename header for the sea level files to be used when using sea levels as downstream boundary condition with the HyMAP3 router. This config entry is only used when `HYMAP3 sea level:` is set to 1.
+
+`HYMAP3 sea level outlet list:` specifies the text filename listing the outlet grid cells using sea level data as downstream boundary conditions with the HyMAP3 router. This config entry is only used when `HYMAP3 sea level:` is set to 1.
+
+
+`HYMAP3 routing model start mode:` specifies the restart mode
+to be used for the HyMAP3 router.
+
+Acceptable values are:
+
+|====
+|Value     | Description
+
+|restart   | A restart mode is being used; read a HyMAP3 restart file
+|coldstart | A cold start mode is being used; no restart file read
+|====
+
+`HYMAP3 routing model restart interval:` defines the restart writing
+interval for the HyMAP3 router.
+
+See Section <<ssec_timeinterval>> for a description
+of how to specify a time interval.
+
+`HYMAP3 routing model restart file:` specifies the HyMAP3 router
+active restart file.
+
+`HYMAP3 enable 2-way coupling:` specifies whether to enable 2-way coupling.
+
+|====
+|Value | Description
+
+|0     | Do not use
+|1     | Use
+|====
+
+`HYMAP3 2-way coupling flooded fraction threshold:` specifies the flooded fraction
+threshold used in the 2-way coupling mode.
+
+.Example _lis.config_ entry
+....
+HYMAP3 routing model time step: "30mn"
+HYMAP3 routing model output interval: "1da"
+HYMAP3 run in ensemble mode: 0
+HYMAP3 routing method: "kinematic"
+HYMAP3 routing model time step method: "constant"
+HYMAP3 routing model adaptive time step alfa coefficient: 0.7
+HYMAP3 floodplain dynamics: 1
+HYMAP3 reservoir operation option: 1
+HYMAP3 reservoir operation input directory: "./reservoir_data"
+HYMAP3 reservoir operation header filename: "RESDATA"
+HYMAP3 levees: 1
+HYMAP3 sea level: 1
+HYMAP3 sea level input directory: “./sea_level_data”
+HYMAP3 sea level header filename: “SEALEVDATA”_
+HYMAP3 sea level outlet list: “OUTLETLIST”
+HYMAP3 routing model start mode: "coldstart"
+HYMAP3 routing model restart interval: "1mo"
+HYMAP3 routing model restart file: "./OL/ROUTING/197901/LIS_RST_HYMAP3_router_197901030000.d01.nc
+HYMAP3 enable 2-way coupling: 0
+HYMAP3 2-way coupling flooded fraction threshold: 0.1
 ....
 
 
@@ -11036,7 +11321,7 @@ Acceptable values are:
 
 |0     | Do not run in ensemble mode
 |1     | Run in ensemble mean mode
-|2     | Run in ensemble mode (not support)
+|2     | Run in ensemble mode
 |====
 
 `RAPID run option:` is set to 1 for a regular run. The other options are not

@@ -139,37 +139,37 @@ $sys_par_d = $par_table{$sys_arch}{$par_lev};
 #}
 
 
-print "Optimization level (-3=strict checks with warnings, -2=strict checks, -1=debug, 0,1,2,3, default=2): ";
+print "Optimization level (-3=strict checks with warnings, -2=strict checks, -1=debug, 0,1,2,3, default=3): ";
 $opt_lev=<stdin>;
 $opt_lev=~s/ *#.*$//;
 chomp($opt_lev);
 if($opt_lev eq ""){
-   $opt_lev=2;
+   $opt_lev=3;
 }
 
 if($opt_lev == -3) {
-   # Default flags for C.
-   $sys_c_opt = "-g";
-   if($sys_arch eq "linux_ifc"){
-       $sys_opt = "-g -warn";
-       $sys_opt .= 
-	   " -check bounds,format,output_conversion,pointers,stack,uninit";
-       $sys_opt .= " -fp-stack-check -ftrapuv";
+    $sys_opt   = "-g -O0";    # Default flags for Fortran
+    $sys_c_opt = "-g -O0";    # Default flags for C
+    if($sys_arch eq "linux_ifc"){
+        # Fortran flags
+        $sys_opt = "-g -O0 -warn";
+        $sys_opt .=
+            " -check bounds,format,output_conversion,pointers,stack,";
+        $sys_opt .= "uninit";
+        $sys_opt .= " -fp-stack-check -ftrapuv";
 
-       $sys_c_opt = "-g -Wall -Wcast-qual -Wcheck -Wdeprecated";
-       $sys_c_opt .= " -Wextra-tokens -Wformat";
-       $sys_c_opt .= " -Wformat-security -Wmissing-declarations";
-       $sys_c_opt .= " -Wmissing-prototypes -Wpointer-arith -Wremarks";
-       $sys_c_opt .= " -Wreturn-type -Wshadow -Wsign-compare";
-       $sys_c_opt .= " -Wstrict-prototypes -Wtrigraphs -Wuninitialized";
-       $sys_c_opt .= " -Wunused-function -Wunused-parameter";
-       $sys_c_opt .= " -Wunused-variable -Wwrite-strings";
-       # Run-time flags
-       #EMK 20231109...Disabled several flags that are rejected by the new ICX
-       #compiler on Narwhal.
-       #$sys_c_opt .= " -check=conversions,stack,uninit";
-       $sys_c_opt .= " -fp-stack-check -fp-trap=common -fp-trap-all=common";
-       #$sys_c_opt .= " -ftrapuv";
+        # C flags
+        $sys_c_opt = "-g -O0 -Wall -Wcast-qual -Wcheck -Wdeprecated";
+        $sys_c_opt .= " -Wextra-tokens -Wformat";
+        $sys_c_opt .= " -Wformat-security -Wmissing-declarations";
+        $sys_c_opt .= " -Wmissing-prototypes -Wpointer-arith -Wremarks";
+        $sys_c_opt .= " -Wreturn-type -Wshadow -Wsign-compare";
+        $sys_c_opt .= " -Wstrict-prototypes -Wtrigraphs -Wuninitialized";
+        $sys_c_opt .= " -Wunused-function -Wunused-parameter";
+        $sys_c_opt .= " -Wunused-variable -Wwrite-strings";
+        $sys_c_opt .= " -fp-stack-check -fp-trap=common";
+        $sys_c_opt .= " -fp-trap-all=common";
+        $sys_c_opt .= " -ftrapv";
    }
    elsif($sys_arch eq "linux_pgi") {
       print "Optimization level $opt_lev is not defined for $sys_arch.\n";
@@ -215,26 +215,28 @@ if($opt_lev == -3) {
     }
 }
 elsif($opt_lev == -2) {
-   # Default flags for C.
-   $sys_c_opt = "-g";
-   if($sys_arch eq "linux_ifc"){
-       $sys_opt = "-g ";
-       $sys_opt .= 
-	   " -check bounds,format,output_conversion,pointers,stack,uninit";
-       $sys_opt .= " -fp-stack-check -ftrapuv";
+    $sys_opt = "-g -O0"; # Default flags for Fortran.
+    $sys_c_opt = "-g -O0";  # Default flags for C
+    if($sys_arch eq "linux_ifc"){
+        # Fortran flags
+        $sys_opt = "-g -O0 -warn alignments,declarations,externals,";
+        $sys_opt .= "general,truncated_source,unused,uncalled";
+        $sys_opt .= " -check bounds,format,output_conversion,pointers,";
+        $sys_opt .= "stack,uninit";
+        $sys_opt .= " -fp-stack-check -ftrapuv";
 
-       $sys_c_opt = "-g -Wall -Wcast-qual -Wcheck -Wdeprecated";
-       $sys_c_opt .= " -Wextra-tokens -Wformat";
-       $sys_c_opt .= " -Wformat-security -Wmissing-declarations";
-       $sys_c_opt .= " -Wmissing-prototypes -Wpointer-arith -Wremarks";
-       $sys_c_opt .= " -Wreturn-type -Wshadow -Wsign-compare";
-       $sys_c_opt .= " -Wstrict-prototypes -Wtrigraphs -Wuninitialized";
-       $sys_c_opt .= " -Wunused-function -Wunused-parameter";
-       $sys_c_opt .= " -Wunused-variable -Wwrite-strings";
-       # Run-time flags
-       $sys_c_opt .= " -check=conversions,stack,uninit";
-       $sys_c_opt .= " -fp-stack-check -fp-trap=common -fp-trap-all=common";
-       $sys_c_opt .= " -ftrapuv";
+        # C flags
+        $sys_c_opt = "-g -O0 -Wall -Wcast-qual -Wcheck -Wdeprecated";
+        $sys_c_opt .= " -Wextra-tokens -Wformat";
+        $sys_c_opt .= " -Wformat-security -Wmissing-declarations";
+        $sys_c_opt .= " -Wmissing-prototypes -Wpointer-arith -Wremarks";
+        $sys_c_opt .= " -Wreturn-type -Wshadow -Wsign-compare";
+        $sys_c_opt .= " -Wstrict-prototypes -Wtrigraphs -Wuninitialized";
+        $sys_c_opt .= " -Wunused-function -Wunused-parameter";
+        $sys_c_opt .= " -Wunused-variable -Wwrite-strings";
+        $sys_c_opt .= " -fp-stack-check -fp-trap=common";
+        $sys_c_opt .= " -fp-trap-all=common";
+        $sys_c_opt .= " -ftrapv";
    }
    elsif($sys_arch eq "linux_pgi") {
       print "Optimization level $opt_lev is not defined for $sys_arch.\n";
@@ -278,7 +280,7 @@ elsif($opt_lev == 0) {
 }
 elsif($opt_lev == 1) {
    $sys_opt = "-O1";
-   $sys_c_opt = "";
+   $sys_c_opt = "O1";
 }
 elsif($opt_lev == 2) {
    if($sys_arch eq "cray_cray") {
@@ -287,17 +289,17 @@ elsif($opt_lev == 2) {
    }
    else {
       $sys_opt = "-O2 ";
-      $sys_c_opt = "";
+      $sys_c_opt = "-O2";
    }
 }
 elsif($opt_lev == 3) {
    $sys_opt = "-O3";
-   $sys_c_opt = "";
+   $sys_c_opt = "-O3";
 }
 
 if(($sys_arch eq "linux_ifc") && ($opt_lev gt 0)) {
    $sys_opt .= " -fp-model precise";
-   $sys_c_opt .= "-fp-model precise";
+   $sys_c_opt .= " -fp-model precise";
 }
 
 print "Assume little/big_endian data format (1-little, 2-big, default=2): ";
@@ -430,6 +432,9 @@ if($use_gribapi == 1) {
    elsif(defined($ENV{LIS_JASPER})){
       $sys_jpeg2000_path = $ENV{LIS_JASPER};
       $inc = "/include/";
+      if($ENV{'VSC_INSTITUTE_CLUSTER'} eq "genius"){
+          $inc .= "jasper/";
+      }
       $lib = "/lib/";
       $inc_jpeg2000=$sys_jpeg2000_path.$inc;
       $lib_jpeg2000=$sys_jpeg2000_path.$lib;
@@ -611,28 +616,31 @@ if($use_netcdf == 1) {
       $netcdf_deflate=1;
    }
 
-   print "NETCDF use deflate level? (1 to 9-yes, 0-no, default = 9): ";
+   print "NETCDF use deflate level? (1 to 9-yes, 0-no, default = 1): ";
    $netcdf_deflate_level=<stdin>;
    $netcdf_deflate_level=~s/ *#.*$//;
    chomp($netcdf_deflate_level);
    if($netcdf_deflate_level eq ""){
-      $netcdf_deflate_level=9;
+      $netcdf_deflate_level=1;
    }
 }
 
 
-print "Use HDF4? (1-yes, 0-no, default=1): ";
+print "Use HDF4? (1-yes, 0-no, default=0): ";
 $use_hdf4=<stdin>;
 $use_hdf4=~s/ *#.*$//;
 chomp($use_hdf4);
 if($use_hdf4 eq ""){
-   $use_hdf4=1;
+   $use_hdf4=0;
 }
 
 if($use_hdf4 == 1) {
    if(defined($ENV{LIS_HDF4})){
       $sys_hdf4_path = $ENV{LIS_HDF4};
       $inc = "/include/";
+      if($ENV{'VSC_INSTITUTE_CLUSTER'} eq "genius"){
+         $inc .= "hdf/";
+      }
       $lib = "/lib/";
       $inc_hdf4=$sys_hdf4_path.$inc;
       $lib_hdf4=$sys_hdf4_path.$lib;
@@ -675,12 +683,12 @@ if($use_hdf5 == 1) {
 }
 
 
-print "Use HDFEOS? (1-yes, 0-no, default=1): ";
+print "Use HDFEOS? (1-yes, 0-no, default=0): ";
 $use_hdfeos=<stdin>;
 $use_hdfeos=~s/ *#.*$//;
 chomp($use_hdfeos);
 if($use_hdfeos eq ""){
-   $use_hdfeos=1;
+   $use_hdfeos=0;
 }
 
 if($use_hdfeos == 1) {
@@ -853,6 +861,14 @@ if($use_petsc == 1) {
    }
 }
 
+print "Enable USAF LIS75 SM DA codes? (1-yes, 0-no, default=0): ";
+$use_usaf_lis75_smda=<stdin>;
+$use_usaf_lis75_smda=~s/ *#.*$//;
+chomp($use_usaf_lis75_smda);
+if($use_usaf_lis75_smda eq ""){
+   $use_usaf_lis75_smda=0;
+}
+
 if(defined($ENV{LIS_JPEG})){
    $libjpeg = "-L".$ENV{LIS_JPEG}."/lib"." -ljpeg";
 }
@@ -868,6 +884,11 @@ if ($ENV{ESMF_TRACE} eq '1') {
 # WRF_HYDRO does not prompt user
 if ($ENV{WRF_HYDRO} eq '1') {
    $use_wrf_hydro = 1;
+}
+
+# PARFLOW does not prompt user
+if ($ENV{PARFLOW} eq '1') {
+   $use_parflow = 1;
 }
 
 # MPDECOMP2 does not prompt user
@@ -1085,6 +1106,11 @@ if ($use_wrf_hydro == 1) {
    $fflags = $fflags." -DWRF_HYDRO";
 }
 
+if ($use_parflow == 1) {
+   $fflags77 = $fflags77." -DPARFLOW";
+   $fflags = $fflags." -DPARFLOW";
+}
+
 if ($use_mpdecomp2 == 1) {
    $fflags77 = $fflags77." -DMPDECOMP2";
    $fflags = $fflags." -DMPDECOMP2";
@@ -1105,6 +1131,18 @@ $fflags = $fflags." -DLIS_JULES";
 #
 
 $ldflags = $ldflags." -lz";
+
+if($ENV{'VSC_INSTITUTE_CLUSTER'} eq "genius"){
+    $fflags77 =~ s/-nomixed-str-len-arg/-nomixed_str_len_arg/;
+    $ldflags .= " -ltirpc -lmkl -lsz -lpioc";
+}
+elsif($ENV{'VSC_INSTITUTE_CLUSTER'} eq "wice"){
+    $ldflags .= " -ltirpc -lmkl -lsz -lpioc";
+}
+elsif($ENV{'VSC_INSTITUTE_CLUSTER'} eq "dodrio") {
+    $ldflags .= " -ltirpc -lmkl -lsz -lpioc";
+}
+$ldflags =~ s/-L([^\s]+)/-L$1 -Wl,-rpath=$1/g;
 
 #
 # Write configure.lis and related files
@@ -1235,6 +1273,13 @@ else{
 
 printf misc_file "%s\n","#undef INC_WATER_PTS";
 printf misc_file "%s\n","#undef COUPLED";
+
+if ($use_usaf_lis75_smda == 1) {
+    printf misc_file "%s\n","#define USAF_LIS75_SMDA ";
+} else {
+    printf misc_file "%s\n","#undef USAF_LIS75_SMDA ";
+}
+
 close(misc_file);
 
 open(netcdf_file,">LIS_NetCDF_inc.h");

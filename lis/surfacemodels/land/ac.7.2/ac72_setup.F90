@@ -569,6 +569,7 @@ subroutine AC72_setup()
 
   logical :: MultipleRunWithKeepSWC_temp
   real    :: MultipleRunConstZrx_temp
+  real    :: frac_lower
 
   external :: ac72_read_croptype
   external :: ac72_read_multilevel_param
@@ -797,6 +798,12 @@ subroutine AC72_setup()
 
      ! Read annual temperature record
      call ac72_read_Trecord(n)
+
+     ! InitializeSimulation (year)
+     AC72_struc(n)%irun = 1
+
+     AC72_struc(n)%InitializeRun = 0 ! Make sure to set it to ...
+     AC72_struc(n)%read_Trecord = 0 ! 0 for all procs
 
      do t = 1, LIS_rc%npatch(n, mtype)
 
@@ -1037,9 +1044,6 @@ subroutine AC72_setup()
         call SetSimulation_MultipleRun(.true.)
         call SetSimulation_NrRuns(TotalSimRuns)
 
-        ! InitializeSimulation (year)
-        AC72_struc(n)%ac72(t)%irun = 1
-
         call SetClimRecord_DataType(0_int8)
         call SetClimRecord_fromd(0)
         call SetClimRecord_fromdaynr(ProjectInput(1)%Simulation_DayNr1)
@@ -1070,231 +1074,260 @@ subroutine AC72_setup()
         call SetTnxReferenceYear(AC72_struc(n)%tempcli_refyr)
         call SetTnxReferenceFile('(External)')
 
-        ! InitializeRunPart1
-        call InitializeRunPart1(int(AC72_struc(n)%ac72(t)%irun, kind=int8), AC72_struc(n)%ac72(t)%TheProjectType)
-        call InitializeSimulationRunPart2()
-        AC72_struc(n)%ac72(t)%InitializeRun = 0
-        AC72_struc(n)%ac72(t)%read_Trecord = 0
-        ! Check if enough GDDays to complete cycle, if not, turn on flag to warn the user
-        AC72_struc(n)%AC72(t)%crop = GetCrop()
-        if(GetCrop_ModeCycle().eq.ModeCycle_GDDays)then
-           if (((GetCrop_Day1()+GetCrop_DaysToHarvest()).gt.GetSimulation_ToDayNr()) &
-                .or.(GetCrop_DaysToHarvest()<1)) then
-              AC72_struc(n)%ac72(t)%cycle_complete = 0
-           else
-              AC72_struc(n)%ac72(t)%cycle_complete = 1
-           endif
-        endif
-        ! Close irrigation file after Run Initialization
-        ! Note: only 2 irrigation records can be passed
-        if((GetIrriMode().eq.IrriMode_Generate)&
-             .or.(GetIrriMode().eq.IrriMode_Manual)) then
-           call fIrri_close()
+        ! Check if temperatures are high enough for crop production from Trecord
+        ! Get base temperature
+        frac_lower = real(count( ((AC72_struc(n)%ac72(t)%Tmin_record + AC72_struc(n)%ac72(t)%Tmin_record)/2. > &
+                              AC72_struc(n)%ac72(t)%tbase) )) / 366.
+
+        if (frac_lower.lt.0.1) then
+           AC72_struc(n)%ac72(t)%valid_sim = 0
+        else
+           AC72_struc(n)%ac72(t)%valid_sim = 1
         endif
 
-        ! Set AC72_struc after Initialization
-        AC72_struc(n)%AC72(t)%RootZoneWC_Actual = GetRootZoneWC_Actual()
-        AC72_struc(n)%AC72(t)%RootZoneWC_FC = GetRootZoneWC_FC()
-        AC72_struc(n)%AC72(t)%RootZoneWC_WP = GetRootZoneWC_WP()
-        AC72_struc(n)%AC72(t)%RootZoneWC_SAT = GetRootZoneWC_SAT()
-        AC72_struc(n)%AC72(t)%RootZoneWC_Leaf = GetRootZoneWC_Leaf()
-        AC72_struc(n)%AC72(t)%RootZoneWC_Thresh = GetRootZoneWC_Thresh()
-        AC72_struc(n)%AC72(t)%RootZoneWC_Sen = GetRootZoneWC_Sen()
-        AC72_struc(n)%AC72(t)%RootZoneWC_ZtopAct = GetRootZoneWC_ZtopAct()
-        AC72_struc(n)%AC72(t)%RootZoneWC_ZtopFC = GetRootZoneWC_ZtopFC()
-        AC72_struc(n)%AC72(t)%RootZoneWC_ZtopWP = GetRootZoneWC_ZtopWP()
-        AC72_struc(n)%AC72(t)%RootZoneWC_ZtopThresh = GetRootZoneWC_ZtopThresh()
-        AC72_struc(n)%AC72(t)%Compartment = GetCompartment()
-        AC72_struc(n)%AC72(t)%TotalSaltContent = GetTotalSaltContent()
-        AC72_struc(n)%AC72(t)%TotalWaterContent = GetTotalWaterContent()
-        AC72_struc(n)%AC72(t)%effectiverain = Geteffectiverain()
-        AC72_struc(n)%AC72(t)%SumWaBal = GetSumWaBal()
-        AC72_struc(n)%AC72(t)%RootZoneSalt = GetRootZoneSalt()
-        AC72_struc(n)%AC72(t)%Simulation = GetSimulation()
-        AC72_struc(n)%AC72(t)%IrriInterval = GetIrriInterval()
-        AC72_struc(n)%AC72(t)%IrriInfoRecord1 = GetIrriInfoRecord1()
-        AC72_struc(n)%AC72(t)%IrriInfoRecord2 = GetIrriInfoRecord2()
-        AC72_struc(n)%AC72(t)%Irrigation = GetIrrigation()
-        AC72_struc(n)%AC72(t)%IrriBeforeSeason = GetIrriBeforeSeason()
-        AC72_struc(n)%AC72(t)%IrriAfterSeason = GetIrriAfterSeason()
-        AC72_struc(n)%AC72(t)%SoilLayer = GetSoilLayer()
-        AC72_struc(n)%AC72(t)%daynri = GetDayNri()
-        AC72_struc(n)%AC72(t)%NrCompartments = GetNrCompartments()
-        do l=1, AC72_struc(n)%AC72(t)%NrCompartments
-           AC72_struc(n)%AC72(t)%smc(l) = GetCompartment_theta(l)
-        enddo
-        AC72_struc(n)%AC72(t)%IrriECw = GetIrriECw()
-        AC72_struc(n)%AC72(t)%Management = GetManagement()
-        AC72_struc(n)%AC72(t)%PerennialPeriod = GetPerennialPeriod()
-        AC72_struc(n)%AC72(t)%simulparam = GetSimulParam()
-        AC72_struc(n)%AC72(t)%Cuttings = GetManagement_Cuttings()
-        AC72_struc(n)%AC72(t)%onset = GetOnset()
-        AC72_struc(n)%AC72(t)%endseason = GetEndSeason()
-        AC72_struc(n)%AC72(t)%Soil = GetSoil()
-        AC72_struc(n)%AC72(t)%TemperatureRecord = GetTemperatureRecord()
-        AC72_struc(n)%AC72(t)%ClimRecord = GetClimRecord()
-        AC72_struc(n)%AC72(t)%RainRecord = GetRainRecord()
-        AC72_struc(n)%AC72(t)%EToRecord = GetEToRecord()
+        if (AC72_struc(n)%ac72(t)%valid_sim.eq.1) then
+        ! Initialize
 
-        AC72_struc(n)%AC72(t)%GenerateTimeMode = GetGenerateTimeMode()
-        AC72_struc(n)%AC72(t)%GenerateDepthMode = GetGenerateDepthMode()
-        AC72_struc(n)%AC72(t)%IrriMode = GetIrriMode()
-        AC72_struc(n)%AC72(t)%IrriMethod = GetIrriMethod()
-        AC72_struc(n)%AC72(t)%DaySubmerged = GetDaySubmerged()
-        AC72_struc(n)%AC72(t)%MaxPlotNew = GetMaxPlotNew()
-        AC72_struc(n)%AC72(t)%IrriFirstDayNr = GetIrriFirstDayNr()
-        AC72_struc(n)%AC72(t)%ZiAqua = GetZiAqua()
-        AC72_struc(n)%AC72(t)%IniPercTAW = GetIniPercTAW()
-        AC72_struc(n)%AC72(t)%MaxPlotTr = GetMaxPlotTr()
-        AC72_struc(n)%AC72(t)%OutputAggregate = GetOutputAggregate()
+         ! InitializeRunPart1
+         call InitializeRunPart1(int(AC72_struc(n)%irun, kind=int8), AC72_struc(n)%ac72(t)%TheProjectType)
+         call InitializeSimulationRunPart2()
+         ! Check if enough GDDays to complete cycle, if not, turn on flag to warn the user
+         AC72_struc(n)%AC72(t)%crop = GetCrop()
+         if(GetCrop_ModeCycle().eq.ModeCycle_GDDays)then
+            if (((GetCrop_Day1()+GetCrop_DaysToHarvest()).gt.GetSimulation_ToDayNr()) &
+                  .or.(GetCrop_DaysToHarvest()<1)) then
+               AC72_struc(n)%ac72(t)%cycle_complete = 0
+            else
+               AC72_struc(n)%ac72(t)%cycle_complete = 1
+            endif
+         endif
+         ! Close irrigation file after Run Initialization
+         ! Note: only 2 irrigation records can be passed
+         if((GetIrriMode().eq.IrriMode_Generate)&
+               .or.(GetIrriMode().eq.IrriMode_Manual)) then
+            call fIrri_close()
+         endif
 
-        AC72_struc(n)%AC72(t)%EvapoEntireSoilSurface = GetEvapoEntireSoilSurface()
-        AC72_struc(n)%AC72(t)%PreDay = GetPreDay()
-        AC72_struc(n)%AC72(t)%OutDaily = GetOutDaily()
-        AC72_struc(n)%AC72(t)%Out1Wabal = GetOut1Wabal()
-        AC72_struc(n)%AC72(t)%Out2Crop = GetOut2Crop()
-        AC72_struc(n)%AC72(t)%Out3Prof = GetOut3Prof()
-        AC72_struc(n)%AC72(t)%Out4Salt = GetOut4Salt()
-        AC72_struc(n)%AC72(t)%Out5CompWC = GetOut5CompWC()
-        AC72_struc(n)%AC72(t)%Out6CompEC = GetOut6CompEC()
-        AC72_struc(n)%AC72(t)%Out7Clim = GetOut7Clim()
-        AC72_struc(n)%AC72(t)%Out8Irri = GetOut8Irri()
-        AC72_struc(n)%AC72(t)%Part1Mult = GetPart1Mult()
-        AC72_struc(n)%AC72(t)%Part2Eval = GetPart2Eval()
+         ! Set AC72_struc after Initialization
+         AC72_struc(n)%AC72(t)%RootZoneWC_Actual = GetRootZoneWC_Actual()
+         AC72_struc(n)%AC72(t)%RootZoneWC_FC = GetRootZoneWC_FC()
+         AC72_struc(n)%AC72(t)%RootZoneWC_WP = GetRootZoneWC_WP()
+         AC72_struc(n)%AC72(t)%RootZoneWC_SAT = GetRootZoneWC_SAT()
+         AC72_struc(n)%AC72(t)%RootZoneWC_Leaf = GetRootZoneWC_Leaf()
+         AC72_struc(n)%AC72(t)%RootZoneWC_Thresh = GetRootZoneWC_Thresh()
+         AC72_struc(n)%AC72(t)%RootZoneWC_Sen = GetRootZoneWC_Sen()
+         AC72_struc(n)%AC72(t)%RootZoneWC_ZtopAct = GetRootZoneWC_ZtopAct()
+         AC72_struc(n)%AC72(t)%RootZoneWC_ZtopFC = GetRootZoneWC_ZtopFC()
+         AC72_struc(n)%AC72(t)%RootZoneWC_ZtopWP = GetRootZoneWC_ZtopWP()
+         AC72_struc(n)%AC72(t)%RootZoneWC_ZtopThresh = GetRootZoneWC_ZtopThresh()
+         AC72_struc(n)%AC72(t)%Compartment = GetCompartment()
+         AC72_struc(n)%AC72(t)%TotalSaltContent = GetTotalSaltContent()
+         AC72_struc(n)%AC72(t)%TotalWaterContent = GetTotalWaterContent()
+         AC72_struc(n)%AC72(t)%effectiverain = Geteffectiverain()
+         AC72_struc(n)%AC72(t)%SumWaBal = GetSumWaBal()
+         AC72_struc(n)%AC72(t)%RootZoneSalt = GetRootZoneSalt()
+         AC72_struc(n)%AC72(t)%Simulation = GetSimulation()
+         AC72_struc(n)%AC72(t)%IrriInterval = GetIrriInterval()
+         AC72_struc(n)%AC72(t)%IrriInfoRecord1 = GetIrriInfoRecord1()
+         AC72_struc(n)%AC72(t)%IrriInfoRecord2 = GetIrriInfoRecord2()
+         AC72_struc(n)%AC72(t)%Irrigation = GetIrrigation()
+         AC72_struc(n)%AC72(t)%IrriBeforeSeason = GetIrriBeforeSeason()
+         AC72_struc(n)%AC72(t)%IrriAfterSeason = GetIrriAfterSeason()
+         AC72_struc(n)%AC72(t)%SoilLayer = GetSoilLayer()
+         AC72_struc(n)%AC72(t)%daynri = GetDayNri()
+         AC72_struc(n)%AC72(t)%NrCompartments = GetNrCompartments()
+         do l=1, AC72_struc(n)%AC72(t)%NrCompartments
+            AC72_struc(n)%AC72(t)%smc(l) = GetCompartment_theta(l)
+         enddo
+         AC72_struc(n)%AC72(t)%IrriECw = GetIrriECw()
+         AC72_struc(n)%AC72(t)%Management = GetManagement()
+         AC72_struc(n)%AC72(t)%PerennialPeriod = GetPerennialPeriod()
+         AC72_struc(n)%AC72(t)%simulparam = GetSimulParam()
+         AC72_struc(n)%AC72(t)%Cuttings = GetManagement_Cuttings()
+         AC72_struc(n)%AC72(t)%onset = GetOnset()
+         AC72_struc(n)%AC72(t)%endseason = GetEndSeason()
+         AC72_struc(n)%AC72(t)%Soil = GetSoil()
+         AC72_struc(n)%AC72(t)%TemperatureRecord = GetTemperatureRecord()
+         AC72_struc(n)%AC72(t)%ClimRecord = GetClimRecord()
+         AC72_struc(n)%AC72(t)%RainRecord = GetRainRecord()
+         AC72_struc(n)%AC72(t)%EToRecord = GetEToRecord()
 
-        !
-        AC72_struc(n)%AC72(t)%CCiActual = GetCCiActual()
-        AC72_struc(n)%AC72(t)%CCiprev = GetCCiprev()
-        AC72_struc(n)%AC72(t)%CCiTopEarlySen = GetCCiTopEarlySen()
-        AC72_struc(n)%AC72(t)%CRsalt = GetCRsalt ()
-        AC72_struc(n)%AC72(t)%CRwater = GetCRwater()
-        AC72_struc(n)%AC72(t)%ECdrain = GetECdrain()
-        AC72_struc(n)%AC72(t)%ECiAqua = GetECiAqua()
-        AC72_struc(n)%AC72(t)%ECstorage = GetECstorage()
-        AC72_struc(n)%AC72(t)%Eact = GetEact()
-        AC72_struc(n)%AC72(t)%Epot = GetEpot()
-        AC72_struc(n)%AC72(t)%ETo = GetETo()
-        AC72_struc(n)%AC72(t)%Drain = GetDrain()
-        AC72_struc(n)%AC72(t)%Infiltrated = GetInfiltrated()
-        AC72_struc(n)%AC72(t)%prcp = GetRain()
-        AC72_struc(n)%AC72(t)%RootingDepth = GetRootingDepth()
-        AC72_struc(n)%AC72(t)%Runoff = GetRunoff()
-        AC72_struc(n)%AC72(t)%SaltInfiltr = GetSaltInfiltr()
-        AC72_struc(n)%AC72(t)%Surf0 = GetSurf0()
-        AC72_struc(n)%AC72(t)%SurfaceStorage = GetSurfaceStorage()
-        AC72_struc(n)%AC72(t)%Tact = GetTact()
-        AC72_struc(n)%AC72(t)%Tpot = GetTpot()
-        AC72_struc(n)%AC72(t)%TactWeedInfested = 0. !not ini in AC GetTactWeedInfested()
-        AC72_struc(n)%AC72(t)%Tmax = GetTmax()
-        AC72_struc(n)%AC72(t)%Tmin = GetTmin()
+         AC72_struc(n)%AC72(t)%GenerateTimeMode = GetGenerateTimeMode()
+         AC72_struc(n)%AC72(t)%GenerateDepthMode = GetGenerateDepthMode()
+         AC72_struc(n)%AC72(t)%IrriMode = GetIrriMode()
+         AC72_struc(n)%AC72(t)%IrriMethod = GetIrriMethod()
+         AC72_struc(n)%AC72(t)%DaySubmerged = GetDaySubmerged()
+         AC72_struc(n)%AC72(t)%MaxPlotNew = GetMaxPlotNew()
+         AC72_struc(n)%AC72(t)%IrriFirstDayNr = GetIrriFirstDayNr()
+         AC72_struc(n)%AC72(t)%ZiAqua = GetZiAqua()
+         AC72_struc(n)%AC72(t)%IniPercTAW = GetIniPercTAW()
+         AC72_struc(n)%AC72(t)%MaxPlotTr = GetMaxPlotTr()
+         AC72_struc(n)%AC72(t)%OutputAggregate = GetOutputAggregate()
+
+         AC72_struc(n)%AC72(t)%EvapoEntireSoilSurface = GetEvapoEntireSoilSurface()
+         AC72_struc(n)%AC72(t)%PreDay = GetPreDay()
+         AC72_struc(n)%AC72(t)%OutDaily = GetOutDaily()
+         AC72_struc(n)%AC72(t)%Out1Wabal = GetOut1Wabal()
+         AC72_struc(n)%AC72(t)%Out2Crop = GetOut2Crop()
+         AC72_struc(n)%AC72(t)%Out3Prof = GetOut3Prof()
+         AC72_struc(n)%AC72(t)%Out4Salt = GetOut4Salt()
+         AC72_struc(n)%AC72(t)%Out5CompWC = GetOut5CompWC()
+         AC72_struc(n)%AC72(t)%Out6CompEC = GetOut6CompEC()
+         AC72_struc(n)%AC72(t)%Out7Clim = GetOut7Clim()
+         AC72_struc(n)%AC72(t)%Out8Irri = GetOut8Irri()
+         AC72_struc(n)%AC72(t)%Part1Mult = GetPart1Mult()
+         AC72_struc(n)%AC72(t)%Part2Eval = GetPart2Eval()
+
+         !
+         AC72_struc(n)%AC72(t)%CCiActual = GetCCiActual()
+         AC72_struc(n)%AC72(t)%CCiprev = GetCCiprev()
+         AC72_struc(n)%AC72(t)%CCiTopEarlySen = GetCCiTopEarlySen()
+         AC72_struc(n)%AC72(t)%CRsalt = GetCRsalt ()
+         AC72_struc(n)%AC72(t)%CRwater = GetCRwater()
+         AC72_struc(n)%AC72(t)%ECdrain = GetECdrain()
+         AC72_struc(n)%AC72(t)%ECiAqua = GetECiAqua()
+         AC72_struc(n)%AC72(t)%ECstorage = GetECstorage()
+         AC72_struc(n)%AC72(t)%Eact = GetEact()
+         AC72_struc(n)%AC72(t)%Epot = GetEpot()
+         AC72_struc(n)%AC72(t)%ETo = GetETo()
+         AC72_struc(n)%AC72(t)%Drain = GetDrain()
+         AC72_struc(n)%AC72(t)%Infiltrated = GetInfiltrated()
+         AC72_struc(n)%AC72(t)%prcp = GetRain()
+         AC72_struc(n)%AC72(t)%RootingDepth = GetRootingDepth()
+         AC72_struc(n)%AC72(t)%Runoff = GetRunoff()
+         AC72_struc(n)%AC72(t)%SaltInfiltr = GetSaltInfiltr()
+         AC72_struc(n)%AC72(t)%Surf0 = GetSurf0()
+         AC72_struc(n)%AC72(t)%SurfaceStorage = GetSurfaceStorage()
+         AC72_struc(n)%AC72(t)%Tact = GetTact()
+         AC72_struc(n)%AC72(t)%Tpot = GetTpot()
+         AC72_struc(n)%AC72(t)%TactWeedInfested = 0. !not ini in AC GetTactWeedInfested()
+         AC72_struc(n)%AC72(t)%Tmax = GetTmax()
+         AC72_struc(n)%AC72(t)%Tmin = GetTmin()
 
 
-        AC72_struc(n)%AC72(t)%GwTable = GetGwTable()
-        AC72_struc(n)%AC72(t)%PlotVarCrop = GetPlotVarCrop()
-        AC72_struc(n)%AC72(t)%StressTot = GetStressTot()
-        AC72_struc(n)%AC72(t)%CutInfoRecord1 = GetCutInfoRecord1()
-        AC72_struc(n)%AC72(t)%CutInfoRecord2 = GetCutInfoRecord2()
-        AC72_struc(n)%AC72(t)%Transfer = GetTransfer()
-        AC72_struc(n)%AC72(t)%PreviousSum = GetPreviousSum()
-        AC72_struc(n)%AC72(t)%Tadj = GetTadj()
-        AC72_struc(n)%AC72(t)%GDDTadj = GetGDDTadj()
-        AC72_struc(n)%AC72(t)%DayLastCut = GetDayLastCut()
-        AC72_struc(n)%AC72(t)%NrCut = GetNrCut()
-        AC72_struc(n)%AC72(t)%SumInterval = GetSumInterval()
-        AC72_struc(n)%AC72(t)%PreviousStressLevel = GetPreviousStressLevel()
-        AC72_struc(n)%AC72(t)%StressSFadjNEW = GetStressSFadjNEW()
-        AC72_struc(n)%AC72(t)%Bin = GetBin()
-        AC72_struc(n)%AC72(t)%Bout = GetBout()
-        AC72_struc(n)%AC72(t)%GDDayi = GetGDDayi()
-        AC72_struc(n)%AC72(t)%CO2i = GetCO2i()
-        AC72_struc(n)%AC72(t)%FracBiomassPotSF = GetFracBiomassPotSF()
-        AC72_struc(n)%AC72(t)%SumETo = GetSumETo()
-        AC72_struc(n)%AC72(t)%SumGDD = GetSumGDD()
-        AC72_struc(n)%AC72(t)%Ziprev = GetZiprev()
-        AC72_struc(n)%AC72(t)%SumGDDPrev = GetSumGDDPrev()
-        AC72_struc(n)%AC72(t)%CCxWitheredTpotNoS = GetCCxWitheredTpotNoS()
-        AC72_struc(n)%AC72(t)%Coeffb0 = GetCoeffb0()
-        AC72_struc(n)%AC72(t)%Coeffb1 = GetCoeffb1()
-        AC72_struc(n)%AC72(t)%Coeffb2 = GetCoeffb2()
-        AC72_struc(n)%AC72(t)%Coeffb0Salt = GetCoeffb0Salt()
-        AC72_struc(n)%AC72(t)%Coeffb1Salt = GetCoeffb1Salt()
-        AC72_struc(n)%AC72(t)%Coeffb2Salt = GetCoeffb2Salt()
-        AC72_struc(n)%AC72(t)%StressLeaf = GetStressLeaf()
-        AC72_struc(n)%AC72(t)%StressSenescence = GetStressSenescence()
-        AC72_struc(n)%AC72(t)%DayFraction = GetDayFraction()
-        AC72_struc(n)%AC72(t)%GDDayFraction = GetGDDayFraction()
-        AC72_struc(n)%AC72(t)%CGCref = GetCGCref()
-        AC72_struc(n)%AC72(t)%GDDCGCref = GetGDDCGCref()
-        AC72_struc(n)%AC72(t)%TimeSenescence = GetTimeSenescence()
-        AC72_struc(n)%AC72(t)%SumKcTop = GetSumKcTop()
-        AC72_struc(n)%AC72(t)%SumKcTopStress = GetSumKcTopStress()
-        AC72_struc(n)%AC72(t)%SumKci = GetSumKci()
-        AC72_struc(n)%AC72(t)%CCoTotal = GetCCoTotal()
-        AC72_struc(n)%AC72(t)%CCxTotal = GetCCxTotal()
-        AC72_struc(n)%AC72(t)%CDCTotal = GetCDCTotal()
-        AC72_struc(n)%AC72(t)%GDDCDCTotal = GetGDDCDCTotal()
-        AC72_struc(n)%AC72(t)%CCxCropWeedsNoSFstress = GetCCxCropWeedsNoSFstress()
-        AC72_struc(n)%AC72(t)%WeedRCi = GetWeedRCi()
-        AC72_struc(n)%AC72(t)%CCiActualWeedInfested = GetCCiActualWeedInfested()
-        AC72_struc(n)%AC72(t)%fWeedNoS = GetfWeedNoS()
-        AC72_struc(n)%AC72(t)%Zeval = GetZeval()
-        AC72_struc(n)%AC72(t)%BprevSum = GetBprevSum()
-        AC72_struc(n)%AC72(t)%YprevSum = GetYprevSum()
-        AC72_struc(n)%AC72(t)%SumGDDcuts = GetSumGDDcuts()
-        AC72_struc(n)%AC72(t)%HItimesBEF = GetHItimesBEF()
-        AC72_struc(n)%AC72(t)%ScorAT1 = GetScorAT1()
-        AC72_struc(n)%AC72(t)%ScorAT2 = GetScorAT2()
-        AC72_struc(n)%AC72(t)%HItimesAT1 = GetHItimesAT1()
-        AC72_struc(n)%AC72(t)%HItimesAT2 = GetHItimesAT2()
-        AC72_struc(n)%AC72(t)%HItimesAT = GetHItimesAT()
-        AC72_struc(n)%AC72(t)%alfaHI = GetalfaHI()
-        AC72_struc(n)%AC72(t)%alfaHIAdj = GetalfaHIAdj()
-        AC72_struc(n)%AC72(t)%NextSimFromDayNr = GetNextSimFromDayNr()
-        AC72_struc(n)%AC72(t)%DayNr1Eval = GetDayNr1Eval()
-        AC72_struc(n)%AC72(t)%DayNrEval = GetDayNrEval()
-        AC72_struc(n)%AC72(t)%LineNrEval = GetLineNrEval()
-        AC72_struc(n)%AC72(t)%PreviousSumETo = GetPreviousSumETo()
-        AC72_struc(n)%AC72(t)%PreviousSumGDD = GetPreviousSumGDD()
-        AC72_struc(n)%AC72(t)%PreviousBmob = GetPreviousBmob()
-        AC72_struc(n)%AC72(t)%PreviousBsto = GetPreviousBsto()
-        AC72_struc(n)%AC72(t)%StageCode = GetStageCode()
-        AC72_struc(n)%AC72(t)%PreviousDayNr = GetPreviousDayNr()
-        AC72_struc(n)%AC72(t)%NoYear = GetNoYear()
-        AC72_struc(n)%AC72(t)%WaterTableInProfile = GetWaterTableInProfile()
-        AC72_struc(n)%AC72(t)%StartMode = GetStartMode()
-        AC72_struc(n)%AC72(t)%NrRuns = GetSimulation_NrRuns()
-        AC72_struc(n)%AC72(t)%TheProjectType = TheProjectType
+         AC72_struc(n)%AC72(t)%GwTable = GetGwTable()
+         AC72_struc(n)%AC72(t)%PlotVarCrop = GetPlotVarCrop()
+         AC72_struc(n)%AC72(t)%StressTot = GetStressTot()
+         AC72_struc(n)%AC72(t)%CutInfoRecord1 = GetCutInfoRecord1()
+         AC72_struc(n)%AC72(t)%CutInfoRecord2 = GetCutInfoRecord2()
+         AC72_struc(n)%AC72(t)%Transfer = GetTransfer()
+         AC72_struc(n)%AC72(t)%PreviousSum = GetPreviousSum()
+         AC72_struc(n)%AC72(t)%Tadj = GetTadj()
+         AC72_struc(n)%AC72(t)%GDDTadj = GetGDDTadj()
+         AC72_struc(n)%AC72(t)%DayLastCut = GetDayLastCut()
+         AC72_struc(n)%AC72(t)%NrCut = GetNrCut()
+         AC72_struc(n)%AC72(t)%SumInterval = GetSumInterval()
+         AC72_struc(n)%AC72(t)%PreviousStressLevel = GetPreviousStressLevel()
+         AC72_struc(n)%AC72(t)%StressSFadjNEW = GetStressSFadjNEW()
+         AC72_struc(n)%AC72(t)%Bin = GetBin()
+         AC72_struc(n)%AC72(t)%Bout = GetBout()
+         AC72_struc(n)%AC72(t)%GDDayi = GetGDDayi()
+         AC72_struc(n)%AC72(t)%CO2i = GetCO2i()
+         AC72_struc(n)%AC72(t)%FracBiomassPotSF = GetFracBiomassPotSF()
+         AC72_struc(n)%AC72(t)%SumETo = GetSumETo()
+         AC72_struc(n)%AC72(t)%SumGDD = GetSumGDD()
+         AC72_struc(n)%AC72(t)%Ziprev = GetZiprev()
+         AC72_struc(n)%AC72(t)%SumGDDPrev = GetSumGDDPrev()
+         AC72_struc(n)%AC72(t)%CCxWitheredTpotNoS = GetCCxWitheredTpotNoS()
+         AC72_struc(n)%AC72(t)%Coeffb0 = GetCoeffb0()
+         AC72_struc(n)%AC72(t)%Coeffb1 = GetCoeffb1()
+         AC72_struc(n)%AC72(t)%Coeffb2 = GetCoeffb2()
+         AC72_struc(n)%AC72(t)%Coeffb0Salt = GetCoeffb0Salt()
+         AC72_struc(n)%AC72(t)%Coeffb1Salt = GetCoeffb1Salt()
+         AC72_struc(n)%AC72(t)%Coeffb2Salt = GetCoeffb2Salt()
+         AC72_struc(n)%AC72(t)%StressLeaf = GetStressLeaf()
+         AC72_struc(n)%AC72(t)%StressSenescence = GetStressSenescence()
+         AC72_struc(n)%AC72(t)%DayFraction = GetDayFraction()
+         AC72_struc(n)%AC72(t)%GDDayFraction = GetGDDayFraction()
+         AC72_struc(n)%AC72(t)%CGCref = GetCGCref()
+         AC72_struc(n)%AC72(t)%GDDCGCref = GetGDDCGCref()
+         AC72_struc(n)%AC72(t)%TimeSenescence = GetTimeSenescence()
+         AC72_struc(n)%AC72(t)%SumKcTop = GetSumKcTop()
+         AC72_struc(n)%AC72(t)%SumKcTopStress = GetSumKcTopStress()
+         AC72_struc(n)%AC72(t)%SumKci = GetSumKci()
+         AC72_struc(n)%AC72(t)%CCoTotal = GetCCoTotal()
+         AC72_struc(n)%AC72(t)%CCxTotal = GetCCxTotal()
+         AC72_struc(n)%AC72(t)%CDCTotal = GetCDCTotal()
+         AC72_struc(n)%AC72(t)%GDDCDCTotal = GetGDDCDCTotal()
+         AC72_struc(n)%AC72(t)%CCxCropWeedsNoSFstress = GetCCxCropWeedsNoSFstress()
+         AC72_struc(n)%AC72(t)%WeedRCi = GetWeedRCi()
+         AC72_struc(n)%AC72(t)%CCiActualWeedInfested = GetCCiActualWeedInfested()
+         AC72_struc(n)%AC72(t)%fWeedNoS = GetfWeedNoS()
+         AC72_struc(n)%AC72(t)%Zeval = GetZeval()
+         AC72_struc(n)%AC72(t)%BprevSum = GetBprevSum()
+         AC72_struc(n)%AC72(t)%YprevSum = GetYprevSum()
+         AC72_struc(n)%AC72(t)%SumGDDcuts = GetSumGDDcuts()
+         AC72_struc(n)%AC72(t)%HItimesBEF = GetHItimesBEF()
+         AC72_struc(n)%AC72(t)%ScorAT1 = GetScorAT1()
+         AC72_struc(n)%AC72(t)%ScorAT2 = GetScorAT2()
+         AC72_struc(n)%AC72(t)%HItimesAT1 = GetHItimesAT1()
+         AC72_struc(n)%AC72(t)%HItimesAT2 = GetHItimesAT2()
+         AC72_struc(n)%AC72(t)%HItimesAT = GetHItimesAT()
+         AC72_struc(n)%AC72(t)%alfaHI = GetalfaHI()
+         AC72_struc(n)%AC72(t)%alfaHIAdj = GetalfaHIAdj()
+         AC72_struc(n)%AC72(t)%NextSimFromDayNr = GetNextSimFromDayNr()
+         AC72_struc(n)%AC72(t)%DayNr1Eval = GetDayNr1Eval()
+         AC72_struc(n)%AC72(t)%DayNrEval = GetDayNrEval()
+         AC72_struc(n)%AC72(t)%LineNrEval = GetLineNrEval()
+         AC72_struc(n)%AC72(t)%PreviousSumETo = GetPreviousSumETo()
+         AC72_struc(n)%AC72(t)%PreviousSumGDD = GetPreviousSumGDD()
+         AC72_struc(n)%AC72(t)%PreviousBmob = GetPreviousBmob()
+         AC72_struc(n)%AC72(t)%PreviousBsto = GetPreviousBsto()
+         AC72_struc(n)%AC72(t)%StageCode = GetStageCode()
+         AC72_struc(n)%AC72(t)%PreviousDayNr = GetPreviousDayNr()
+         AC72_struc(n)%AC72(t)%NoYear = GetNoYear()
+         AC72_struc(n)%AC72(t)%WaterTableInProfile = GetWaterTableInProfile()
+         AC72_struc(n)%AC72(t)%StartMode = GetStartMode()
+         AC72_struc(n)%AC72(t)%NrRuns = GetSimulation_NrRuns()
+         AC72_struc(n)%AC72(t)%TheProjectType = TheProjectType
 
-        ! Check for irrigation (irrigation file management)
-        if(AC72_struc(n)%ac72(t)%IrriMode.eq.IrriMode_Manual)then
-           if(AC72_struc(n)%ac72(t)%IrriInfoRecord1%NoMoreInfo)then
-              AC72_struc(n)%ac72(t)%irri_lnr = 9
-           else
-              AC72_struc(n)%ac72(t)%irri_lnr = 10
-           endif
-        elseif(AC72_struc(n)%ac72(t)%IrriMode.eq.IrriMode_Generate)then
-           if(AC72_struc(n)%ac72(t)%IrriInfoRecord1%NoMoreInfo)then
-              AC72_struc(n)%ac72(t)%irri_lnr = 11
-           else
-              AC72_struc(n)%ac72(t)%irri_lnr = 12
-           endif
-        else ! no irrigation, set to 0
-           AC72_struc(n)%ac72(t)%irri_lnr = 0
-        endif
+         ! Check for irrigation (irrigation file management)
+         if(AC72_struc(n)%ac72(t)%IrriMode.eq.IrriMode_Manual)then
+            if(AC72_struc(n)%ac72(t)%IrriInfoRecord1%NoMoreInfo)then
+               AC72_struc(n)%ac72(t)%irri_lnr = 9
+            else
+               AC72_struc(n)%ac72(t)%irri_lnr = 10
+            endif
+         elseif(AC72_struc(n)%ac72(t)%IrriMode.eq.IrriMode_Generate)then
+            if(AC72_struc(n)%ac72(t)%IrriInfoRecord1%NoMoreInfo)then
+               AC72_struc(n)%ac72(t)%irri_lnr = 11
+            else
+               AC72_struc(n)%ac72(t)%irri_lnr = 12
+            endif
+         else ! no irrigation, set to 0
+            AC72_struc(n)%ac72(t)%irri_lnr = 0
+         endif
 
-        ! Check if we need to start a new sim period
-        call LIS_get_julhr(LIS_rc%yr, LIS_rc%mo, LIS_rc%da, &
-             0,0,0,time1julhours)
-        time1days = (time1julhours - timerefjulhours)/24
-        ! If we restart on the first day of simulation
-        ! Do not read Trecord in main but initialize run
-        if (((AC72_struc(n)%Sim_AnnualStartMonth.eq.LIS_rc%smo) &
-             .and.(AC72_struc(n)%Sim_AnnualStartDay.eq.LIS_rc%sda)) &
-             .and.(trim(LIS_rc%startcode) .eq. "restart")) then
-           AC72_struc(n)%ac72(t)%InitializeRun = 1
-        endif
-
+      else ! No valid temperatures for crop growth, set all output variables to Nan
+         do l = 1, 12
+            AC72_struc(n)%ac72(t)%smc(l) = -9999.0 ! Gets overwritten by initial conditions, 
+                                                   ! need to be reset in main
+         end do
+         AC72_struc(n)%ac72(t)%SumWaBal%Biomass        = -9999.0
+         AC72_struc(n)%ac72(t)%RootZoneWC_Actual       = -9999.0
+         AC72_struc(n)%ac72(t)%RootZoneWC_WP           = -9999.0
+         AC72_struc(n)%ac72(t)%RootZoneWC_FC           = -9999.0
+         AC72_struc(n)%ac72(t)%Tact                    = -9999.0
+         AC72_struc(n)%ac72(t)%Eact                    = -9999.0
+         AC72_struc(n)%ac72(t)%eto                     = -9999.0
+         AC72_struc(n)%ac72(t)%RootingDepth            = -9999.0
+         AC72_struc(n)%ac72(t)%CCiActual               = -9999.0
+         AC72_struc(n)%ac72(t)%SumWaBal%YieldPart      = -9999.0
+         AC72_struc(n)%ac72(t)%Irrigation              = -9999.0
+         AC72_struc(n)%ac72(t)%StressLeaf              = -9999.0
+         AC72_struc(n)%ac72(t)%StressSenescence        = -9999.0
+         AC72_struc(n)%ac72(t)%cycle_complete          = 0  ! kept as logical/flag
+      endif
      enddo ! do t = 1, LIS_rc%npatch(n, mtype)
+     ! If we restart on the first day of simulation
+     ! Do not read Trecord in main but initialize run
+     if (((AC72_struc(n)%Sim_AnnualStartMonth.eq.LIS_rc%smo) &
+           .and.(AC72_struc(n)%Sim_AnnualStartDay.eq.LIS_rc%sda)) &
+           .and.(trim(LIS_rc%startcode) .eq. "restart") &
+           .and.(LIS_rc%npatch(n, mtype).gt.0)) then ! Make sure the proc has tiles
+        AC72_struc(n)%InitializeRun = 1
+        AC72_struc(n)%irun = 0 ! to avoid going to irun=2 in main
+     endif
   enddo
 end subroutine AC72_setup
 
@@ -1424,6 +1457,7 @@ end subroutine AC72_read_MULTILEVEL_param
 !
 ! !REVISION HISTORY:
 !  04 NOV 2024; Louise Busschaert, initial implementation
+!  27 MAR 2025; Louise Busschaert, store Tbare to check for valid simulation
 !
 ! !INTERFACE:
 subroutine ac72_read_croptype(n)
@@ -1455,13 +1489,14 @@ subroutine ac72_read_croptype(n)
   !   \end{description}
   !
   !EOP
-  character(len=LIS_CONST_PATH_LEN) :: crop_path
-  integer                 :: ftn
-  integer                 :: t,col,row,IINDEX,CT,n_crops
-  integer                 :: nid, ios, croptypeId
+  character(len=LIS_CONST_PATH_LEN) :: crop_path,crop_file
+  integer                 :: ftn, ftn1
+  integer                 :: t,col,row,IINDEX,CT,n_crops,j
+  integer                 :: nid, ios, ios1, croptypeId
   integer                 :: rc
   logical                 :: file_exists
   character(len=100),allocatable :: croptypes(:)
+  real, allocatable              :: tbase(:)
   real, allocatable       :: l_croptype(:,:)
   real, allocatable       :: glb_croptype(:,:)
   character*128 :: mess
@@ -1484,6 +1519,7 @@ subroutine ac72_read_croptype(n)
   read(ftn,*) n_crops
 
   allocate(character(len=100) :: croptypes(n_crops))
+  allocate(tbase(n_crops))
 
   write( mess , *) 'AC_Crop.Inventory contains ', n_crops, ' types'
   if (LIS_masterproc) then
@@ -1492,8 +1528,20 @@ subroutine ac72_read_croptype(n)
   read(ftn,*)
   do CT=1,n_crops
      read(ftn,*) IINDEX, croptypes(CT)
+
+     ! Open crop file to get Tbase (line 8)
+     crop_file = trim(AC72_struc(n)%PathCropFiles)//trim(croptypes(CT))//".CRO"
+     ftn1 = LIS_getNextUnitNumber()
+     open(ftn1, file=crop_file, status='old', form='formatted',&
+          iostat=ios1)
+     call LIS_verify(ios1,"[ERR] AC72: crop file does not exist")
+     do j=1,7
+        read(ftn1,fmt=*)
+     enddo
+     read(ftn1,fmt=*) tbase(CT)
+     call LIS_releaseUnitNumber(ftn1) ! close crop file
   enddo
-  call LIS_releaseUnitNumber(ftn)
+  call LIS_releaseUnitNumber(ftn) ! close inventory
 
   allocate(l_croptype(LIS_rc%lnc(n),LIS_rc%lnr(n)))
 
@@ -1529,8 +1577,10 @@ subroutine ac72_read_croptype(n)
         row = LIS_surface(n,LIS_rc%lsm_index)%tile(t)%row
 
         AC72_struc(n)%ac72(t)%cropt = trim(croptypes(nint(l_croptype(col,row))))
+        AC72_struc(n)%ac72(t)%tbase = tbase(nint(l_croptype(col,row)))
      enddo
      deallocate(croptypes)
+     deallocate(tbase)
 
   else
      write(LIS_logunit,*) "[ERR] The croptype inventory: ",&

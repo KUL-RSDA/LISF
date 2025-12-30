@@ -210,6 +210,8 @@ module NoahMP401_lsmMod
         integer            :: pedo_opt
         integer            :: crop_opt
         integer            :: urban_opt
+        logical            :: QC_opt
+        logical            :: forestDA_opt
         type(NoahMP401dec), pointer :: noahmp401(:)
     end type NoahMP401_type_dec
 
@@ -277,6 +279,9 @@ contains
                 allocate(NOAHMP401_struc(n)%noahmp401(t)%snowliq(NOAHMP401_struc(n)%nsnow))
                 allocate(NOAHMP401_struc(n)%noahmp401(t)%smoiseq(NOAHMP401_struc(n)%nsoil))
                 allocate(NOAHMP401_struc(n)%noahmp401(t)%gecros_state(60))
+#ifdef PARFLOW
+                allocate(NOAHMP401_struc(n)%noahmp401(t)%wtrflx(NOAHMP401_struc(n)%nsoil))
+#endif
             enddo
 
             ! initialize forcing variables to zeros
@@ -295,6 +300,9 @@ contains
                 NOAHMP401_struc(n)%noahmp401(t)%rivsto = 0.0
                 NOAHMP401_struc(n)%noahmp401(t)%fldsto = 0.0
                 NOAHMP401_struc(n)%noahmp401(t)%fldfrc = 0.0
+#ifdef PARFLOW
+                NOAHMP401_struc(n)%noahmp401(t)%wtrflx = 0.0
+#endif
             enddo ! end of tile (t) loop
 
             !------------------------------------------------------------------------

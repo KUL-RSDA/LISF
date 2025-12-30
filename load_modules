@@ -1,0 +1,58 @@
+#!/bin/bash
+
+prepend_path() {
+    local path="$1"
+    if ! echo $PATH | tr ':' '\n' | grep -x $path > /dev/null; then
+        export PATH=$path:$PATH
+    fi
+}
+
+prepend_module_path() {
+    local path="$1"
+    if ! echo $MODULEPATH | tr ':' '\n' | grep -x $path > /dev/null; then
+        module use $path
+    fi
+}
+
+load_module() {
+    local name="$1"
+    if ! echo $LOADEDMODULES | tr ':' '\n' | grep -x $name > /dev/null; then
+        module load $name
+    fi
+}
+
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+if [[ $VSC_INSTITUTE_CLUSTER == genius ]]; then
+    if [[ $VSC_ARCH_LOCAL == skylake ]]; then
+        if [[ $VSC_OS_LOCAL == rocky8 ]]; then
+            prepend_module_path $ROOT/modules/genius/rocky8/skylake
+            load_module LISF/intel-2023b
+        fi
+    elif [[ $VSC_ARCH_LOCAL == cascadelake ]]; then
+        if [[ $VSC_OS_LOCAL == rocky8 ]]; then
+            prepend_module_path $ROOT/modules/genius/rocky8/cascadelake
+            load_module LISF/intel-2023b
+        fi
+    fi
+elif [[ $VSC_INSTITUTE_CLUSTER == wice ]]; then
+    if [[ $VSC_ARCH_LOCAL == icelake ]]; then
+        if [[ $VSC_OS_LOCAL == rocky8 ]]; then
+            prepend_module_path $ROOT/modules/wice/rocky8/icelake
+            load_module LISF/intel-2023b
+        fi
+    fi
+elif [[ $VSC_INSTITUTE_CLUSTER == dodrio ]]; then
+    if [[ $VSC_ARCH_LOCAL == zen2 || $VSC_ARCH_LOCAL == zen3 ]]; then
+        if [[ $VSC_OS_LOCAL == RHEL8 ]]; then
+            prepend_module_path $ROOT/modules/dodrio/RHEL8/zen3-ib
+            load_module LISF/intel-2023b
+        elif [[ $VSC_OS_LOCAL == RHEL9 ]]; then
+            prepend_module_path $ROOT/modules/dodrio/RHEL9/zen3-ib
+            load_module LISF/intel-2023b
+        fi
+    fi
+fi
+
+prepend_path $ROOT/ldt
+prepend_path $ROOT/lis
