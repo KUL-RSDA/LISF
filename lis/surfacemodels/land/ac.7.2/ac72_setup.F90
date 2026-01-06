@@ -627,23 +627,46 @@ subroutine AC72_setup()
 
      do m = 1, LIS_rc%nmetforc ! loop over met forcing sources
         ! Check if using valid source (ERA5 or MERRA2 uselml=0 and use2mwind=1)
-        ! Define forchgt. Since it only runs with overlay, it keep the last forcing height value
+        ! Define AC72_struc(n)%forchgt_*. Only the height of the last forcing source is considered. 
+        AC72_struc(n)%forchgt_tq = 2 ! initialize
+        AC72_struc(n)%forchgt_uv = 2
         if (LIS_rc%metforc(m) == "MERRA2") then
            if ((merra2_struc(n)%uselml == 0).and.(merra2_struc(n)%use2mwind == 1)) then
-              AC72_struc(n)%forchgt = 2
+              AC72_struc(n)%forchgt_tq = 2
+              AC72_struc(n)%forchgt_uv = 2
            else
               write(LIS_logunit,*) "[ERR] AC72 only runs with MERRA2 2m fields"
               write(LIS_logunit,*) "[ERR] Program stopping ..."
               call LIS_endrun
            endif
         elseif (LIS_rc%metforc(m) == "ERA5") then
-           AC72_struc(n)%forchgt = 10
+           AC72_struc(n)%forchgt_tq = 10
+           AC72_struc(n)%forchgt_uv = 10
+        elseif (LIS_rc%metforc(m) == "NLDAS2 grib") then
+           if (nldas20_struc(n)%model_level_data == 0) then
+              AC72_struc(n)%forchgt_tq = 2
+              AC72_struc(n)%forchgt_uv = 10
+            else
+              write(LIS_logunit,*) "[ERR] AC72 only runs with NLDAS 2/10m fields"
+              write(LIS_logunit,*) "[ERR] Program stopping ..."
+              call LIS_endrun
+           endif
+        elseif (LIS_rc%metforc(m) == "NLDAS2 netcdf") then
+           if (nldas20_struc(n)%model_level_data == 0) then
+              AC72_struc(n)%forchgt_tq = 2
+              AC72_struc(n)%forchgt_uv = 10
+            else
+              write(LIS_logunit,*) "[ERR] AC72 only runs with NLDAS 2/10m fields"
+              write(LIS_logunit,*) "[ERR] Program stopping ..."
+              call LIS_endrun
+           endif                 
         else
-           write(LIS_logunit,*) "[ERR] AC72 only runs with the following met forcings: ERA5, MERRA2"
+           write(LIS_logunit,*) "[ERR] AC72 only runs with the following met forcings: ERA5, MERRA2, NLDAS2"
            write(LIS_logunit,*) "[ERR] Program stopping ..."
            call LIS_endrun
         endif
      enddo
+     ! Louise B - 6 Jan 2026: we could make a look up table if we have a longer list of forcings?
 
      do m = 1, LIS_rc%nmetforc ! loop over met forcing sources (only works with overlay if m > 1)
         write(LIS_logunit,*) "[INFO] AC72: reading parameter AC_Tmin_clim_"//trim(LIS_rc%metforc(m))//" from ",&
@@ -658,7 +681,7 @@ subroutine AC72_setup()
                  ! Apply lapse-rate correction if turned on (to 2 m above surface from forchgt)
                  if (LIS_rc%met_ecor(m) == "lapse-rate") then
                     elevdiff = (LIS_domain(n)%tile(t)%elev + 2) &
-                    - (LIS_forc(n,m)%modelelev(LIS_domain(n)%tile(t)%index) + forchgt)                   
+                    - (LIS_forc(n,m)%modelelev(LIS_domain(n)%tile(t)%index) + AC72_struc(n)%forchgt_tq)                   
                     tmp = placeholder(col, row) + (lapse * elevdiff) ! apply lapse-rate corr
                  else
                     write(LIS_logunit,*) "[ERR] AC72 only runs with lapse-rate correction turned ON."
@@ -683,7 +706,7 @@ subroutine AC72_setup()
                  ! Apply lapse-rate correction if turned on (to 2 m above surface from forchgt)
                  if (LIS_rc%met_ecor(m) == "lapse-rate") then
                     elevdiff = (LIS_domain(n)%tile(t)%elev + 2) &
-                    - (LIS_forc(n,m)%modelelev(LIS_domain(n)%tile(t)%index) + forchgt)                   
+                    - (LIS_forc(n,m)%modelelev(LIS_domain(n)%tile(t)%index) + AC72_struc(n)%forchgt_tq)                    
                     tmp = placeholder(col, row) + (lapse * elevdiff) ! apply lapse-rate corr
                  else
                     write(LIS_logunit,*) "[ERR] AC72 only runs with lapse-rate correction turned ON."

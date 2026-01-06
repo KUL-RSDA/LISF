@@ -163,7 +163,7 @@ subroutine AC72_f2t(n)
      force_hum = q2(tid)
      force_prs = psurf(tid)
 
-     elevdiff = 2 - AC72_struc(n)%forchgt
+     elevdiff = 2 - AC72_struc(n)%forchgt_tq
      tcforce=force_tmp+(lapse*elevdiff)
      tbar=(force_tmp+tcforce)/2.
      pcforce=force_prs/(exp((LIS_CONST_G*elevdiff)/(rdry*tbar)))
@@ -204,7 +204,7 @@ subroutine AC72_f2t(n)
      wind_tmp = SQRT(uwind(tid)**2 + vwind(tid)**2)
 
      ! Correct to 2 m if provided at another height
-     wind_tmp = wind_tmp * (4.87/LOG(67.8*AC72_struc(n)%forchgt-5.42))
+     wind_tmp = wind_tmp * (4.87/LOG(67.8*AC72_struc(n)%forchgt_uv-5.42))
 
      AC72_struc(n)%ac72(t)%wndspd = AC72_struc(n)%ac72(t)%wndspd + wind_tmp
 
