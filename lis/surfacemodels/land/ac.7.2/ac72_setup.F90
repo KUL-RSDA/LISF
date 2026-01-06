@@ -716,7 +716,7 @@ subroutine AC72_setup()
                     call LIS_endrun
                  endif
                  ! Climatology is rounded to 2 decimals in AquaCrop and converted to degree Celsius
-                 AC72_struc(n)%ac72(t)%tmincli_monthly(k) = anint(tmp*100)/100 - LIS_CONST_TKFRZ
+                 AC72_struc(n)%ac72(t)%tmaxcli_monthly(k) = anint(tmp*100)/100 - LIS_CONST_TKFRZ
               endif ! if T not valid, not stored
            enddo
         enddo
