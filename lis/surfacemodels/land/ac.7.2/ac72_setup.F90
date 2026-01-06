@@ -523,8 +523,10 @@ subroutine AC72_setup()
   use LIS_fileIOMod, only: LIS_read_param
   use LIS_logMod,    only: LIS_logunit, LIS_verify, LIS_endrun
   use LIS_timeMgrMod, only: LIS_get_julhr
-  use LIS_metforcingMod, only: LIS_forc
-  use merra2_forcingMod, only: merra2_struc
+  use LIS_metforcingMod,  only: LIS_forc
+  use merra2_forcingMod,  only: merra2_struc
+  use nldas2_forcingMod,  only: nldas2_struc
+  use nldas20_forcingMod, only: nldas20_struc
 
   use module_sf_aclsm_72, only: &
        WP, SAT, FC, INFRATE, SD, CL, SI
@@ -643,7 +645,7 @@ subroutine AC72_setup()
            AC72_struc(n)%forchgt_tq = 10
            AC72_struc(n)%forchgt_uv = 10
         elseif (LIS_rc%metforc(m) == "NLDAS2 grib") then
-           if (nldas20_struc(n)%model_level_data == 0) then
+           if (nldas2_struc(n)%model_level_data == 0) then
               AC72_struc(n)%forchgt_tq = 2
               AC72_struc(n)%forchgt_uv = 10
             else
