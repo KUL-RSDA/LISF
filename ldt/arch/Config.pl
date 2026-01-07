@@ -100,26 +100,19 @@ if($opt_lev == -3) {
     $sys_opt = "-g -O0"; # Default flags for Fortran.
     $sys_c_opt = "-g -O0"; # Default flags for C.
     if($sys_arch eq "linux_ifc"){
-        # Fortran flags
-	$sys_opt = "-g -O0 -warn";
-	$sys_opt .= " -check bounds,format,output_conversion,pointers,";
-        $sys_opt .= "stack,uninit";
-	$sys_opt .= " -fp-stack-check -ftrapuv";
-        $sys_opt .= " -mcmodel=medium ";
-
-        # C flags
-	$sys_c_opt = "-g -O0 -Wall -Wcast-qual -Wdeprecated";
-	$sys_c_opt .= " -Wextra-tokens -Wformat";
-	$sys_c_opt .= " -Wformat-security -Wmissing-declarations";
-	$sys_c_opt .= " -Wmissing-prototypes -Wpointer-arith -Wremarks";
-	$sys_c_opt .= " -Wreturn-type -Wshadow -Wsign-compare";
-	$sys_c_opt .= " -Wstrict-prototypes -Wtrigraphs -Wuninitialized";
-	$sys_c_opt .= " -Wunused-function -Wunused-parameter";
-	$sys_c_opt .= " -Wunused-variable -Wwrite-strings";
-	$sys_c_opt .= " -fp-stack-check -fp-trap=common";
-        $sys_c_opt .= " -fp-trap-all=common";
-	$sys_c_opt .= " -ftrapv";
-        $sys_c_opt .= " -mcmodel=medium ";
+      $sys_opt = "-g -O0 -traceback -fno-omit-frame-pointer";
+      # Compile-time checks
+      $sys_opt .= " -diag-disable=remark,8889,6717,5462 -warn all,nounused -nogen-interfaces"; # We do not care about 8889, 6717, 5462, unused warnings.
+      # Run-time checks
+      $sys_opt .= " -check all,nouninit,noarg_temp_created"; # nouninit triggers Memory Sanitizer. To avoid, because dependencies were not compiled with it. noarg_temp_created triggers too many warnings.
+      $sys_opt .= " -ftrapuv ";
+	
+      $sys_c_opt = "-g -O0 -traceback -fno-omit-frame-pointer";
+      # Compile-time checks
+      $sys_c_opt .= " -pedantic -Wall -Wno-empty-translation-unit -Wno-unused-command-line-argument -Wno-strict-prototypes -Wcomment -Wdeprecated -Wextra-tokens -Wformat -Wformat-security -Wmain -Wmissing-declarations -Wpointer-arith -Wreturn-type -Wshadow -Wsign-compare -Wstrict-aliasing -Wtrigraphs -Wuninitialized -Wunknown-pragmas -Wunused-function -Wwrite-strings";
+      # Run-time checks
+      # $sys_c_opt .= " -fsanitize=address,leak,undefined -fno-sanitize-recover=address,leak,undefined -fsanitize-address-use-after-scope -fsanitize-trap"; # Enable sanitizers and make them fatal. We disable this, because linking mixed C/Fortran code with sanitizers is nontrivial. We will postpone this to future vesions of Intel OneAPI compilers.
+      $sys_c_opt .= " -fstack-protector-strong -fstack-clash-protection -fstack-security-check -ftrapv";
     }
     elsif($sys_arch eq "linux_pgi") {
 	print "Optimization level $opt_lev is not defined for $sys_arch.\n";
@@ -389,7 +382,8 @@ $use_netcdf=1;
 if($use_netcdf == 1) {
    print "NETCDF version (3 or 4, default=4)?: ";
    $netcdf_v=<stdin>;
-   if($netcdf_v eq "\n"){
+   chomp($netcdf_v);
+   if($netcdf_v eq ""){
       $netcdf_v=4;
    }
    if(defined($ENV{LDT_NETCDF})){
@@ -409,17 +403,20 @@ if($use_netcdf == 1) {
    }
    print "NETCDF use shuffle filter? (1-yes, 0-no, default = 1): ";
    $netcdf_shuffle=<stdin>;
-   if($netcdf_shuffle eq "\n"){
+   chomp($netcdf_shuffle);
+   if($netcdf_shuffle eq ""){
       $netcdf_shuffle=1;
    }
    print "NETCDF use deflate filter? (1-yes, 0-no, default = 1): ";
    $netcdf_deflate=<stdin>;
-   if($netcdf_deflate eq "\n"){
+   chomp($netcdf_deflate);
+   if($netcdf_deflate eq ""){
       $netcdf_deflate=1;
    }
    print "NETCDF use deflate level? (1 to 9-yes, 0-no, default = 1): ";
    $netcdf_deflate_level=<stdin>;
-   if($netcdf_deflate_level eq "\n"){
+   chomp($netcdf_deflate_level);
+   if($netcdf_deflate_level eq ""){
       $netcdf_deflate_level=1;
    }
 }
@@ -427,16 +424,14 @@ if($use_netcdf == 1) {
 
 print "Use HDF4? (1-yes, 0-no, default=0): ";
 $use_hdf4=<stdin>;
-if($use_hdf4 eq "\n"){
+chomp($use_hdf4);
+if($use_hdf4 eq ""){
    $use_hdf4=0;
 }
 if($use_hdf4 == 1) {
    if(defined($ENV{LDT_HDF4})){
       $sys_hdf4_path = $ENV{LDT_HDF4};
       $inc = "/include/";
-      if($ENV{'VSC_INSTITUTE_CLUSTER'} eq "genius"){
-         $inc .= "hdf/";
-      }
       $lib = "/lib/";
       $inc_hdf4=$sys_hdf4_path.$inc;
       $lib_hdf4=$sys_hdf4_path.$lib;
@@ -453,7 +448,8 @@ if($use_hdf4 == 1) {
 
 print "Use HDF5? (1-yes, 0-no, default=1): ";
 $use_hdf5=<stdin>;
-if($use_hdf5 eq "\n"){
+chomp($use_hdf5);
+if($use_hdf5 eq ""){
    $use_hdf5=1;
 }
 if($use_hdf5 == 1) {
@@ -477,7 +473,8 @@ if($use_hdf5 == 1) {
 
 print "Use HDFEOS? (1-yes, 0-no, default=0): ";
 $use_hdfeos=<stdin>;
-if($use_hdfeos eq "\n"){
+chomp($use_hdfeos);
+if($use_hdfeos eq ""){
    $use_hdfeos=0;
 }
 if($use_hdfeos == 1) {
@@ -510,7 +507,8 @@ if($use_hdfeos == 1) {
 
 print "Enable GeoTIFF support? (1-yes, 0-no, default=0): ";
 $enable_geotiff=<stdin>;
-if($enable_geotiff eq "\n"){
+chomp($enable_geotiff);
+if($enable_geotiff eq ""){
    $enable_geotiff=0;
 }
 if($enable_geotiff == 1) {
@@ -556,7 +554,8 @@ if($enable_geotiff == 1) {
 # EMK...Add LIBGEOTIFF support for Air Force
 print "Enable LIBGEOTIFF support? (1-yes, 0-no, default=0): ";
 $enable_libgeotiff=<stdin>;
-if($enable_libgeotiff eq "\n"){
+chomp($enable_libgeotiff);
+if($enable_libgeotiff eq ""){
     $enable_libgeotiff=0;
 }
 if($enable_libgeotiff == 1) {
@@ -615,7 +614,8 @@ if($enable_libgeotiff == 1) {
 
 print "Include date/time stamp history? (1-yes, 0-no, default=1): ";
 $use_history=<stdin>;
-if($use_history eq "\n"){
+chomp($use_history);
+if($use_history eq ""){
    $use_history=1;
 }
 
@@ -695,12 +695,12 @@ elsif($sys_arch eq "AIX") {
 elsif($sys_arch eq "cray_cray") {
    if($use_endian == 1) {
       $fflags77= "-c ".$sys_opt." ".$sys_par." -DCRAYFTN -I\$(MOD_ESMF) ";
-      $fflags =" -c ".$sys_opt."-ef -Ktrap=fp  ".$sys_par."-DCRAYFTN -I\$(MOD_ESMF) ";
+      $fflags =" -c ".$sys_opt." -ef -Ktrap=fp  ".$sys_par."-DCRAYFTN -I\$(MOD_ESMF) ";
       $ldflags= " -hdynamic -L\$(LIB_ESMF) -lesmf -lstdc++ -lrt";
    }
    else {
       $fflags77= "-c ".$sys_opt." ".$sys_par." -DCRAYFTN -I\$(MOD_ESMF) ";
-      $fflags =" -c ".$sys_opt."-ef -Ktrap=fp  ".$sys_par."-DCRAYFTN -I\$(MOD_ESMF) ";
+      $fflags =" -c ".$sys_opt." -ef -Ktrap=fp  ".$sys_par."-DCRAYFTN -I\$(MOD_ESMF) ";
       $ldflags= " -hbyteswapio -hdynamic -L\$(LIB_ESMF) -lesmf -lstdc++ -lrt";
    }
 
@@ -793,16 +793,7 @@ if($enable_libgeotiff== 1){
     $ldflags = $ldflags." -L\$(LIB_LIBGEOTIFF) ".$tiffpath." -ltiff -lgeotiff -lm -lz ".$libjpeg." ".$tiffdeps;
 }
 
-if($ENV{'VSC_INSTITUTE_CLUSTER'} eq "genius"){
-    $fflags77 =~ s/-nomixed-str-len-arg/-nomixed_str_len_arg/;
-    $ldflags .= " -ltirpc -lmkl -lsz -lpioc";
-}
-elsif($ENV{'VSC_INSTITUTE_CLUSTER'} eq "wice"){
-    $ldflags .= " -ltirpc -lmkl -lsz -lpioc";
-}
-elsif($ENV{'VSC_INSTITUTE_CLUSTER'} eq "dodrio") {
-    $ldflags .= " -ltirpc -lmkl -lsz -lpioc";
-}
+$ldflags .= " -lmkl -lpioc";
 $ldflags =~ s/-L([^\s]+)/-L$1 -Wl,-rpath=$1/g;
 
 open(conf_file,">configure.ldt");

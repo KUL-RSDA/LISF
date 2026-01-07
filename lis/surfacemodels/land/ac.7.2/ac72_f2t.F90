@@ -156,33 +156,31 @@ subroutine AC72_f2t(n)
   do t=1, LIS_rc%npatch(n, LIS_rc%lsm_index)
      tid = LIS_surface(n, LIS_rc%lsm_index)%tile(t)%tile_id
 
-     ! lapse-rate correction for ref height > 2 m
+     ! lapse-rate correction to bring T to a 2m height
      ! Copied from lapse-rate correction of met forcings assuming lapse
-     ! rate of 6.5 degC/km
-     elevdiff = AC72_struc(n)%refz_tq - 2. ! ref 2m for AC
-     if (elevdiff.gt.0.1) then          
-        force_tmp = tmp(tid)
-        force_hum = q2(tid)
-        force_prs = psurf(tid)
+     ! rate of 6.5 degC/km       
+     force_tmp = tmp(tid)
+     force_hum = q2(tid)
+     force_prs = psurf(tid)
 
-        tcforce=force_tmp+(lapse*elevdiff)
-        tbar=(force_tmp+tcforce)/2.
-        pcforce=force_prs/(exp((LIS_CONST_G*elevdiff)/(rdry*tbar)))
-        if (force_hum .eq. 0) force_hum=1e-08
-        ee=(force_hum*force_prs)/0.622               
-        esat=611.2*(exp((17.67*(force_tmp-LIS_CONST_TKFRZ))/&
-             ((force_tmp-LIS_CONST_TKFRZ)+243.5)))
-        qsat=(0.622*esat)/(force_prs-(0.378*esat))
-        rh=(force_hum/qsat)*100.
-        fesat=611.2*(exp((17.67*(tcforce-LIS_CONST_TKFRZ))/ &
-             ((tcforce-LIS_CONST_TKFRZ)+243.5)))
-        fqsat=(0.622*fesat)/(pcforce-(0.378*fesat))
-        hcforce=(rh*fqsat)/100.
+     elevdiff = 2 - AC72_struc(n)%forchgt_tq
+     tcforce=force_tmp+(lapse*elevdiff)
+     tbar=(force_tmp+tcforce)/2.
+     pcforce=force_prs/(exp((LIS_CONST_G*elevdiff)/(rdry*tbar)))
+     if (force_hum .eq. 0) force_hum=1e-08
+     ee=(force_hum*force_prs)/0.622               
+     esat=611.2*(exp((17.67*(force_tmp-LIS_CONST_TKFRZ))/&
+           ((force_tmp-LIS_CONST_TKFRZ)+243.5)))
+     qsat=(0.622*esat)/(force_prs-(0.378*esat))
+     rh=(force_hum/qsat)*100.
+     fesat=611.2*(exp((17.67*(tcforce-LIS_CONST_TKFRZ))/ &
+           ((tcforce-LIS_CONST_TKFRZ)+243.5)))
+     fqsat=(0.622*fesat)/(pcforce-(0.378*fesat))
+     hcforce=(rh*fqsat)/100.
 
-        tmp(tid)   = tcforce
-        q2(tid)    = hcforce
-        psurf(tid) = pcforce
-     endif
+     tmp(tid)   = tcforce
+     q2(tid)    = hcforce
+     psurf(tid) = pcforce
 
      ! TAIR
      AC72_struc(n)%ac72(t)%tair = AC72_struc(n)%ac72(t)%tair + tmp(tid)
@@ -204,10 +202,9 @@ subroutine AC72_f2t(n)
 
      ! Calculate Magnitude of Wind Speed (m/s)
      wind_tmp = SQRT(uwind(tid)**2 + vwind(tid)**2)
-     elevdiff = AC72_struc(n)%refz_uv - 2.
-     if (elevdiff.gt.0.1) then ! replace with corrected value
-        wind_tmp = wind_tmp * (4.87/LOG(67.8*AC72_struc(n)%refz_uv-5.42))
-     endif
+
+     ! Correct to 2 m if provided at another height
+     wind_tmp = wind_tmp * (4.87/LOG(67.8*AC72_struc(n)%forchgt_uv-5.42))
 
      AC72_struc(n)%ac72(t)%wndspd = AC72_struc(n)%ac72(t)%wndspd + wind_tmp
 

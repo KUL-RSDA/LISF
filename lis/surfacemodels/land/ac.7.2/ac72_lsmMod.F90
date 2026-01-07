@@ -69,16 +69,16 @@ module AC72_lsmMod
   !   maximum number of compartments (=12)
   ! \item[Thickness]
   !   thickness of soil layers
-  ! \item[refz_tq]
-  !   reference height of forcings T and q
-  ! \item[refz_uv]
-  !   reference height of forcings u and v
   ! \item[tempcli_refyr]
   !   reference year for climatology record for stress functions
   ! \item[InitializeRun]
   !   flag for AquaCrop simulation initialization
   ! \item[read_Trecord]
   !   flag for AquaCrop to read the meteo record of the next simulation year
+  ! \item[forchgt_tq]
+  !   forcing height for temperature and humidity
+  ! \item[forchgt_uv]
+  !   forcing height for wind speed
 
   !
   ! !REVISION HISTORY:
@@ -151,12 +151,12 @@ module AC72_lsmMod
      integer            :: NrSoilLayers
      integer            :: max_No_compartments
      real, pointer      :: Thickness(:)
-     real               :: refz_tq
-     real               :: refz_uv
      integer            :: tempcli_refyr
      integer            :: InitializeRun
      integer            :: read_Trecord
      integer            :: irun
+     integer            :: forchgt_tq
+     integer            :: forchgt_uv
      type(AC72dec), pointer :: ac72(:)
 
      logical :: GDDfromLDT

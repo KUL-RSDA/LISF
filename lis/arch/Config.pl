@@ -148,28 +148,22 @@ if($opt_lev eq ""){
 }
 
 if($opt_lev == -3) {
-    $sys_opt   = "-g -O0";    # Default flags for Fortran
-    $sys_c_opt = "-g -O0";    # Default flags for C
-    if($sys_arch eq "linux_ifc"){
-        # Fortran flags
-        $sys_opt = "-g -O0 -warn";
-        $sys_opt .=
-            " -check bounds,format,output_conversion,pointers,stack,";
-        $sys_opt .= "uninit";
-        $sys_opt .= " -fp-stack-check -ftrapuv";
-
-        # C flags
-        $sys_c_opt = "-g -O0 -Wall -Wcast-qual -Wcheck -Wdeprecated";
-        $sys_c_opt .= " -Wextra-tokens -Wformat";
-        $sys_c_opt .= " -Wformat-security -Wmissing-declarations";
-        $sys_c_opt .= " -Wmissing-prototypes -Wpointer-arith -Wremarks";
-        $sys_c_opt .= " -Wreturn-type -Wshadow -Wsign-compare";
-        $sys_c_opt .= " -Wstrict-prototypes -Wtrigraphs -Wuninitialized";
-        $sys_c_opt .= " -Wunused-function -Wunused-parameter";
-        $sys_c_opt .= " -Wunused-variable -Wwrite-strings";
-        $sys_c_opt .= " -fp-stack-check -fp-trap=common";
-        $sys_c_opt .= " -fp-trap-all=common";
-        $sys_c_opt .= " -ftrapv";
+   $sys_opt   = "-g -O0";    # Default flags for Fortran
+   $sys_c_opt = "-g -O0";    # Default flags for C
+   if($sys_arch eq "linux_ifc"){
+      $sys_opt = "-g -O0 -traceback -fno-omit-frame-pointer";
+      # Compile-time checks
+      $sys_opt .= " -diag-disable=remark,8889,6717,5462 -warn all,nounused -nogen-interfaces"; # We do not care about 8889, 6717, 5462, unused warnings.
+      # Run-time checks
+      $sys_opt .= " -check all,nouninit,noarg_temp_created"; # nouninit triggers Memory Sanitizer. To avoid, because dependencies were not compiled with it. noarg_temp_created triggers too many warnings.
+      $sys_opt .= " -ftrapuv ";
+	
+      $sys_c_opt = "-g -O0 -traceback -fno-omit-frame-pointer";
+      # Compile-time checks
+      $sys_c_opt .= " -pedantic -Wall -Wno-empty-translation-unit -Wno-unused-command-line-argument -Wno-strict-prototypes -Wcomment -Wdeprecated -Wextra-tokens -Wformat -Wformat-security -Wmain -Wmissing-declarations -Wpointer-arith -Wreturn-type -Wshadow -Wsign-compare -Wstrict-aliasing -Wtrigraphs -Wuninitialized -Wunknown-pragmas -Wunused-function -Wwrite-strings";
+      # Run-time checks
+      # $sys_c_opt .= " -fsanitize=address,leak,undefined -fno-sanitize-recover=address,leak,undefined -fsanitize-address-use-after-scope -fsanitize-trap"; # Enable sanitizers and make them fatal. We disable this, because linking mixed C/Fortran code with sanitizers is nontrivial. We will postpone this to future vesions of Intel OneAPI compilers.
+      $sys_c_opt .= " -fstack-protector-strong -fstack-clash-protection -fstack-security-check -ftrapv";
    }
    elsif($sys_arch eq "linux_pgi") {
       print "Optimization level $opt_lev is not defined for $sys_arch.\n";
@@ -280,7 +274,7 @@ elsif($opt_lev == 0) {
 }
 elsif($opt_lev == 1) {
    $sys_opt = "-O1";
-   $sys_c_opt = "O1";
+   $sys_c_opt = "-O1";
 }
 elsif($opt_lev == 2) {
    if($sys_arch eq "cray_cray") {
@@ -432,9 +426,6 @@ if($use_gribapi == 1) {
    elsif(defined($ENV{LIS_JASPER})){
       $sys_jpeg2000_path = $ENV{LIS_JASPER};
       $inc = "/include/";
-      if($ENV{'VSC_INSTITUTE_CLUSTER'} eq "genius"){
-          $inc .= "jasper/";
-      }
       $lib = "/lib/";
       $inc_jpeg2000=$sys_jpeg2000_path.$inc;
       $lib_jpeg2000=$sys_jpeg2000_path.$lib;
@@ -580,7 +571,8 @@ if($use_netcdf == 1) {
    print "NETCDF version (3 or 4, default=4): ";
    $netcdf_v=<stdin>;
    $netcdf_v=~s/ *#.*$//;
-   if($netcdf_v eq "\n"){
+   chomp($netcdf_v);
+   if($netcdf_v eq ""){
       $netcdf_v=4;
    }
 
@@ -638,9 +630,6 @@ if($use_hdf4 == 1) {
    if(defined($ENV{LIS_HDF4})){
       $sys_hdf4_path = $ENV{LIS_HDF4};
       $inc = "/include/";
-      if($ENV{'VSC_INSTITUTE_CLUSTER'} eq "genius"){
-         $inc .= "hdf/";
-      }
       $lib = "/lib/";
       $inc_hdf4=$sys_hdf4_path.$inc;
       $lib_hdf4=$sys_hdf4_path.$lib;
@@ -1132,16 +1121,7 @@ $fflags = $fflags." -DLIS_JULES";
 
 $ldflags = $ldflags." -lz";
 
-if($ENV{'VSC_INSTITUTE_CLUSTER'} eq "genius"){
-    $fflags77 =~ s/-nomixed-str-len-arg/-nomixed_str_len_arg/;
-    $ldflags .= " -ltirpc -lmkl -lsz -lpioc";
-}
-elsif($ENV{'VSC_INSTITUTE_CLUSTER'} eq "wice"){
-    $ldflags .= " -ltirpc -lmkl -lsz -lpioc";
-}
-elsif($ENV{'VSC_INSTITUTE_CLUSTER'} eq "dodrio") {
-    $ldflags .= " -ltirpc -lmkl -lsz -lpioc";
-}
+$ldflags .= " -lmkl -lpioc";
 $ldflags =~ s/-L([^\s]+)/-L$1 -Wl,-rpath=$1/g;
 
 #

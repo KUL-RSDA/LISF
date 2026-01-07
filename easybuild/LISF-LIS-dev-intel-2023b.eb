@@ -1,0 +1,42 @@
+easyblock = 'MakeCp'
+
+name = 'LISF-LIS'
+version = 'dev'
+
+homepage = 'https://lis.gsfc.nasa.gov'
+description = """The Land Information System (LIS) is a software framework for high performance terrestrial hydrology modeling and data assimilation developed with the goal of integrating satellite and ground-based observational data products and advanced modeling techniques to produce optimal fields of land surface states and fluxes."""
+
+toolchain = {'name': 'intel', 'version': '2023b'}
+
+builddependencies = [
+    ('Python', '3.11.5'),
+    ('Perl', '5.38.0'),
+]
+
+dependencies = [
+    ('ecCodes', '2.31.0'),
+    ('ESMF', '8.6.1'),
+    # ('HDF', '4.2.16-2', '-w-fortran-no-netCDF'),
+    ('HDF5', '1.14.3'),
+    # ('HDF-EOS2', '3.0'),
+    ('netCDF', '4.9.2'),
+]
+
+# TODO: install dependencies lis-cmem3, lis-crtm, lis-crtm-profile-utility available in lis/lib
+
+start_dir = 'lis'
+
+with_configure = True
+preconfigopts = "LIS_ARCH=linux_ifc LIS_FC=mpiifx LIS_CC=mpiicx LIS_MODESMF=$EBROOTESMF/mod LIS_LIBESMF=$EBROOTESMF/lib LIS_JASPER=$EBROOTJASPER LIS_ECCODES=$EBROOTECCODES LIS_NETCDF=$EBROOTNETCDF LIS_HDF4=$EBROOTHDF LIS_HDF5=$EBROOTHDF5 LIS_HDFEOS=$EBROOTHDFMINEOS2"
+configure_without_installdir = True
+
+build_cmd = './compile'
+
+files_to_copy = [(['make/LIS'], 'bin')]
+
+sanity_check_paths = {
+    'files': ['bin/LIS'],
+    'dirs': []
+}
+
+moduleclass = 'geo'
