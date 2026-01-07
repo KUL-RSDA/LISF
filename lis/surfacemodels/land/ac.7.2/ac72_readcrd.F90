@@ -258,6 +258,19 @@ subroutine AC72_readcrd()
      endif
   enddo
 
+  ! ZH: not applying the recommended QC to avoid out of bounds soil
+  ! moisture;
+  ! can be useful when performing a run excluding the increment
+  ! updates (e.g., before CDF matching)
+  call ESMF_ConfigFindLabel(LIS_config, &
+       "Aquacrop.7.2 apply soil moisture observation QC:", rc=rc)
+  do n=1, LIS_rc%nnest
+       call ESMF_ConfigGetAttribute(LIS_config, AC72_struc(n)%QC_opt, &
+          default=.true., rc=rc)
+       write(LIS_logunit,*) "applying QC:", &
+            AC72_struc(n)%QC_opt
+  enddo
+
   ! Read Nrsoil layers from LDT
   do n=1, LIS_rc%nnest
      ios = nf90_get_att(nids(n), NF90_GLOBAL, 'SOIL_LAYERS', AC72_struc(n)%NrSoilLayers)

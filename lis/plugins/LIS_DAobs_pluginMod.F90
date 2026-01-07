@@ -175,6 +175,10 @@ subroutine LIS_DAobs_plugin
    use ESACCI_sm_Mod,           only : ESACCI_sm_setup
 #endif
 
+#if ( defined DA_OBS_SMAP_AC72_RZMC )
+   use SMAP_AC72_rzmc_Mod,           only : SMAP_AC72_rzmc_setup
+#endif
+
 #if ( defined DA_OBS_SMOPSSM )
 !   use SMOPSsm_Mod,             only : SMOPSsm_setup   
 #endif
@@ -383,6 +387,10 @@ subroutine LIS_DAobs_plugin
 
 #if ( defined DA_OBS_ESACCI_SM )
    external read_ESACCIsm, write_ESACCIsmobs
+#endif
+
+#if ( defined DA_OBS_SMAP_AC72_RZMC )
+   external read_SMAP_AC72rzmc, write_SMAP_AC72rzmcobs
 #endif
 
 
@@ -648,6 +656,14 @@ subroutine LIS_DAobs_plugin
    call registerdaobssetup(trim(LIS_ESACCIsmobsId)//char(0),ESACCI_sm_setup)
    call registerreaddaobs(trim(LIS_ESACCIsmobsId)//char(0),read_ESACCIsm)
    call registerwritedaobs(trim(LIS_ESACCIsmobsId)//char(0),write_ESACCIsmobs)
+#endif
+
+#if ( defined DA_OBS_SMAP_AC72_RZMC )
+!SMAP_AC72 rzmc obs
+   call registerdaobsclass(trim(LIS_SMAP_AC72rzmcobsId),"LSM")
+   call registerdaobssetup(trim(LIS_SMAP_AC72rzmcobsId)//char(0),SMAP_AC72_rzmc_setup)
+   call registerreaddaobs(trim(LIS_SMAP_AC72rzmcobsId)//char(0),read_SMAP_AC72rzmc)
+   call registerwritedaobs(trim(LIS_SMAP_AC72rzmcobsId)//char(0),write_SMAP_AC72rzmcobs)
 #endif
 
 #if 0

@@ -626,8 +626,13 @@ contains
           call LIS_registerAlarm("NASASMAP read alarm",&
                86400.0, 86400.0)
        else
-          call LIS_registerAlarm("NASASMAP read alarm",&
-               3600.0, 3600.0)
+           if (LIS_rc%lsm .eq. "AquaCrop.7.2") then
+              call LIS_registerAlarm("NASASMAP read alarm",&
+                   86400.0, 86400.0)
+           else
+              call LIS_registerAlarm("NASASMAP read alarm",&
+                   3600.0, 3600.0)
+           end if
        endif
 
        NASASMAPsm_struc(n)%startMode = .true. 

@@ -63,6 +63,7 @@ subroutine AC72_main(n)
        GetCrop_GDDLengthFlowering,&
        GetCropFile, &
        GetCropFilefull, &
+       GetCrop_KcTop,&
        GetCrop_ModeCycle,&
        GetCRsalt,&
        GetCRwater,&

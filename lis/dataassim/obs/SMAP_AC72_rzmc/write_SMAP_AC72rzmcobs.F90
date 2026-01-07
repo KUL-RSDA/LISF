@@ -9,24 +9,23 @@
 !-------------------------END NOTICE -- DO NOT EDIT-----------------------
 !BOP
 ! 
-! !ROUTINE: write_NASASMAPsmobs
-! \label{write_NASASMAPsmobs}
+! !ROUTINE: write_SMAP_AC72rzmcobs
+! \label{write_SMAP_AC72rzmcobs}
 ! 
 ! !REVISION HISTORY: 
 ! 25Jan2008: Sujay Kumar; Initial Specification
 ! 
 ! !INTERFACE: 
-subroutine write_NASASMAPsmobs(n, k, OBS_State)
+subroutine write_SMAP_AC72rzmcobs(n, k, OBS_State)
 ! !USES: 
   use ESMF
   use LIS_coreMod
-  use LIS_timeMgrMod
   use LIS_logMod
   use LIS_fileIOMod
   use LIS_historyMod
   use LIS_DAobservationsMod
   use LIS_constantsMod, only : LIS_CONST_PATH_LEN
-  
+
   implicit none
 
 ! !ARGUMENTS: 
@@ -38,7 +37,8 @@ subroutine write_NASASMAPsmobs(n, k, OBS_State)
 ! !DESCRIPTION: 
 ! 
 ! writes the transformed (interpolated/upscaled/reprojected)  
-! LPRM AMSRE observations to a file
+! SMAP_AC72 observations to a file. Both scaled and unscaled data
+! are written to the file.
 ! 
 !EOP
   type(ESMF_Field)         :: smField
@@ -48,25 +48,22 @@ subroutine write_NASASMAPsmobs(n, k, OBS_State)
   character(len=LIS_CONST_PATH_LEN) :: obsname
   integer                  :: ftn
   integer                  :: status
-  logical                  :: alarmCheck
-  character*3            :: fda
 
-  write(fda,'(i3.3)') k
-  alarmCheck = LIS_isAlarmRinging(LIS_rc,"LIS DA output "//trim(fda))
-
-if (alarmCheck) then
   call ESMF_AttributeGet(OBS_State, "Data Update Status", & 
        data_update, rc=status)
-  call LIS_verify(status)
+  call LIS_verify(status,&
+       "ESMF_AttributeGet: Data Update Status failed in write_SMAP_AC72rzmcobs")
 
   if(data_update) then 
      
      call ESMF_StateGet(OBS_State, "Observation01",smField, &
           rc=status)
-     call LIS_verify(status)
+     call LIS_verify(status, &
+          "ESMF_StateGet failed in write_SMAP_AC72rzmcobs")
      
      call ESMF_FieldGet(smField, localDE=0, farrayPtr=smobs, rc=status)
-     call LIS_verify(status)
+     call LIS_verify(status,&
+          "ESMF_FieldGet failed in write_SMAP_AC72rzmcobs")
 
      if(LIS_rc%obs_ngrid(k).gt.0) then 
         call ESMF_AttributeGet(smfield,"Unscaled Obs",smobs_unsc,&
@@ -76,7 +73,7 @@ if (alarmCheck) then
 
      if(LIS_masterproc) then 
         ftn = LIS_getNextUnitNumber()
-        call NASASMAP_smobsname(n,k,obsname)        
+        call SMAP_AC72_rzmcobsname(n,k,obsname)        
 
         call LIS_create_output_directory('DAOBS')
         open(ftn,file=trim(obsname), form='unformatted')
@@ -88,17 +85,17 @@ if (alarmCheck) then
      if(LIS_masterproc) then 
         call LIS_releaseUnitNumber(ftn)
      endif
-  endif
+
   endif  
 
-end subroutine write_NASASMAPsmobs
+end subroutine write_SMAP_AC72rzmcobs
 
 !BOP
-! !ROUTINE: NASASMAP_smobsname
-! \label{NASASMAP_smobsname}
+! !ROUTINE: SMAP_AC72_rzmcobsname
+! \label{SMAP_AC72_rzmcobsname}
 ! 
 ! !INTERFACE: 
-subroutine NASASMAP_smobsname(n,k,obsname)
+subroutine SMAP_AC72_rzmcobsname(n,k,obsname)
 ! !USES: 
   use LIS_coreMod, only : LIS_rc
 
@@ -109,6 +106,9 @@ subroutine NASASMAP_smobsname(n,k,obsname)
 ! 
 ! !DESCRIPTION: 
 ! 
+!  This routine creates a filename for writing the processed observations
+!  to file. 
+!
 !EOP
 
   character(len=12) :: cdate1
@@ -125,5 +125,5 @@ subroutine NASASMAP_smobsname(n,k,obsname)
   obsname = trim(LIS_rc%odir)//'/DAOBS/'//cdate1(1:6)//&
        '/LISDAOBS_'//cdate1// &
        trim(cda)//trim(cdate)//'.1gs4r'
-
-end subroutine NASASMAP_smobsname
+  
+end subroutine SMAP_AC72_rzmcobsname
