@@ -969,7 +969,7 @@ subroutine AC72_main(n)
                start_day_t = ac72_search_start_Temp(time1days,time2days,AC72_struc(n)%crit_window, &
                                                 AC72_struc(n)%Temp_crit_tmin, AC72_struc(n)%Temp_crit_days, &
                                                 AC72_struc(n)%Temp_crit_occurrence, AC72_struc(n)%ac72(t)%Tmin_record)
-               call set_project_input(AC72_struc(n)%ac72(t)%irun, 'Crop_Day1', start_day_t)
+               call set_project_input(AC72_struc(n)%irun, 'Crop_Day1', start_day_t)
            endif
 
            if (AC72_struc(n)%Rainfall_crit) then
@@ -985,11 +985,11 @@ subroutine AC72_main(n)
                start_day_p = ac72_search_start_Rainfall(time1days,time2days,AC72_struc(n)%crit_window, &
                                                 AC72_struc(n)%Rainfall_crit_amount, AC72_struc(n)%Rainfall_crit_days, &
                                                 AC72_struc(n)%Rainfall_crit_occurrence, AC72_struc(n)%ac72(t)%pcp_record)
-               call set_project_input(AC72_struc(n)%ac72(t)%irun, 'Crop_Day1', start_day_p)
+               call set_project_input(AC72_struc(n)%irun, 'Crop_Day1', start_day_p)
            endif
 
            if (AC72_struc(n)%Temp_crit.and.AC72_struc(n)%Rainfall_crit) then
-               call set_project_input(AC72_struc(n)%ac72(t)%irun, 'Crop_Day1', max(start_day_t, start_day_t))
+               call set_project_input(AC72_struc(n)%irun, 'Crop_Day1', max(start_day_t, start_day_t))
            endif
 
             ! Set Global variable to pass T record to AquaCrop
@@ -1048,7 +1048,7 @@ subroutine AC72_main(n)
 
              ! InitializeRunPart
              if (AC72_struc(n)%variable_CCx .and. (LIS_rc%nensem(n) .gt. 2)) then
-               call InitializeRunPart1(int(AC72_struc(n)%irun, kind=int8), AC72_struc(n)%TheProjectType,&
+               call InitializeRunPart1(int(AC72_struc(n)%irun, kind=int8), AC72_struc(n)%ac72(t)%TheProjectType,&
                   AC72_struc(n)%variable_CCx,CCx_temp,CCx_range_temp,ens_n,LIS_rc%nensem(n))
             else
                call InitializeRunPart1(int(AC72_struc(n)%irun, kind=int8), AC72_struc(n)%ac72(t)%TheProjectType,&
