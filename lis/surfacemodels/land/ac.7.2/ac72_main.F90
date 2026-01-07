@@ -14,12 +14,28 @@
 !
 ! !REVISION HISTORY:
 !   04 NOV 2024, Louise Busschaert; initial implementation
+!  22 APR 2025, Louise Busschaert; added plating criterion
 !
 ! !INTERFACE:
 subroutine AC72_main(n)
   ! !USES:
-!!! MB_AC70
-  use ac_global, only:    DegreesDay,&
+!!! MB_AC70    
+  use ac_utils, only: roundc
+  use ac_global, only:     DegreesDay,&
+       CanopyCoverNoStressSF,&
+       CCiNoWaterStressSF,&
+       GetSimulation_EffectStress_CDecline,&
+       GetCrop_GDDaysToFullCanopySF,&
+       GetSimulation_DelayedDays,&
+       GetCrop_GDDaysToFullCanopy,&
+       GetSimulation_EffectStress_RedCGC, &
+       GetSimulation_EffectStress_RedCCX, &
+       GetCrop_CCo,&
+       GetCrop_CCx,&
+       GetCrop_CGC,&
+       GetCrop_CDC,&
+       GetCrop_GDDCGC,&
+       GetCrop_GDDCDC,&
        GetCCiActual,&
        GetCCiprev,&
        GetCCiTopEarlySen,&
@@ -44,6 +60,9 @@ subroutine AC72_main(n)
        GetCrop_GDDaysToHarvest,&
        GetCrop_GDDaysToMaxRooting,&
        GetCrop_GDDaysToSenescence,&
+       GetCrop_GDDLengthFlowering,&
+       GetCropFile, &
+       GetCropFilefull, &
        GetCrop_ModeCycle,&
        GetCRsalt,&
        GetCRwater,&
@@ -173,6 +192,13 @@ subroutine AC72_main(n)
        SetCrop_DaysToHIo,&
        SetCrop_DaysToMaxRooting,&
        SetCrop_DaysTosenescence,&
+       SetCrop_CCx,&
+       SetCrop_GDDCGC,&
+       SetCrop_GDDCDC,&
+       LoadCrop, &
+       SetSimulation_LinkCropToSimPeriod, &
+       SetCropFile, &
+       SetCropFilefull, &
        SetCRsalt,&
        SetCRwater,&
        SetDaySubmerged,&
@@ -470,7 +496,7 @@ subroutine AC72_main(n)
   use LIS_coreMod, only: LIS_rc, LIS_surface, LIS_domain
   use LIS_histDataMod
   use LIS_logMod, only     : LIS_logunit, LIS_endrun
-  use LIS_timeMgrMod, only : LIS_isAlarmRinging
+  use LIS_timeMgrMod, only : LIS_isAlarmRinging, LIS_get_julhr
 #if (defined SPMD)
   use LIS_mpiMod
 #endif
@@ -494,12 +520,27 @@ subroutine AC72_main(n)
   ! Initialization management
   integer              :: read_Trecord_flag, InitializeRun_flag
   integer              :: ierr
+  real                 :: CCx_temp
+  real                 :: CCx_range_temp
+  real                 :: GDD_endgrowth_temp
+  real                 :: CCi_final_temp
+  integer              :: ens_n
 
   real                 :: tmp_pres, tmp_precip, tmp_tmax, tmp_tmin   ! Weather Forcing
   real                 :: tmp_tdew, tmp_swrad, tmp_wind, tmp_eto     ! Weather Forcing
 
   ! For AdvanceOneTimeStep
   real                 :: tmp_wpi
+
+  ! To store CCiPot
+  real                 :: SumGDDadjCC
+  integer              :: VirtualTimeCC
+  real(sp)             :: RatDGDD
+
+    ! For flexible planting/sowing with criteria
+  integer              :: start_day_t, start_day_p
+  integer              :: time1julhours, timerefjulhours, time1days, time2days
+
   !
   ! !DESCRIPTION:
   !  This is the entry point for calling the AC72 physics.
@@ -895,6 +936,44 @@ subroutine AC72_main(n)
                   'Crop_Filename', &
                   trim(AC72_struc(n)%ac72(t)%cropt)//'.CRO')
 
+           ! Set sowing/planting date based on criterion if activated
+           ! Set for first year, needs to be defined in main
+           if (AC72_struc(n)%Temp_crit) then
+               ! Search start and add it to sim 
+               ! Define start sim (already done before)
+               call LIS_get_julhr(1901,1,1,0,0,0,timerefjulhours)
+               call LIS_get_julhr(LIS_rc%yr, AC72_struc(n)%Sim_AnnualStartMonth, &
+                     AC72_struc(n)%Sim_AnnualStartDay,0,0,0,time1julhours)
+               time1days = (time1julhours - timerefjulhours)/24 + 1
+               call LIS_get_julhr(LIS_rc%yr, AC72_struc(n)%Crop_AnnualStartMonth, &
+                     AC72_struc(n)%Crop_AnnualStartDay,0,0,0,time1julhours)
+               time2days = (time1julhours - timerefjulhours)/24 + 1
+               start_day_t = ac72_search_start_Temp(time1days,time2days,AC72_struc(n)%crit_window, &
+                                                AC72_struc(n)%Temp_crit_tmin, AC72_struc(n)%Temp_crit_days, &
+                                                AC72_struc(n)%Temp_crit_occurrence, AC72_struc(n)%ac72(t)%Tmin_record)
+               call set_project_input(AC72_struc(n)%ac72(t)%irun, 'Crop_Day1', start_day_t)
+           endif
+
+           if (AC72_struc(n)%Rainfall_crit) then
+               ! Search start and add it to sim 
+               ! Define start sim (already done before)
+               call LIS_get_julhr(1901,1,1,0,0,0,timerefjulhours)
+               call LIS_get_julhr(LIS_rc%yr, AC72_struc(n)%Sim_AnnualStartMonth, &
+                     AC72_struc(n)%Sim_AnnualStartDay,0,0,0,time1julhours)
+               time1days = (time1julhours - timerefjulhours)/24 + 1
+               call LIS_get_julhr(LIS_rc%yr, AC72_struc(n)%Crop_AnnualStartMonth, &
+                     AC72_struc(n)%Crop_AnnualStartDay,0,0,0,time1julhours)
+               time2days = (time1julhours - timerefjulhours)/24 + 1
+               start_day_p = ac72_search_start_Rainfall(time1days,time2days,AC72_struc(n)%crit_window, &
+                                                AC72_struc(n)%Rainfall_crit_amount, AC72_struc(n)%Rainfall_crit_days, &
+                                                AC72_struc(n)%Rainfall_crit_occurrence, AC72_struc(n)%ac72(t)%pcp_record)
+               call set_project_input(AC72_struc(n)%ac72(t)%irun, 'Crop_Day1', start_day_p)
+           endif
+
+           if (AC72_struc(n)%Temp_crit.and.AC72_struc(n)%Rainfall_crit) then
+               call set_project_input(AC72_struc(n)%ac72(t)%irun, 'Crop_Day1', max(start_day_t, start_day_t))
+           endif
+
             ! Set Global variable to pass T record to AquaCrop
             call SetTminRun(AC72_struc(n)%ac72(t)%Tmin_record)
             call SetTmaxRun(AC72_struc(n)%ac72(t)%Tmax_record)
@@ -908,19 +987,66 @@ subroutine AC72_main(n)
 
             call SetTnxReferenceFile('(External)')
 
-            ! InitializeRunPart
-            call InitializeRunPart1(int(AC72_struc(n)%irun,kind=int8), AC72_struc(n)%ac72(t)%TheProjectType)
-            call InitializeSimulationRunPart2()
-            AC72_struc(n)%ac72(t)%HarvestNow = .false. ! Initialize to false
-            ! Check if enough GDDays to complete cycle
-            if(GetCrop_ModeCycle().eq.ModeCycle_GDDays)then
-               if (((GetCrop_Day1()+GetCrop_DaysToHarvest()).gt.GetSimulation_ToDayNr()) &
-                     .or.(GetCrop_DaysToHarvest()<1)) then
-                  AC72_struc(n)%ac72(t)%cycle_complete = 0
-               else
-                  AC72_struc(n)%ac72(t)%cycle_complete = 1
+
+            ! Variable CCx
+            ! If the option is enabled in the lis configuration file, and there are at least 3 ensemble members,
+            ! this block will evenly spread the CCx values within the specified range around the CCx_config.
+            ! CGC and CDC are adapted to maintain the stages length consistent.
+            ! It has been built for a determinate crop in GDDs.
+            if ((AC72_struc(n)%variable_CCx) .and. (LIS_rc%nensem(n) .gt. 2)) then
+               ens_n = mod(t,LIS_rc%nensem(n))
+               if (ens_n == 0) then
+                  ens_n = LIS_rc%nensem(n)
+               endif
+               call SetSimulation_LinkCropToSimPeriod(.true.)
+               call SetCropFile(ProjectInput(int(AC72_struc(n)%irun, kind=int8))%Crop_Filename)
+               call SetCropFilefull(ProjectInput(int(AC72_struc(n)%irun, kind=int8))%Crop_Directory // GetCropFile())
+               call LoadCrop(GetCropFilefull())
+               ! GDD setup only!
+               CCx_temp = AC72_struc(n)%CCx_config
+               CCx_range_temp = AC72_struc(n)%CCx_range
+               GDD_endgrowth_temp = log(GetCrop_CCx()/(0.08*GetCrop_CCo()))/GetCrop_GDDCGC()
+               ! Determinate crop only!
+               if (GDD_endgrowth_temp .gt. (GetCrop_GDDaysToFlowering()&
+                     + GetCrop_GDDLengthFlowering() / 2)) then
+                  GDD_endgrowth_temp = GetCrop_GDDaysToFlowering() + GetCrop_GDDLengthFlowering() / 2
+               endif
+               CCi_final_temp = GetCrop_CCx() * (1 - 0.05 * (exp(3.33 * GetCrop_GDDCDC() / &
+                  (GetCrop_CCx() + 2.29) * (GetCrop_GDDaysToHarvest() - GetCrop_GDDaysToSenescence())) - 1))
+               if ((GetCrop_CCx() + AC72_struc(n)%CCx_range .gt. 1) .or.&
+                     (GetCrop_CCx() - AC72_struc(n)%CCx_range .lt. GetCrop_CCo())) then
+                  AC72_struc(n)%CCx_range = min(1 - GetCrop_CCx(), GetCrop_CCx() - GetCrop_CCo())
+               endif
+               if (ens_n .lt. LIS_rc%nensem(n)) then
+                  call SetCrop_CCx(GetCrop_CCx() - AC72_struc(n)%CCx_range + &
+                     (ens_n - 1) * 2 * AC72_struc(n)%CCx_range / (LIS_rc%nensem(n) - 2))
+                  call SetCrop_GDDCGC(log(GetCrop_CCx()/(0.08 * GetCrop_CCo())) / GDD_endgrowth_temp)
+                  call SetCrop_GDDCDC((GetCrop_CCx() + 2.29) / (3.33 *&
+                     (GetCrop_GDDaysToHarvest() - GetCrop_GDDaysToSenescence())) *&
+                     log((1-CCi_final_temp/GetCrop_CCx())/0.05 + 1))
                endif
             endif
+            ! End variable CCx
+
+             ! InitializeRunPart
+             if (AC72_struc(n)%variable_CCx .and. (LIS_rc%nensem(n) .gt. 2)) then
+               call InitializeRunPart1(int(AC72_struc(n)%irun, kind=int8), AC72_struc(n)%TheProjectType,&
+                  AC72_struc(n)%variable_CCx,CCx_temp,CCx_range_temp,ens_n,LIS_rc%nensem(n))
+            else
+               call InitializeRunPart1(int(AC72_struc(n)%irun, kind=int8), AC72_struc(n)%ac72(t)%TheProjectType,&
+               AC72_struc(n)%variable_CCx)
+            endif
+             call InitializeSimulationRunPart2()
+             AC72_struc(n)%ac72(t)%HarvestNow = .false. ! Initialize to false
+             ! Check if enough GDDays to complete cycle
+             if(GetCrop_ModeCycle().eq.ModeCycle_GDDays)then
+                if (((GetCrop_Day1()+GetCrop_DaysToHarvest()).gt.GetSimulation_ToDayNr()) &
+                       .or.(GetCrop_DaysToHarvest()<1)) then
+                   AC72_struc(n)%ac72(t)%cycle_complete = 0
+                else
+                   AC72_struc(n)%ac72(t)%cycle_complete = 1
+                endif
+             endif
 
             ! Overwrite the SMC to avoid problems when restarting
             do l=1, AC72_struc(n)%ac72(t)%NrCompartments
@@ -956,6 +1082,86 @@ subroutine AC72_main(n)
          tmp_wpi = AC72_struc(n)%ac72(t)%WPi
          call AdvanceOneTimeStep(tmp_wpi, AC72_struc(n)%ac72(t)%HarvestNow)
          AC72_struc(n)%ac72(t)%WPi = tmp_wpi
+
+         ! Store CCiPot
+         SumGDDadjCC = real(undef_int, kind=sp)
+         if (GetCrop_DaysToCCini() /= 0) then
+            ! regrowth
+            if (GetDayNri() - 1 >= GetCrop_Day1()) then
+               ! time setting for canopy development
+               VirtualTimeCC = (GetDayNri() - 1 - GetSimulation_DelayedDays() &
+                  - GetCrop_Day1()) &
+                  + GetTadj() + GetCrop_DaysToGermination()
+               ! adjusted time scale
+               if (VirtualTimeCC > GetCrop_DaysToHarvest()) then
+                  VirtualTimeCC = GetCrop_DaysToHarvest()
+                  ! special case where L123 > L1234
+               end if
+               if (VirtualTimeCC > GetCrop_DaysToFullCanopy()) then
+                  if ((GetDayNri() - 1 - GetSimulation_DelayedDays() - &
+                        GetCrop_Day1()) <= GetCrop_DaysToSenescence()) then
+                     VirtualTimeCC = GetCrop_DaysToFullCanopy() + &
+                        roundc(GetDayFraction() * ((GetDayNri() - 1 - &
+                        GetSimulation_DelayedDays() - &
+                        GetCrop_Day1())+GetTadj()+ &
+                        GetCrop_DaysToGermination() - &
+                        GetCrop_DaysToFullCanopy()), mold=1) ! slow down
+                  else
+                     VirtualTimeCC = GetDayNri() - 1 - &
+                        GetSimulation_DelayedDays() - GetCrop_Day1() ! switch time scale
+                  end if
+               end if
+               if (GetCrop_ModeCycle() == modeCycle_GDDays) then
+                  SumGDDadjCC = GetSimulation_SumGDDfromDay1() + GetGDDTadj() + &
+                     GetCrop_GDDaysToGermination()
+                  if (SumGDDadjCC > GetCrop_GDDaysToHarvest()) then
+                     SumGDDadjCC = GetCrop_GDDaysToHarvest()
+                     ! special case where L123 > L1234
+                  end if
+                  if (SumGDDadjCC > GetCrop_GDDaysToFullCanopy()) then
+                     if (GetSimulation_SumGDDfromDay1() <= &
+                           GetCrop_GDDaysToSenescence()) then
+                        SumGDDadjCC = GetCrop_GDDaysToFullCanopy() &
+                           + roundc(GetGDDayFraction() &
+                           * (GetSimulation_SumGDDfromDay1() &
+                           + GetGDDTadj()+GetCrop_GDDaysToGermination() &
+                           - GetCrop_GDDaysToFullCanopy()), mold=1) ! slow down
+                     else
+                        SumGDDadjCC = GetSimulation_SumGDDfromDay1()
+                        ! switch time scale
+                     end if
+                  endif
+               end if
+            else
+               ! before start crop
+               VirtualTimeCC = GetDayNri() - 1 - GetSimulation_DelayedDays() - &
+                  GetCrop_Day1()
+               if (GetCrop_ModeCycle() == modeCycle_GDDays) then
+                  SumGDDadjCC = GetSimulation_SumGDD()
+               end if
+            end if
+         else
+            ! sown or transplanted
+            VirtualTimeCC = GetDayNri() - 1 - GetSimulation_DelayedDays() - &
+               GetCrop_Day1()
+            if (GetCrop_ModeCycle() == modeCycle_GDDays) then
+               SumGDDadjCC = GetSimulation_SumGDD()
+            end if
+         end if
+         RatDGDD = 1._sp
+         if (GetCrop_GDDaysToFullCanopySF() < GetCrop_GDDaysToSenescence()) then
+            RatDGDD = (GetCrop_DaysToSenescence() - GetCrop_DaysToFullCanopySF()) &
+               /real(GetCrop_GDDaysToSenescence() - GetCrop_GDDaysToFullCanopySF(), kind=sp)
+         endif
+         AC72_struc(n)%ac72(t)%SumGDDadjCC = SumGDDadjCC
+         AC72_struc(n)%ac72(t)%CCiPot = CCiNoWaterStressSF((VirtualTimeCC + GetSimulation_DelayedDays() + 1), &
+            GetCrop_DaysToGermination(), GetCrop_DaysToFullCanopySF(), &
+            GetCrop_DaysToSenescence(), GetCrop_DaysToHarvest(), &
+            GetCrop_GDDaysToGermination(), GetCrop_GDDaysToFullCanopySF(), &
+            GetCrop_GDDaysToSenescence(), GetCrop_GDDaysToHarvest(), &
+            GetCrop_CCo(), GetCrop_CCx(), GetCrop_CGC(), GetCrop_GDDCGC(), GetCrop_CDC(), GetCrop_GDDCDC(), &
+            SumGDDadjCC, RatDGDD, GetSimulation_EffectStress_RedCGC(), &
+            GetSimulation_EffectStress_RedCCX(), GetSimulation_EffectStress_CDecline(), GetCrop_ModeCycle())
 
          ! Close irri file if opened
          if(irr_record_flag.eq.1)then
@@ -1203,6 +1409,27 @@ subroutine AC72_main(n)
              vlevel=1, unit="%", direction="-", surface_type = LIS_rc%lsm_index)
         ![ 17] output variable: cycle_complete (unit=binary).  *** Flag for completion of crop cycle within sim period
         call LIS_diagnoseSurfaceOutputVar(n, t, LIS_MOC_AC_cycle_complete, value = real(AC72_struc(n)%ac72(t)%cycle_complete), &
+             vlevel=1, unit="-", direction="-", surface_type = LIS_rc%lsm_index)
+        ![ 18] output variable: CCxWithered (unit=-).  *** max canopy cover in water stress conditions
+        call LIS_diagnoseSurfaceOutputVar(n, t, LIS_MOC_AC_CCxWithered, value = AC72_struc(n)%ac72(t)%crop%CCxWithered, &
+             vlevel=1, unit="-", direction="-", surface_type = LIS_rc%lsm_index)
+        ![ 19] output variable: HI (unit=-).  *** Harvest Index
+        call LIS_diagnoseSurfaceOutputVar(n, t, LIS_MOC_AC_HI, value = real(AC72_struc(n)%ac72(t)%crop%HI), &
+             vlevel=1, unit="%", direction="-", surface_type = LIS_rc%lsm_index)
+        ![ 20] output variable: CCxTotal (unit=-).  *** max canopy cover
+        call LIS_diagnoseSurfaceOutputVar(n, t, LIS_MOC_AC_CCxTotal, value = AC72_struc(n)%ac72(t)%CCxTotal, &
+             vlevel=1, unit="-", direction="-", surface_type = LIS_rc%lsm_index)
+        ![ 21] output variable: CCiPot (unit=-).  *** potential canopy cover
+        call LIS_diagnoseSurfaceOutputVar(n, t, LIS_MOC_AC_CCiPot, value = AC72_struc(n)%ac72(t)%CCiPot, &
+             vlevel=1, unit="-", direction="-", surface_type = LIS_rc%lsm_index)
+        ![ 22] output variable: CCiPrev (unit=-).  *** canopy cover (end of the day)
+        call LIS_diagnoseSurfaceOutputVar(n, t, LIS_MOC_AC_CCiPrev, value = AC72_struc(n)%ac72(t)%CCiPrev, &
+             vlevel=1, unit="-", direction="-", surface_type = LIS_rc%lsm_index)
+        ![ 23] output variable: StageCode (unit=-).  *** stage code
+        call LIS_diagnoseSurfaceOutputVar(n, t, LIS_MOC_AC_StageCode, value = real(AC72_struc(n)%ac72(t)%StageCode), &
+             vlevel=1, unit="-", direction="-", surface_type = LIS_rc%lsm_index)
+        ![ 24] output variable: CCxAdjusted (unit=-).  *** initial canopy cover in water stress conditions
+        call LIS_diagnoseSurfaceOutputVar(n, t, LIS_MOC_AC_CCxAdjusted, value = AC72_struc(n)%ac72(t)%Crop%CCxAdjusted, &
              vlevel=1, unit="-", direction="-", surface_type = LIS_rc%lsm_index)
 
         !  Reset forcings

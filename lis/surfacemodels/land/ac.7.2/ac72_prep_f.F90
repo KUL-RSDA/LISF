@@ -108,6 +108,7 @@ contains
   !
   ! !REVISION HISTORY:
   !  04 NOV 2024, Louise Busschaert; initial implementation
+  !  22 APR 2025, Louise Busschaert; added plating criterion
   !
 
   ! !INTERFACE:
@@ -120,7 +121,7 @@ contains
     use LIS_coreMod,        only: LIS_rc, LIS_surface, LIS_resetTimeMgr
     use LIS_FORC_AttributesMod
     use LIS_logMod,         only: LIS_logunit, LIS_verify
-    use LIS_metForcingMod,  only: LIS_get_met_forcing, LIS_FORC_State
+    use LIS_metForcingMod,  only: LIS_get_met_forcing, LIS_perturb_forcing, LIS_FORC_State
     use LIS_PRIV_rcMod,     only: lisrcdec
     use LIS_timeMgrMod,     only: LIS_advance_timestep, LIS_is_last_step
 
@@ -138,6 +139,7 @@ contains
     integer, intent(in)      :: n
 
     real, allocatable     :: daily_tmax_arr(:,:), daily_tmin_arr(:,:)
+    real, allocatable     :: daily_pcp_arr(:,:)
     real, allocatable     :: subdaily_arr(:,:)
     type(lisrcdec)        :: LIS_rc_saved
     integer               :: i, j, t, status, met_ts, m, tid
@@ -147,6 +149,10 @@ contains
     ! Near Surface Air Temperature [K]
     type(ESMF_Field)  :: tmpField
     real, pointer     :: tmp(:)
+
+    ! Rainfall Rate [kg m-2 s-1]
+    type(ESMF_Field)  :: pcpField
+    real, pointer     :: pcp(:)
 
     external :: finalmetforc, initmetforc
 
@@ -168,6 +174,11 @@ contains
     allocate(subdaily_arr(LIS_rc%npatch(n,LIS_rc%lsm_index),met_ts))
     daily_tmax_arr = 0
     daily_tmin_arr = 0
+
+    if (AC72_struc(n)%Rainfall_crit) then
+        allocate(daily_pcp_arr(LIS_rc%npatch(n,LIS_rc%lsm_index),366))
+        daily_pcp_arr = 0
+    endif
 
     ! Set LIS_rc time to beginning of simulation period (in case of restart)
     ! Check in which year the simulation did start (assuming a 365-366 sim period)
@@ -197,6 +208,18 @@ contains
           ! Store temperatures
           subdaily_arr(:,j) = tmp
 
+          if (AC72_struc(n)%Rainfall_crit) then
+            call LIS_perturb_forcing(n)
+            ! Get and store rainfall (for sowing/planting based on rainfall criterion)
+            call ESMF_StateGet(LIS_FORC_State(n), trim(LIS_FORC_Rainf%varname(1)), pcpField, rc=status)
+            call LIS_verify(status, "AC72_f2t: error getting Rainf")
+
+            call ESMF_FieldGet(pcpField, localDE = 0, farrayPtr = pcp, rc = status)
+            call LIS_verify(status, "AC72_f2t: error retrieving Rainf")
+
+            daily_pcp_arr(:,i) = daily_pcp_arr(:,i) + pcp*LIS_rc%ts
+          endif
+
           ! Change LIS time to the next meteo time step
           call LIS_advance_timestep(LIS_rc)
        enddo
@@ -222,10 +245,16 @@ contains
        ! AquaCrop rounds meteo input to 4 decimals
        AC72_struc(n)%ac72(t)%Tmax_record = anint((daily_tmax_arr(tid,:)-LIS_CONST_TKFRZ)*10000)/10000
        AC72_struc(n)%ac72(t)%Tmin_record = anint((daily_tmin_arr(tid,:)-LIS_CONST_TKFRZ)*10000)/10000
+       if (AC72_struc(n)%Rainfall_crit) then
+           AC72_struc(n)%ac72(t)%pcp_record =  anint(daily_pcp_arr(tid,:)*10000)/10000
+       endif
     enddo
 
     deallocate(daily_tmax_arr)
     deallocate(daily_tmin_arr)
+    if (AC72_struc(n)%Rainfall_crit) then
+        deallocate(daily_pcp_arr)
+    endif
 
     ! Reset LIS_rc
     LIS_rc = LIS_rc_saved
@@ -249,5 +278,142 @@ contains
 
     write(LIS_logunit,*) "[INFO] AC72: new simulation period, reading of temperature record... Done!"
   end subroutine ac72_read_Trecord
+
+!BOP
+  !
+  ! !ROUTINE: AC72_search_start_Temp
+  ! \label{AC72_search_start_Temp}
+  !
+  ! !REVISION HISTORY:
+  !  22 APR 2025, Louise Busschaert; initial implementation (planting criterion)
+  !
+integer function ac72_search_start_Temp(startsim_julian_days, startcrop_julian_days, crit_window, &
+                                        Temp_crit_tmin, Temp_crit_days, Temp_crit_occurrence, Tmin_record)
+
+    !
+    ! !DESCRIPTION:
+    !
+    !  This function finds the planting/sowing date based on a temperature
+    !  criterion defined in the lis.config
+    !
+    !
+    !EOP
+
+    implicit none
+    ! Input parameters
+    integer, intent(in) :: startsim_julian_days, startcrop_julian_days, crit_window, &
+                           Temp_crit_days, Temp_crit_occurrence
+    integer, intent(in) :: Temp_crit_tmin
+    real, intent(in) :: Tmin_record(366)  ! Yearly min temperature data (1-366)
+
+    ! Local variables
+    integer :: search_start, search_end, t, i, occurrence_count
+    logical :: consecutive_met
+
+    ! Define search start and end indices
+    search_start = startcrop_julian_days - startsim_julian_days + 1
+    search_end = search_start + crit_window - 1
+
+    ! Initialize occurrence counter
+    occurrence_count = 0
+    t = search_start
+
+    ! Loop through the search window with non-overlapping windows
+    do while (t <= search_end - Temp_crit_days + 1)
+        consecutive_met = .true.
+
+        ! Check Tmin_record for Temp_crit_days consecutive days
+        do i = 0, Temp_crit_days - 1
+            if (Tmin_record(t + i) < Temp_crit_tmin) then
+                consecutive_met = .false.
+                exit
+            end if
+        end do
+
+        if (consecutive_met) then
+            occurrence_count = occurrence_count + 1
+            if (occurrence_count == Temp_crit_occurrence) then
+                ac72_search_start_Temp = startcrop_julian_days + (t + i - search_start)
+                return
+            end if
+            ! Move `t` to the end of the window
+            t = t + i
+        end if
+
+        ! Move to the next day
+        t = t + 1
+    end do
+
+    ! If condition is not met, return the last possible day
+    ac72_search_start_Temp = startcrop_julian_days + (search_end - search_start)
+
+end function ac72_search_start_Temp
+
+!BOP
+  !
+  ! !ROUTINE: AC72_search_start_Rainfall
+  ! \label{AC72_search_start_Rainfall}
+  !
+  ! !REVISION HISTORY:
+  !  22 APR 2025, Louise Busschaert; initial implementation (planting criterion)
+  !
+integer function ac72_search_start_Rainfall(startsim_julian_days, startcrop_julian_days, crit_window, &
+                                            Rainfall_crit_amount, Rainfall_crit_days, Rainfall_crit_occurrence, pcp_record)
+
+    !
+    ! !DESCRIPTION:
+    !
+    !  This function finds the planting/sowing date based on a rainfall
+    !  criterion defined in the lis.config
+    !
+    !
+    !EOP
+
+    implicit none
+    ! Input parameters
+    integer, intent(in) :: startsim_julian_days, startcrop_julian_days, crit_window, &
+                           Rainfall_crit_days, Rainfall_crit_occurrence
+    integer, intent(in) :: Rainfall_crit_amount
+    real, intent(in) :: pcp_record(366)  ! Yearly precipitation data (1-366)
+
+    ! Local variables
+    integer :: search_start, search_end, t, i, occurrence_count
+    real    :: sum_pcp
+
+    ! Define search start and end indices
+    search_start = startcrop_julian_days - startsim_julian_days + 1
+    search_end = search_start + crit_window - 1
+
+    ! Initialize occurrence counter
+    occurrence_count = 0
+    t = search_start
+
+    ! Loop through the search window
+    do while (t <= search_end - Rainfall_crit_days + 1)
+        sum_pcp = 0.0  ! Reset sum for this window
+
+        ! Compute sum of rainfall over Rainfall_crit_days
+        do i = 0, Rainfall_crit_days - 1
+            sum_pcp = sum_pcp + pcp_record(t + i)
+            if (sum_pcp > Rainfall_crit_amount) then
+                occurrence_count = occurrence_count + 1
+                if (occurrence_count == Rainfall_crit_occurrence) then
+                    ac72_search_start_Rainfall = startcrop_julian_days + (t + i - search_start)
+                    return
+                end if
+                ! Move `t` to the end of the window
+                t = t + i
+                exit  ! Exit inner loop early
+            end if
+        end do
+
+        ! Move to the next day
+        t = t + 1
+    end do
+
+    ! If condition is not met, return the last possible day
+    ac72_search_start_Rainfall = startcrop_julian_days + (search_end - search_start)
+
+end function ac72_search_start_Rainfall
 
 end module ac72_prep_f

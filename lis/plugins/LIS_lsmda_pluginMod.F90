@@ -211,6 +211,10 @@ subroutine LIS_lsmda_plugin
    use noahmp401_daveg_Mod
 #endif
 
+#if ( defined SM_AC_7_2 )
+   use ac72_daveg_Mod
+#endif
+
 
 #if ( defined SM_CLSM_F2_5 )
    use clsmf25_tws_DAlogMod, only : clsmf25_tws_DAlog
@@ -567,6 +571,20 @@ subroutine LIS_lsmda_plugin
    external noahmp401_qc_snipobs
 #endif
 
+#endif
+
+#if ( defined SM_AC_7_2 ) 
+!  ac72 vegetation
+   external ac72_getvegvars          
+   external ac72_setvegvars  
+   external ac72_transform_veg
+   external ac72_map_veg
+   external ac72_updatevegvars
+   external ac72_qcveg
+   external ac72_getFCOVERpred
+   external ac72_qc_FCOVERobs
+   external ac72_scale_veg
+   external ac72_descale_veg
 #endif
 
 #if ( defined SM_CLSM_F2_5 )
@@ -3188,6 +3206,29 @@ subroutine LIS_lsmda_plugin
 ! end NoahMP.4.0.1
 #endif
 
+#if ( defined SM_AC_7_2 )
+! ac72 FCover
+   call registerlsmdainit(trim(LIS_ac72Id)//"+"//&
+        trim(LIS_CGLSFCOVERobsId)//char(0),ac72_daveg_init)
+   call registerlsmdagetstatevar(trim(LIS_ac72Id)//"+"//&
+        trim(LIS_CGLSFCOVERobsId)//char(0),ac72_getvegvars)
+   call registerlsmdasetstatevar(trim(LIS_ac72Id)//"+"//&
+        trim(LIS_CGLSFCOVERobsId)//char(0),ac72_setvegvars)
+   call registerlsmdaupdatestate(trim(LIS_ac72Id)//"+"//&
+        trim(LIS_CGLSFCOVERobsId)//char(0),ac72_updatevegvars)
+   call registerlsmdaqcstate(trim(LIS_ac72Id)//"+"//&
+        trim(LIS_CGLSFCOVERobsId)//char(0),ac72_qcveg)
+   call registerlsmdagetobspred(trim(LIS_ac72Id)//"+"//&
+        trim(LIS_CGLSFCOVERobsId)//char(0),ac72_getFCOVERpred)
+   call registerlsmdaqcobsstate(trim(LIS_ac72Id)//"+"//&
+        trim(LIS_CGLSFCOVERobsId)//char(0),ac72_qc_FCOVERobs)
+   call registerlsmdascalestatevar(trim(LIS_ac72Id)//"+"//&
+        trim(LIS_CGLSFCOVERobsId)//char(0),ac72_scale_veg)
+   call registerlsmdadescalestatevar(trim(LIS_ac72Id)//"+"//&
+        trim(LIS_CGLSFCOVERobsId)//char(0),ac72_descale_veg)
+
+! end ac72
+#endif
 
 #if ( defined SM_CLSM_F2_5 )
 ! CLSM-F2.5 synthetic soil moisture

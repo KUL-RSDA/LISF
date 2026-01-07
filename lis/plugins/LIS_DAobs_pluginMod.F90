@@ -273,6 +273,10 @@ subroutine LIS_DAobs_plugin
     use NASASMAPvod_Mod,          only : NASASMAPvod_setup
 #endif
 
+#if ( defined DA_OBS_CGLS_FCOVER )
+    use CGLSFCOVER_Mod,          only : CGLSfcover_setup
+#endif
+
 #if ( defined DA_OBS_GLASS_LAI )
     use GLASSLAI_Mod,          only : GLASSlai_setup
 #endif
@@ -483,6 +487,10 @@ subroutine LIS_DAobs_plugin
 
 #if ( defined DA_OBS_NASA_SMAPVOD)
     external read_NASASMAPvod, write_NASASMAPvodobs
+#endif
+
+#if ( defined DA_OBS_CGLS_FCOVER)
+    external read_CGLSfcover, write_CGLSfcover
 #endif
 
 #if ( defined DA_OBS_GLASS_LAI)
@@ -905,6 +913,16 @@ subroutine LIS_DAobs_plugin
         read_NASASMAPvod)
    call registerwritedaobs(trim(LIS_NASASMAPvodobsId)//char(0),&
         write_NASASMAPvodobs)
+#endif
+
+#if ( defined DA_OBS_CGLS_FCOVER)
+   call registerdaobsclass(trim(LIS_CGLSfcoverobsId),"LSM")
+   call registerdaobssetup(trim(LIS_CGLSfcoverobsId)//char(0),&
+        CGLSfcover_setup)
+   call registerreaddaobs(trim(LIS_CGLSfcoverobsId)//char(0),&
+        read_CGLSfcover)
+   call registerwritedaobs(trim(LIS_CGLSfcoverobsId)//char(0),&
+        write_CGLSfcover)
 #endif
 
 #if ( defined DA_OBS_GLASS_LAI)

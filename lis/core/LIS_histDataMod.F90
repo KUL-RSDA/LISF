@@ -435,6 +435,13 @@ module LIS_histDataMod
   ! AquaCrop
   public :: LIS_MOC_AC_Biomass
   public :: LIS_MOC_AC_CCiActual
+  public :: LIS_MOC_AC_CCxWithered
+  public :: LIS_MOC_AC_CCxTotal
+  public :: LIS_MOC_AC_CCiPot
+  public :: LIS_MOC_AC_CCiPrev
+  public :: LIS_MOC_AC_StageCode
+  public :: LIS_MOC_AC_CCxAdjusted
+  public :: LIS_MOC_AC_HI
   public :: LIS_MOC_AC_RootZoneWC_Actual
   public :: LIS_MOC_AC_RootZoneWC_WP
   public :: LIS_MOC_AC_RootZoneWC_FC
@@ -966,6 +973,13 @@ module LIS_histDataMod
 !  <- AquaCrop ->
    integer :: LIS_MOC_AC_Biomass  = -9999
    integer :: LIS_MOC_AC_CCiActual  = -9999
+   integer :: LIS_MOC_AC_CCxWithered = -9999
+   integer :: LIS_MOC_AC_CCxTotal = -9999
+   integer :: LIS_MOC_AC_CCiPot = -9999
+   integer :: LIS_MOC_AC_CCiPrev = -9999
+   integer :: LIS_MOC_AC_StageCode = -9999
+   integer :: LIS_MOC_AC_CCxAdjusted = -9999
+   integer :: LIS_MOC_AC_HI = -9999
    integer :: LIS_MOC_AC_RootZoneWC_Actual  = -9999
    integer :: LIS_MOC_AC_RootZoneWC_WP  = -9999
    integer :: LIS_MOC_AC_RootZoneWC_FC  = -9999
@@ -4567,6 +4581,90 @@ contains
        call register_dataEntry(LIS_MOC_LSM_COUNT,LIS_MOC_AC_CCiActual,&
             LIS_histData(n)%head_lsm_list,&
             n,1,ntiles,(/"-"/),1,(/"-"/),1,1,1,&
+            model_patch=.true.)
+    endif
+
+    call ESMF_ConfigFindLabel(modelSpecConfig,"AC_CCxWithered:",rc=rc)
+    call get_moc_attributes(modelSpecConfig, LIS_histData(n)%head_lsm_list, &
+         "AC_CCxWithered",&
+         "max_withered_canopy_cover",&
+         "max withered canopy cover",rc)
+    if ( rc == 1 ) then
+       call register_dataEntry(LIS_MOC_LSM_COUNT,LIS_MOC_AC_CCxWithered,&
+            LIS_histData(n)%head_lsm_list,&
+            n,1,ntiles,(/"-"/),1,(/"-"/),1,1,1,&
+            model_patch=.true.)
+    endif
+    
+    call ESMF_ConfigFindLabel(modelSpecConfig,"AC_CCxTotal:",rc=rc)
+    call get_moc_attributes(modelSpecConfig, LIS_histData(n)%head_lsm_list, &
+         "AC_CCxTotal",&
+         "max_canopy_cover",&
+         "max canopy cover",rc)
+    if ( rc == 1 ) then
+       call register_dataEntry(LIS_MOC_LSM_COUNT,LIS_MOC_AC_CCxTotal,&
+            LIS_histData(n)%head_lsm_list,&
+            n,1,ntiles,(/"-"/),1,(/"-"/),1,1,1,&
+            model_patch=.true.)
+    endif
+    
+    call ESMF_ConfigFindLabel(modelSpecConfig,"AC_CCiPot:",rc=rc)
+    call get_moc_attributes(modelSpecConfig, LIS_histData(n)%head_lsm_list, &
+         "AC_CCiPot",&
+         "potential_canopy_cover",&
+         "potential canopy cover",rc)
+    if ( rc == 1 ) then
+       call register_dataEntry(LIS_MOC_LSM_COUNT,LIS_MOC_AC_CCiPot,&
+            LIS_histData(n)%head_lsm_list,&
+            n,1,ntiles,(/"-"/),1,(/"-"/),1,1,1,&
+            model_patch=.true.)
+    endif
+    
+    call ESMF_ConfigFindLabel(modelSpecConfig,"AC_CCiPrev:",rc=rc)
+    call get_moc_attributes(modelSpecConfig, LIS_histData(n)%head_lsm_list, &
+         "AC_CCiPrev",&
+         "canopy_cover_endoftheday",&
+         "canopy cover at the end of the day",rc)
+    if ( rc == 1 ) then
+       call register_dataEntry(LIS_MOC_LSM_COUNT,LIS_MOC_AC_CCiPrev,&
+            LIS_histData(n)%head_lsm_list,&
+            n,1,ntiles,(/"-"/),1,(/"-"/),1,1,1,&
+            model_patch=.true.)
+    endif
+    
+    call ESMF_ConfigFindLabel(modelSpecConfig,"AC_StageCode:",rc=rc)
+    call get_moc_attributes(modelSpecConfig, LIS_histData(n)%head_lsm_list, &
+         "AC_StageCode",&
+         "stage_code",&
+         "stage code",rc)
+    if ( rc == 1 ) then
+       call register_dataEntry(LIS_MOC_LSM_COUNT,LIS_MOC_AC_StageCode,&
+            LIS_histData(n)%head_lsm_list,&
+            n,1,ntiles,(/"-"/),1,(/"-"/),1,1,1,&
+            model_patch=.true.)
+    endif
+    
+    call ESMF_ConfigFindLabel(modelSpecConfig,"AC_CCxAdjusted:",rc=rc)
+    call get_moc_attributes(modelSpecConfig, LIS_histData(n)%head_lsm_list, &
+         "AC_CCxAdjusted",&
+         "max_canopy_cover_waterstress",&
+         "max canopy cover in water stress conditions",rc)
+    if ( rc == 1 ) then
+       call register_dataEntry(LIS_MOC_LSM_COUNT,LIS_MOC_AC_CCxAdjusted,&
+            LIS_histData(n)%head_lsm_list,&
+            n,1,ntiles,(/"-"/),1,(/"-"/),1,1,1,&
+            model_patch=.true.)
+    endif
+    
+    call ESMF_ConfigFindLabel(modelSpecConfig,"AC_HI:",rc=rc)
+    call get_moc_attributes(modelSpecConfig, LIS_histData(n)%head_lsm_list, &
+         "AC_HI",&
+         "harvest_index",&
+         "harvest index",rc)
+    if ( rc == 1 ) then
+       call register_dataEntry(LIS_MOC_LSM_COUNT,LIS_MOC_AC_HI,&
+            LIS_histData(n)%head_lsm_list,&
+            n,1,ntiles,(/"%"/),1,(/"-"/),1,1,1,&
             model_patch=.true.)
     endif
 

@@ -18,6 +18,7 @@
 !  by Shugong Wang for the NASA Land Information System Version 7. The initial
 !  specification of the subroutine is defined by Sujay Kumar.
 !   04 NOV 2024; Louise Busschaert, Initial implementation
+!   22 APR 2025, Louise Busschaert; added plating criterion
 !
 ! !INTERFACE:
 subroutine AC72_setup()
@@ -42,6 +43,20 @@ subroutine AC72_setup()
        GetCrop_Day1,&
        GetCrop_DaysToHarvest,&
        GetCrop_ModeCycle,&
+       GetCrop_CCx,&
+       GetCrop_CCo,&
+       GetCrop_GDDCGC,&
+       GetCrop_GDDCDC,&
+       GetCrop_GDDaysToHarvest,&
+       GetCrop_GDDaysToSenescence,&
+       GetCrop_GDDaysToFlowering,&
+       GetCrop_GDDLengthFlowering,&
+       SetSimulation_LinkCropToSimPeriod, &
+       LoadCrop, &
+       SetCropFile, &
+       SetCropFilefull, &
+       GetCropFile, &
+       GetCropFilefull, &
        GetCRsalt,&
        GetCRwater,&
        GetDaySubmerged,&
@@ -162,6 +177,9 @@ subroutine AC72_setup()
        SetCompartment,&
        SetCompartment_theta,&
        SetCrop,&
+       SetCrop_CCx,&
+       SetCrop_GDDCGC,&
+       SetCrop_GDDCDC,&
        SetCRsalt,&
        SetCRwater,&
        SetDaySubmerged,&
@@ -516,7 +534,8 @@ subroutine AC72_setup()
        WriteProjectsInfo
 
   use AC72_lsmMod
-  use ac72_prep_f,    only: ac72_read_Trecord
+  use ac72_prep_f,    only: ac72_read_Trecord, ac72_search_start_Temp, &
+                            ac72_search_start_Rainfall
 
   use LIS_constantsMod, only: LIS_CONST_TKFRZ
   use LIS_coreMod,   only: LIS_rc, LIS_surface, LIS_domain
@@ -559,6 +578,7 @@ subroutine AC72_setup()
   integer           :: REW, descr
   integer           :: time1julhours, timerefjulhours
   integer           :: time1days, time2days
+  integer           :: start_day_t, start_day_p
 
   integer(intEnum) :: TheProjectType
 
@@ -571,6 +591,12 @@ subroutine AC72_setup()
   real    :: tmp
   real    :: elevdiff, forchgt
   real, parameter :: lapse = -0.0065
+    
+  real    :: CCx_temp
+  real    :: CCx_range_temp
+  real    :: GDD_endgrowth_temp
+  real    :: CCi_final_temp
+  integer :: ens_n
 
   external :: ac72_read_croptype
   external :: ac72_read_multilevel_param
@@ -751,7 +777,8 @@ subroutine AC72_setup()
         call LIS_get_julhr(LIS_rc%syr+(l-1),AC72_struc(n)%Crop_AnnualStartMonth, &
              AC72_struc(n)%Crop_AnnualStartDay,0,0,0,time1julhours)
         time1days = (time1julhours - timerefjulhours)/24 + 1
-        !Note: end of cropping period is defined by crop params
+        ! Note: end of cropping period is defined by crop params
+        ! in case of a temperature/rainfall criterion, this will be overwritten
         call set_project_input(l, 'Crop_Day1', time1days)
         call set_project_input(l, 'Crop_DayN', time2days)
         ! Note: '(External)' input sources can vary spatially (e.g. soil, crop, meteo)
@@ -833,6 +860,43 @@ subroutine AC72_setup()
            call set_project_input(l, 'Crop_Filename', &
                 trim(AC72_struc(n)%ac72(t)%cropt)//'.CRO')
         enddo
+
+        ! Set sowing/planting date based on criterion if activated
+        ! Set for first year, needs to be defined in main
+        if (AC72_struc(n)%Temp_crit) then
+            ! Search start and add it to sim 
+            ! Define start sim (already done before)
+            call LIS_get_julhr(LIS_rc%yr, AC72_struc(n)%Sim_AnnualStartMonth, &
+                  AC72_struc(n)%Sim_AnnualStartDay,0,0,0,time1julhours)
+            time1days = (time1julhours - timerefjulhours)/24 + 1
+            call LIS_get_julhr(LIS_rc%yr, AC72_struc(n)%Crop_AnnualStartMonth, &
+                  AC72_struc(n)%Crop_AnnualStartDay,0,0,0,time1julhours)
+            time2days = (time1julhours - timerefjulhours)/24 + 1
+            start_day_t = ac72_search_start_Temp(time1days,time2days,AC72_struc(n)%crit_window, &
+                                             AC72_struc(n)%Temp_crit_tmin, AC72_struc(n)%Temp_crit_days, &
+                                             AC72_struc(n)%Temp_crit_occurrence, AC72_struc(n)%ac72(t)%Tmin_record)
+            call set_project_input(1, 'Crop_Day1', start_day_t)
+        endif
+
+        if (AC72_struc(n)%Rainfall_crit) then
+            ! Search start and add it to sim 
+            ! Define start sim (already done before)
+            call LIS_get_julhr(LIS_rc%syr, AC72_struc(n)%Sim_AnnualStartMonth, &
+                  AC72_struc(n)%Sim_AnnualStartDay,0,0,0,time1julhours)
+            time1days = (time1julhours - timerefjulhours)/24 + 1
+            call LIS_get_julhr(LIS_rc%syr, AC72_struc(n)%Crop_AnnualStartMonth, &
+                  AC72_struc(n)%Crop_AnnualStartDay,0,0,0,time1julhours)
+            time2days = (time1julhours - timerefjulhours)/24 + 1
+            start_day_p = ac72_search_start_Rainfall(time1days,time2days,AC72_struc(n)%crit_window, &
+                                             AC72_struc(n)%Rainfall_crit_amount, AC72_struc(n)%Rainfall_crit_days, &
+                                             AC72_struc(n)%Rainfall_crit_occurrence, AC72_struc(n)%ac72(t)%pcp_record)
+            call set_project_input(1, 'Crop_Day1', start_day_p)
+        endif
+
+        if (AC72_struc(n)%Temp_crit.and.AC72_struc(n)%Rainfall_crit) then
+            call set_project_input(1, 'Crop_Day1', max(start_day_t, start_day_t))
+        endif
+
         call CheckForKeepSWC(MultipleRunWithKeepSWC_temp, &
              MultipleRunConstZrx_temp)
         call SetSimulation_MultipleRunWithKeepSWC(MultipleRunWithKeepSWC_temp)
@@ -1075,6 +1139,46 @@ subroutine AC72_setup()
         call SetTnxReferenceYear(AC72_struc(n)%tempcli_refyr)
         call SetTnxReferenceFile('(External)')
 
+         ! Variable CCx
+         ! If the option is enabled in the lis configuration file, and there are at least 3 ensemble members,
+         ! this block will evenly spread the CCx values within the specified range around the CCx_config.
+         ! CGC and CDC are adapted to maintain the stages length consistent.
+         ! It has been built for a determinate crop in GDDs.
+         if ((AC72_struc(n)%variable_CCx) .and. (LIS_rc%nensem(n) .gt. 2)) then
+            ens_n = mod(t,LIS_rc%nensem(n))
+            if (ens_n == 0) then
+               ens_n = LIS_rc%nensem(n)
+            endif
+            call SetSimulation_LinkCropToSimPeriod(.true.)
+            call SetCropFile(ProjectInput(int(AC72_struc(n)%irun, kind=int8))%Crop_Filename)
+            call SetCropFilefull(ProjectInput(int(AC72_struc(n)%irun, kind=int8))%Crop_Directory // GetCropFile())
+            call LoadCrop(GetCropFilefull())
+            ! GDD setup only!
+            CCx_temp = AC72_struc(n)%CCx_config
+            CCx_range_temp = AC72_struc(n)%CCx_range
+            GDD_endgrowth_temp = log(GetCrop_CCx()/(0.08*GetCrop_CCo()))/GetCrop_GDDCGC()
+            ! Determinate crop only!
+            if (GDD_endgrowth_temp .gt. (GetCrop_GDDaysToFlowering()&
+                  + GetCrop_GDDLengthFlowering() / 2)) then
+               GDD_endgrowth_temp = GetCrop_GDDaysToFlowering() + GetCrop_GDDLengthFlowering() / 2
+            endif
+            CCi_final_temp = GetCrop_CCx() * (1 - 0.05 * (exp(3.33 * GetCrop_GDDCDC() / &
+               (GetCrop_CCx() + 2.29) * (GetCrop_GDDaysToHarvest() - GetCrop_GDDaysToSenescence())) - 1))
+            if ((GetCrop_CCx() + AC72_struc(n)%CCx_range .gt. 1) .or.&
+                  (GetCrop_CCx() - AC72_struc(n)%CCx_range .lt. GetCrop_CCo())) then
+               AC72_struc(n)%CCx_range = min(1 - GetCrop_CCx(), GetCrop_CCx() - GetCrop_CCo())
+            endif
+            if (ens_n .lt. LIS_rc%nensem(n)) then
+               call SetCrop_CCx(GetCrop_CCx() - AC72_struc(n)%CCx_range + &
+                  (ens_n - 1) * 2 * AC72_struc(n)%CCx_range / (LIS_rc%nensem(n) - 2))
+               call SetCrop_GDDCGC(log(GetCrop_CCx()/(0.08 * GetCrop_CCo())) / GDD_endgrowth_temp)
+               call SetCrop_GDDCDC((GetCrop_CCx() + 2.29) / (3.33 *&
+                  (GetCrop_GDDaysToHarvest() - GetCrop_GDDaysToSenescence())) *&
+                  log((1-CCi_final_temp/GetCrop_CCx())/0.05 + 1))
+            endif
+         endif
+         ! End variable CCx
+
         ! Check if temperatures are high enough for crop production from Trecord
         ! Get base temperature
         frac_lower = real(count( ((AC72_struc(n)%ac72(t)%Tmin_record + AC72_struc(n)%ac72(t)%Tmin_record)/2. > &
@@ -1090,7 +1194,13 @@ subroutine AC72_setup()
         ! Initialize
 
          ! InitializeRunPart1
-         call InitializeRunPart1(int(AC72_struc(n)%irun, kind=int8), AC72_struc(n)%ac72(t)%TheProjectType)
+         if (AC72_struc(n)%variable_CCx .and. (LIS_rc%nensem(n) .gt. 2)) then
+            call InitializeRunPart1(int(AC72_struc(n)%irun, kind=int8), AC72_struc(n)%ac72(t)%TheProjectType,&
+               AC72_struc(n)%variable_CCx,CCx_temp,CCx_range_temp,ens_n,LIS_rc%nensem(n))
+         else
+            call InitializeRunPart1(int(AC72_struc(n)%irun, kind=int8), AC72_struc(n)%ac72(t)%TheProjectType,&
+               AC72_struc(n)%variable_CCx)
+         endif
          call InitializeSimulationRunPart2()
          ! Check if enough GDDays to complete cycle, if not, turn on flag to warn the user
          AC72_struc(n)%AC72(t)%crop = GetCrop()
