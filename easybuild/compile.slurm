@@ -7,7 +7,6 @@
 #SBATCH -e make/compile_out.txt
 
 cd $SLURM_SUBMIT_DIR
-source ../load_modules
+source ../easybuild/load_modules
 
 ./compile -j $SLURM_CPUS_PER_TASK
-
