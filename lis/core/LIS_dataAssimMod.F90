@@ -66,6 +66,7 @@ module LIS_dataAssimMod
   use LIS_historyMod
   use LIS_DAobservationsMod
   use LIS_mpiMod
+  use LIS_timeMgrMod
 
 #if(defined USE_NETCDF3 || defined USE_NETCDF4)
   use netcdf
@@ -505,6 +506,8 @@ contains
     
     integer :: n
     integer :: j
+    logical :: alarmCheck
+    character*3 :: fda
     
     TRACE_ENTER("DA_run")
 !old
@@ -520,20 +523,23 @@ contains
 !    enddo
 
     do j=1,LIS_rc%ndas
-       if(LIS_rc%daalg(j).ne."none") then 
+       write(fda,'(i3.3)') j
+       alarmCheck = LIS_isAlarmRinging(LIS_rc, "LIS DA output "//trim(fda))
+       if (alarmCheck) then
+         if(LIS_rc%daalg(j).ne."none") then 
 
-          if(LIS_rc%biasalg(j).ne."none") then
-             call computeBiasCorrection(trim(LIS_rc%biasalg(j))//char(0), n, j)
-          endif
+            if(LIS_rc%biasalg(j).ne."none") then
+               call computeBiasCorrection(trim(LIS_rc%biasalg(j))//char(0), n, j)
+            endif
 
-          call computeIncrements(trim(LIS_rc%daalg(j))//char(0), n,j)
+            call computeIncrements(trim(LIS_rc%daalg(j))//char(0), n,j)
 
-          if(LIS_rc%biasalg(j).ne."none") then 
-             call applyBiasCorrection(trim(LIS_rc%biasalg(j))//char(0), n, j)
-          endif
+            if(LIS_rc%biasalg(j).ne."none") then 
+               call applyBiasCorrection(trim(LIS_rc%biasalg(j))//char(0), n, j)
+            endif
 
-          call applyIncrements(trim(LIS_rc%daalg(j))//char(0), n, j)
-
+            call applyIncrements(trim(LIS_rc%daalg(j))//char(0), n, j)
+         endif
        endif
     enddo
     TRACE_EXIT("DA_run")
@@ -567,6 +573,8 @@ contains
     integer, intent(IN)  :: n 
 
     integer              :: j 
+    logical              :: alarmCheck
+    character*3          :: fda
 
     TRACE_ENTER("DA_out")
 !write bias restart
@@ -579,8 +587,12 @@ contains
     enddo
 
     do j=1,LIS_rc%ndas
-       if(LIS_rc%daalg(j).ne."none") then 
-          call daoutput(trim(LIS_rc%daalg(j))//char(0),n,j)
+       write(fda,'(i3.3)') j
+       alarmCheck = LIS_isAlarmRinging(LIS_rc, "LIS DA output "//trim(fda))
+       if (alarmCheck) then
+          if(LIS_rc%daalg(j).ne."none") then 
+             call daoutput(trim(LIS_rc%daalg(j))//char(0),n,j)
+          endif
        endif
     enddo
     TRACE_EXIT("DA_out")

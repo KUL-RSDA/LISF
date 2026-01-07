@@ -7947,7 +7947,10 @@ end subroutine writevar_grib2_withstats_real
     integer :: patch_deltas
     real    :: mean_v, std_v, var_v, max_v, min_v
     integer :: i,c,r,l,t,ntiles,gid,count1
+    logical :: alarmCheck
 
+ alarmCheck = LIS_isAlarmRinging(LIS_rc, "LIS DA output 001")
+ if (alarmCheck) then
     if(LIS_rc%wopt.eq."2d gridspace") then !gridded output 
        if(LIS_masterproc) then 
           allocate(gtmp(LIS_rc%gnc(n),LIS_rc%gnr(n)))
@@ -8034,6 +8037,7 @@ end subroutine writevar_grib2_withstats_real
        write(LIS_logunit,*) '[ERR] only in "2d gridspace"'
        call LIS_endrun()
     endif
+   endif
   end subroutine LIS_writevar_spread
 
 
