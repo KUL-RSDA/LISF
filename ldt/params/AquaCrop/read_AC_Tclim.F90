@@ -16,7 +16,7 @@
 !  2 Oct 2024: Louise Busschaert; Initial Specification
 !
 ! !INTERFACE:
-subroutine read_AC_Tclim(n, array)
+subroutine read_AC_Tclim(n, m, array)
 
   ! !USES:
   use AquaCrop_parmsMod
@@ -25,11 +25,13 @@ subroutine read_AC_Tclim(n, array)
   use LDT_logMod,        only : LDT_logunit, LDT_getNextUnitNumber, &
        LDT_releaseUnitNumber, LDT_endrun
   use LDT_paramDataMod, only: LDT_LSMparam_struc
+  use LDT_metforcingParmsMod, only: LDT_force_struc
 
   implicit none
 
   ! !ARGUMENTS:
   integer,    intent(in) :: n
+  integer,    intent(in) :: m
   real,    intent(inout) :: array(LDT_rc%lnc(n),LDT_rc%lnr(n))
 
   ! !DESCRIPTION:
@@ -85,14 +87,14 @@ subroutine read_AC_Tclim(n, array)
 
   array = LDT_rc%udef
 
-  inquire(file=trim(AquaCrop_struc(n)%tempclimfile), exist=file_exists)
+  inquire(file=trim(AquaCrop_struc(n)%tempclimfile(m)), exist=file_exists)
   if(.not. file_exists) then 
      write(LDT_logunit,*) "[ERR] AquaCrop temperature climatology map ",&
-          trim(AquaCrop_struc(n)%tempclimfile)," not found."
+          trim(AquaCrop_struc(n)%tempclimfile(m))," not found."
      write(LDT_logunit,*) "Program stopping ..."
      call LDT_endrun
   endif
-  select case ( AquaCrop_struc(n)%tempclim_gridtransform )
+  select case ( AquaCrop_struc(n)%tempclim_gridtransform(m) )
   case( "none", "neighbor", "average", "bilinear" )
   case default
      write(LDT_logunit,*) "[ERR] The spatial transform option selected for AquaCrop climatological" 
@@ -104,7 +106,7 @@ subroutine read_AC_Tclim(n, array)
   end select
 
   ftn = LDT_getNextUnitNumber()
-  open(ftn, file=trim(AquaCrop_struc(n)%tempclimfile),form="formatted",status="old" )
+  open(ftn, file=trim(AquaCrop_struc(n)%tempclimfile(m)),form="formatted",status="old" )
 
   read(ftn,'(a5,1x,i4)'   )  temp, ncols
   read(ftn,'(a5,1x,i4)'   )  temp, nrows
@@ -163,7 +165,7 @@ subroutine read_AC_Tclim(n, array)
   ! -------------------------------------------------------------------
 
   !- Select grid spatial transform option:
-  select case ( trim(AquaCrop_struc(n)%tempclim_gridtransform) )
+  select case ( trim(AquaCrop_struc(n)%tempclim_gridtransform(m)) )
 
      !- Aggregate by calculating average of each output gridcell:
   case ( "average" )
@@ -202,7 +204,7 @@ subroutine read_AC_Tclim(n, array)
   case default
      write(LDT_logunit,*) &
           "[ERR] This spatial transformation option ("&
-          //trim(AquaCrop_struc(n)%tempclim_gridtransform)//") "
+          //trim(AquaCrop_struc(n)%tempclim_gridtransform(m))//") "
      write(LDT_logunit,*) "  is not currently supported."
      write(LDT_logunit,*) "Program stopping ...."
      call LDT_endrun

@@ -519,10 +519,14 @@ subroutine AC72_setup()
   use ac72_prep_f,    only: ac72_read_Trecord
 
   use LIS_constantsMod, only: LIS_CONST_TKFRZ
-  use LIS_coreMod,   only: LIS_rc, LIS_surface
+  use LIS_coreMod,   only: LIS_rc, LIS_surface, LIS_domain
   use LIS_fileIOMod, only: LIS_read_param
   use LIS_logMod,    only: LIS_logunit, LIS_verify, LIS_endrun
   use LIS_timeMgrMod, only: LIS_get_julhr
+  use LIS_metforcingMod,  only: LIS_forc
+  use merra2_forcingMod,  only: merra2_struc
+  use nldas2_forcingMod,  only: nldas2_struc
+  use nldas20_forcingMod, only: nldas20_struc
 
   use module_sf_aclsm_72, only: &
        WP, SAT, FC, INFRATE, SD, CL, SI
@@ -547,7 +551,7 @@ subroutine AC72_setup()
   implicit none
 
   integer           :: mtype
-  integer           :: t, k, n, l
+  integer           :: t, k, n, l, m
   integer           :: col, row
   real, allocatable :: placeholder(:,:)
 
@@ -564,6 +568,9 @@ subroutine AC72_setup()
   logical :: MultipleRunWithKeepSWC_temp
   real    :: MultipleRunConstZrx_temp
   real    :: frac_lower
+  real    :: tmp
+  real    :: elevdiff, forchgt
+  real, parameter :: lapse = -0.0065
 
   external :: ac72_read_croptype
   external :: ac72_read_multilevel_param
@@ -612,29 +619,108 @@ subroutine AC72_setup()
         enddo
      endif
 
-     write(LIS_logunit,*) "[INFO] AC72: reading parameter AC_Tmin_clim from ",&
-          trim(LIS_rc%paramfile(n))
-     do k = 1, 12
-        call AC72_read_MULTILEVEL_param(n, AC72_struc(n)%LDT_ncvar_tmincli_monthly, k, placeholder)
-        do t = 1, LIS_rc%npatch(n, mtype)
-           col = LIS_surface(n, mtype)%tile(t)%col
-           row = LIS_surface(n, mtype)%tile(t)%row
-           ! Climatology is rounded to 2 decimals in AquaCrop
-           AC72_struc(n)%ac72(t)%tmincli_monthly(k) = anint(placeholder(col, row)*100)/100 - LIS_CONST_TKFRZ
-        enddo
-     enddo
+     ! Read and correct climatology
+     ! Tmin and Tmax are computed directly from the forcing input files
+     if (trim(LIS_rc%metforc_blend_alg).ne."overlay") then
+        write(LIS_logunit,*) "[ERR] AC72 only runs with overlay option for the met forcing blending."
+        write(LIS_logunit,*) "[ERR] Program stopping ..."
+        call LIS_endrun
+     endif
 
-     write(LIS_logunit,*) "[INFO] AC72: reading parameter AC_Tmax_clim from ",&
-          trim(LIS_rc%paramfile(n))
-     do k = 1, 12
-        call AC72_read_MULTILEVEL_param(n, AC72_struc(n)%LDT_ncvar_tmaxcli_monthly, k, placeholder)
-        do t = 1, LIS_rc%npatch(n, mtype)
-           col = LIS_surface(n, mtype)%tile(t)%col
-           row = LIS_surface(n, mtype)%tile(t)%row
-           ! Climatology is rounded to 2 decimals in AquaCrop
-           AC72_struc(n)%ac72(t)%tmaxcli_monthly(k) = anint(placeholder(col, row)*100)/100 - LIS_CONST_TKFRZ
-        enddo
+     do m = 1, LIS_rc%nmetforc ! loop over met forcing sources
+        ! Check if using valid source (ERA5 or MERRA2 uselml=0 and use2mwind=1)
+        ! Define AC72_struc(n)%forchgt_*. Only the height of the last forcing source is considered. 
+        AC72_struc(n)%forchgt_tq = 2 ! initialize
+        AC72_struc(n)%forchgt_uv = 2
+        if (LIS_rc%metforc(m) == "MERRA2") then
+           if ((merra2_struc(n)%uselml == 0).and.(merra2_struc(n)%use2mwind == 1)) then
+              AC72_struc(n)%forchgt_tq = 2
+              AC72_struc(n)%forchgt_uv = 2
+           else
+              write(LIS_logunit,*) "[ERR] AC72 only runs with MERRA2 2m fields"
+              write(LIS_logunit,*) "[ERR] Program stopping ..."
+              call LIS_endrun
+           endif
+        elseif (LIS_rc%metforc(m) == "ERA5") then
+           AC72_struc(n)%forchgt_tq = 10
+           AC72_struc(n)%forchgt_uv = 10
+        elseif (LIS_rc%metforc(m) == "NLDAS2 grib") then
+           if (nldas2_struc(n)%model_level_data == 0) then
+              AC72_struc(n)%forchgt_tq = 2
+              AC72_struc(n)%forchgt_uv = 10
+            else
+              write(LIS_logunit,*) "[ERR] AC72 only runs with NLDAS 2/10m fields"
+              write(LIS_logunit,*) "[ERR] Program stopping ..."
+              call LIS_endrun
+           endif
+        elseif (LIS_rc%metforc(m) == "NLDAS2 netcdf") then
+           if (nldas20_struc(n)%model_level_data == 0) then
+              AC72_struc(n)%forchgt_tq = 2
+              AC72_struc(n)%forchgt_uv = 10
+            else
+              write(LIS_logunit,*) "[ERR] AC72 only runs with NLDAS 2/10m fields"
+              write(LIS_logunit,*) "[ERR] Program stopping ..."
+              call LIS_endrun
+           endif                 
+        else
+           write(LIS_logunit,*) "[ERR] AC72 only runs with the following met forcings: ERA5, MERRA2, NLDAS2"
+           write(LIS_logunit,*) "[ERR] Program stopping ..."
+           call LIS_endrun
+        endif
      enddo
+     ! Louise B - 6 Jan 2026: we could make a look up table if we have a longer list of forcings?
+
+     do m = 1, LIS_rc%nmetforc ! loop over met forcing sources (only works with overlay if m > 1)
+        write(LIS_logunit,*) "[INFO] AC72: reading parameter AC_Tmin_clim_"//trim(LIS_rc%metforc(m))//" from ",&
+                                trim(LIS_rc%paramfile(n))
+        do k = 1, 12
+           call AC72_read_MULTILEVEL_param(n, trim(AC72_struc(n)%LDT_ncvar_tmincli_monthly)//"_"//trim(LIS_rc%metforc(m)), k, placeholder)
+           do t = 1, LIS_rc%npatch(n, mtype)
+              col = LIS_surface(n, mtype)%tile(t)%col
+              row = LIS_surface(n, mtype)%tile(t)%row
+
+              if (placeholder(col, row).ne.LIS_rc%udef) then ! take only valid T for overlay
+                 ! Apply lapse-rate correction if turned on (to 2 m above surface from forchgt)
+                 if (LIS_rc%met_ecor(m) == "lapse-rate") then
+                    elevdiff = (LIS_domain(n)%tile(t)%elev + 2) &
+                    - (LIS_forc(n,m)%modelelev(LIS_domain(n)%tile(t)%index) + AC72_struc(n)%forchgt_tq)                   
+                    tmp = placeholder(col, row) + (lapse * elevdiff) ! apply lapse-rate corr
+                 else
+                    write(LIS_logunit,*) "[ERR] AC72 only runs with lapse-rate correction turned ON."
+                    write(LIS_logunit,*) "[ERR] Program stopping ..."
+                    call LIS_endrun
+                 endif
+                 ! Climatology is rounded to 2 decimals in AquaCrop and converted to degree Celsius
+                 AC72_struc(n)%ac72(t)%tmincli_monthly(k) = anint(tmp*100)/100 - LIS_CONST_TKFRZ
+              endif ! if T not valid, not stored
+           enddo
+        enddo
+
+        write(LIS_logunit,*) "[INFO] AC72: reading parameter AC_Tmax_clim_"//trim(LIS_rc%metforc(m))//" from ",&
+              trim(LIS_rc%paramfile(n))
+        do k = 1, 12
+           call AC72_read_MULTILEVEL_param(n, trim(AC72_struc(n)%LDT_ncvar_tmaxcli_monthly)//"_"//trim(LIS_rc%metforc(m)), k, placeholder)
+           do t = 1, LIS_rc%npatch(n, mtype)
+              col = LIS_surface(n, mtype)%tile(t)%col
+              row = LIS_surface(n, mtype)%tile(t)%row
+
+              if (placeholder(col, row).ne.LIS_rc%udef) then ! take only valid T for overlay
+                 ! Apply lapse-rate correction if turned on (to 2 m above surface from forchgt)
+                 if (LIS_rc%met_ecor(m) == "lapse-rate") then
+                    elevdiff = (LIS_domain(n)%tile(t)%elev + 2) &
+                    - (LIS_forc(n,m)%modelelev(LIS_domain(n)%tile(t)%index) + AC72_struc(n)%forchgt_tq)                    
+                    tmp = placeholder(col, row) + (lapse * elevdiff) ! apply lapse-rate corr
+                 else
+                    write(LIS_logunit,*) "[ERR] AC72 only runs with lapse-rate correction turned ON."
+                    write(LIS_logunit,*) "[ERR] Program stopping ..."
+                    call LIS_endrun
+                 endif
+                 ! Climatology is rounded to 2 decimals in AquaCrop and converted to degree Celsius
+                 AC72_struc(n)%ac72(t)%tmaxcli_monthly(k) = anint(tmp*100)/100 - LIS_CONST_TKFRZ
+              endif ! if T not valid, not stored
+           enddo
+        enddo
+     enddo ! end met forcing source loop
      deallocate(placeholder)
      ! Read soil table
      call SOIL_PARM_AC72(AC72_struc(n)%soil_tbl_name)

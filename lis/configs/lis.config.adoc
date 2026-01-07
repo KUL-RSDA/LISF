@@ -10197,10 +10197,6 @@ AWRAL600 initial mleaf: 0.67 0.2
 
 `AquaCrop.7.2 restart file format:` specifies the restart file format for AquaCrop.7.2.
 
-`AquaCrop.7.2 reference height for forcing T and q:` specifies the height in meters of air temperature and specific humidity forcings.
-
-`AquaCrop.7.2 reference height for forcing u and v:` specifies the height in meters of u and v wind forcings.
-
 `AquaCrop.7.2 initial liquid soil moistures:` specifies the initial liquid volumetric soil moistures (for each layer defined in LDT, from top to bottom) used in the cold start runs. (units stem:[\frac{m^3}{m^3}])
 
 `AquaCrop.7.2 input path:` specifies the directory containing the native AquaCrop files.
@@ -10228,8 +10224,6 @@ AquaCrop.7.2 model timestep: "1da"
 AquaCrop.7.2 restart output interval: "1mo"
 AquaCrop.7.2 restart file: none
 AquaCrop.7.2 restart file format: netcdf
-AquaCrop.7.2 reference height of T and q: 2.0
-AquaCrop.7.2 reference height of u and v: 10.0
 AquaCrop.7.2 initial liquid soil moistures: 0.33 0.33
 AquaCrop.7.2 input path: "./AC_INPUT_dir/"
 AquaCrop.7.2 CO2_Filename: "file.CO2"
