@@ -110,6 +110,12 @@ module AC72_module
      real               :: RootZoneWC_ZtopFC
      real               :: RootZoneWC_ZtopWP
      real               :: RootZoneWC_ZtopThresh
+     integer               :: GDDaysToGermination
+     integer               :: GDDaysToHarvest
+     integer               :: GDDaysToSenescence
+     integer               :: GDDaysToMaxRooting
+     real               :: GDDCGC
+     real               :: GDDCDC
      type(rep_RootZoneWC) :: RootZoneWC
      type(rep_Content) :: TotalSaltContent
      type(rep_Content) :: TotalWaterContent

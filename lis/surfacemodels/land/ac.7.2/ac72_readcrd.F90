@@ -311,6 +311,12 @@ subroutine AC72_readcrd()
      AC72_struc(n)%LDT_ncvar_soiltype = 'AC72_SOILTYPE'
      AC72_struc(n)%LDT_ncvar_tmincli_monthly = 'AC_Tmin_clim'
      AC72_struc(n)%LDT_ncvar_tmaxcli_monthly = 'AC_Tmax_clim'
+     AC72_struc(n)%LDT_ncvar_gdd_cco = 'GDD_CCo'
+     AC72_struc(n)%LDT_ncvar_gdd_maturity = 'GDD_maturity'
+     AC72_struc(n)%LDT_ncvar_gdd_senescence = 'GDD_senescence'
+     AC72_struc(n)%LDT_ncvar_gdd_maxr = 'GDD_maxR'
+     AC72_struc(n)%LDT_ncvar_cgc = 'CGC'
+     AC72_struc(n)%LDT_ncvar_cdc = 'CDC'
   enddo
 
   ! set default restart format to netcdf

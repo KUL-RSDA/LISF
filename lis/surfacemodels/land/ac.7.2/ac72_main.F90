@@ -64,6 +64,8 @@ subroutine AC72_main(n)
        GetCropFile, &
        GetCropFilefull, &
        GetCrop_KcTop,&
+       GetCrop_GDDCGC,&
+       GetCrop_GDDCDC,&
        GetCrop_ModeCycle,&
        GetCRsalt,&
        GetCRwater,&
@@ -293,6 +295,12 @@ subroutine AC72_main(n)
        SetTotalWaterContent,&
        SetTpot,&
        SetZiAqua,&
+       SetCrop_GDDaysToGermination,&
+       SetCrop_GDDaysToHarvest,&
+       SetCrop_GDDaysToMaxRooting,&
+       SetCrop_GDDaysToSenescence,&
+       SetCrop_GDDCGC,&
+       SetCrop_GDDCDC,&
        typeproject_typeprm, &
        typeproject_typepro, &
        undef_int
@@ -831,7 +839,16 @@ subroutine AC72_main(n)
          call SetStartMode(AC72_struc(n)%ac72(t)%StartMode)
          call SetGDDayi(AC72_struc(n)%ac72(t)%GDDayi)
          call SetNoMoreCrop(AC72_struc(n)%AC72(t)%NoMoreCrop)
-
+         ! Set variables for GDD mode in case of spatially variable parameters
+         if ( GetCrop_ModeCycle() .eq. ModeCycle_GDDays .and. AC72_struc(n)%GDDfromLDT ) then
+            call SetCrop_GDDaysToGermination(AC72_struc(n)%AC72(t)%GDDaysToGermination)
+            call SetCrop_GDDaysToHarvest(AC72_struc(n)%AC72(t)%GDDaysToHarvest)
+            call SetCrop_GDDaysToMaxRooting(AC72_struc(n)%AC72(t)%GDDaysToMaxRooting)
+            call SetCrop_GDDaysToSenescence(AC72_struc(n)%AC72(t)%GDDaysToSenescence)
+            call SetCrop_GDDCGC(AC72_struc(n)%AC72(t)%GDDCGC)
+            call SetCrop_GDDCDC(AC72_struc(n)%AC72(t)%GDDCDC)
+         endif
+ 
          ! Fixed var
          call SetOut3Prof(.true.) ! needed for correct rootzone sm
          call SetOutDaily(.true.)
