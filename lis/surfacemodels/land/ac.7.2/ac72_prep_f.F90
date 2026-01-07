@@ -124,6 +124,8 @@ contains
     use LIS_metForcingMod,  only: LIS_get_met_forcing, LIS_perturb_forcing, LIS_FORC_State
     use LIS_PRIV_rcMod,     only: lisrcdec
     use LIS_timeMgrMod,     only: LIS_advance_timestep, LIS_is_last_step
+    use gmaopert_Mod,       only: forcPert, forcpertdec
+
 
     !
     ! !DESCRIPTION:
@@ -142,7 +144,8 @@ contains
     real, allocatable     :: daily_pcp_arr(:,:)
     real, allocatable     :: subdaily_arr(:,:)
     type(lisrcdec)        :: LIS_rc_saved
-    integer               :: i, j, t, status, met_ts, m, tid
+    type(forcpertdec), allocatable :: forcPert_saved(:)
+    integer               :: i, j, k, t, status, met_ts, m, tid
     integer               :: yr_start
     real, parameter :: lapse = -0.0065
 
@@ -160,6 +163,14 @@ contains
 
     ! Save current LIS_rc
     LIS_rc_saved = LIS_rc
+    ! Save full forcing perturbation state
+    allocate(forcPert_saved(LIS_rc%nforcepert))
+    do k = 1, LIS_rc%nforcepert
+      ! allocate deep copies
+      allocate(forcPert_saved(k)%Forcepert_rseed, source=forcPert(n,k)%Forcepert_rseed)
+      allocate(forcPert_saved(k)%Forcepert_ntrmdt, source=forcPert(n,k)%Forcepert_ntrmdt)
+    end do
+
     ! Re-initialize met forcings
     do m=1,LIS_rc%nmetforc
        call finalmetforc(trim(LIS_rc%metforc(m))//char(0),m)
@@ -197,6 +208,7 @@ contains
        do j=1,met_ts
           ! read met forcing
           call LIS_get_met_forcing(n)
+          call LIS_perturb_forcing(n)
 
           ! Get Tair
           call ESMF_StateGet(LIS_FORC_State(n), trim(LIS_FORC_Tair%varname(1)), tmpField, rc=status)
@@ -258,6 +270,13 @@ contains
 
     ! Reset LIS_rc
     LIS_rc = LIS_rc_saved
+    ! Restore full forcing perturbation state
+    do k = 1, LIS_rc%nforcepert
+      forcPert(n,k)%Forcepert_rseed  = forcPert_saved(k)%Forcepert_rseed
+      forcPert(n,k)%Forcepert_ntrmdt = forcPert_saved(k)%Forcepert_ntrmdt
+    end do
+    deallocate(forcPert_saved)
+
     ! Set LIS_rc to reset clock
     LIS_rc%syr = LIS_rc_saved%yr
     LIS_rc%smo = LIS_rc_saved%mo
