@@ -1077,7 +1077,7 @@ subroutine AC72_setup()
 
         ! Check if temperatures are high enough for crop production from Trecord
         ! Get base temperature
-        frac_lower = real(count( ((AC72_struc(n)%ac72(t)%Tmin_record + AC72_struc(n)%ac72(t)%Tmin_record)/2. > &
+        frac_lower = real(count( ((AC72_struc(n)%ac72(t)%Tmax_record + AC72_struc(n)%ac72(t)%Tmin_record)/2. > &
                               AC72_struc(n)%ac72(t)%tbase) )) / 366.
 
         if (frac_lower.lt.0.1) then
