@@ -3877,6 +3877,11 @@ subroutine DetermineCCiGDD(CCxTotal, CCoTotal, &
 
         ! Only when SumGDDadj > GDDayi
         ! and CCx < CCiToFind
+        ! Guard against division by zero when CCx <= CCiToFind (LB 03/04/2026)
+        if (CCiToFind >= CCx) then
+            RequiredGDD = 0._sp
+            return
+        end if
         ! 1. GDDCGCx to reach CCiToFind on previous day (= SumGDDadj - GDDayi )
         if (CCiToFind <= CCx/2._sp) then
             GDDCGCx = (log(CCiToFind/CCo))/(SumGDDadjCC-GDDayi)
@@ -3989,6 +3994,10 @@ subroutine DetermineCCiGDD(CCxTotal, CCoTotal, &
                 GDDCDCadjusted = 0.0001_sp ! extreme small decline
                 StressSenescence = 0._sp
             end if
+        end if
+        ! Floor to avoid subsequent divisions by 0
+        if (GDDCDCadjusted < 0.0001_sp) then
+            GDDCDCadjusted = 0.0001_sp
         end if
     end subroutine DetermineGDDCDCadjustedWaterStress
 
