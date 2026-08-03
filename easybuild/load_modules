@@ -9,7 +9,7 @@ load_module() {
 
 TOOLCHAIN=${1:-}
 if [ -z "$TOOLCHAIN" ]; then
-    read -r -p "Please enter the toolchain (2023b, 2025b, default: 2025b): " TOOLCHAIN
+    read -r -p "Please enter the toolchain (2023b, 2025a, 2025b, default: 2025b): " TOOLCHAIN
     TOOLCHAIN="${TOOLCHAIN:-2025b}"
 fi
 
@@ -20,6 +20,13 @@ if [[ "$TOOLCHAIN" == "2023b" ]]; then
     load_module netCDF/4.9.2-iimpi-2023b
     load_module ecCodes/2.31.0-iimpi-2023b
     load_module ESMF/8.6.1-intel-2023b
+elif [[ "$TOOLCHAIN" == "2025a" ]]; then
+    load_module Python/3.13.1-GCCcore-14.2.0
+    load_module Perl/5.40.0-GCCcore-14.2.0
+    load_module HDF5/1.14.6-iimpi-2025a
+    load_module netCDF/4.9.3-iimpi-2025a
+    load_module ecCodes/2.43.0-iimpi-2025a
+    load_module ESMF/8.9.0-intel-2025a
 elif [[ "$TOOLCHAIN" == "2025b" ]]; then
     load_module Python/3.13.5-GCCcore-14.3.0
     load_module Perl/5.40.2-GCCcore-14.3.0
