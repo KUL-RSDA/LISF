@@ -20,6 +20,8 @@ if [[ "$TOOLCHAIN" == "2023b" ]]; then
     load_module netCDF/4.9.2-iimpi-2023b
     load_module ecCodes/2.31.0-iimpi-2023b
     load_module ESMF/8.6.1-intel-2023b
+    export LDT_JASPER=${EBROOTJASPER}
+    export LIS_JASPER=${EBROOTJASPER}
 elif [[ "$TOOLCHAIN" == "2025a" ]]; then
     load_module Python/3.13.1-GCCcore-14.2.0
     load_module Perl/5.40.0-GCCcore-14.2.0
@@ -27,6 +29,8 @@ elif [[ "$TOOLCHAIN" == "2025a" ]]; then
     load_module netCDF/4.9.3-iimpi-2025a
     load_module ecCodes/2.43.0-iimpi-2025a
     load_module ESMF/8.9.0-intel-2025a
+    export LDT_OPENJPEG=${EBROOTOPENJPEG}
+    export LIS_OPENJPEG=${EBROOTOPENJPEG}
 elif [[ "$TOOLCHAIN" == "2025b" ]]; then
     load_module Python/3.13.5-GCCcore-14.3.0
     load_module Perl/5.40.2-GCCcore-14.3.0
@@ -34,6 +38,8 @@ elif [[ "$TOOLCHAIN" == "2025b" ]]; then
     load_module netCDF/4.9.3-iimpi-2025b
     load_module ecCodes/2.43.0-iimpi-2025b
     load_module ESMF/8.9.0-intel-2025b
+    export LDT_JASPER=${EBROOTJASPER}
+    export LIS_JASPER=${EBROOTJASPER}
 else
     echo "Toolchain ${TOOLCHAIN} not supported"; exit 2
 
@@ -49,8 +55,6 @@ export LDT_MODESMF=${EBROOTESMF}/mod
 export LIS_MODESMF=${EBROOTESMF}/mod
 export LDT_LIBESMF=${EBROOTESMF}/lib
 export LIS_LIBESMF=${EBROOTESMF}/lib
-export LDT_JASPER=${EBROOTJASPER}
-export LIS_JASPER=${EBROOTJASPER}
 export LDT_ECCODES=${EBROOTECCODES}
 export LIS_ECCODES=${EBROOTECCODES}
 export LDT_NETCDF=${EBROOTNETCDF}
