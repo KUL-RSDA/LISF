@@ -151,19 +151,31 @@ if($opt_lev == -3) {
    $sys_opt   = "-g -O0";    # Default flags for Fortran
    $sys_c_opt = "-g -O0";    # Default flags for C
    if($sys_arch eq "linux_ifc"){
-      $sys_opt = "-g -O0 -traceback -fno-omit-frame-pointer";
-      # Compile-time checks
-      $sys_opt .= " -diag-disable=remark,8889,6717,5462 -warn all,nounused -nogen-interfaces"; # We do not care about 8889, 6717, 5462, unused warnings.
-      # Run-time checks
-      $sys_opt .= " -check all,nouninit,noarg_temp_created"; # nouninit triggers Memory Sanitizer. To avoid, because dependencies were not compiled with it. noarg_temp_created triggers too many warnings.
-      $sys_opt .= " -ftrapuv ";
-	
-      $sys_c_opt = "-g -O0 -traceback -fno-omit-frame-pointer";
-      # Compile-time checks
-      $sys_c_opt .= " -pedantic -Wall -Wno-empty-translation-unit -Wno-unused-command-line-argument -Wno-strict-prototypes -Wcomment -Wdeprecated -Wextra-tokens -Wformat -Wformat-security -Wmain -Wmissing-declarations -Wpointer-arith -Wreturn-type -Wshadow -Wsign-compare -Wstrict-aliasing -Wtrigraphs -Wuninitialized -Wunknown-pragmas -Wunused-function -Wwrite-strings";
-      # Run-time checks
-      # $sys_c_opt .= " -fsanitize=address,leak,undefined -fno-sanitize-recover=address,leak,undefined -fsanitize-address-use-after-scope -fsanitize-trap"; # Enable sanitizers and make them fatal. We disable this, because linking mixed C/Fortran code with sanitizers is nontrivial. We will postpone this to future vesions of Intel OneAPI compilers.
-      $sys_c_opt .= " -fstack-protector-strong -fstack-clash-protection -fstack-security-check -ftrapv";
+        # Fortran flags
+        $sys_opt = "-g -O0 -warn";
+        $sys_opt .=
+            " -check bounds,format,output_conversion,pointers,stack,";
+        $sys_opt .= "uninit";
+        $sys_opt .= $intel_stack_check;
+        $sys_opt .= " -ftrapuv ";
+        $sys_opt .= $intel_sanitize;
+
+        # C flags
+        $sys_c_opt = "-g -O0 -Wall -Wcast-qual -Wdeprecated";
+        $sys_c_opt .= $intel_wcheck;
+        $sys_c_opt .= " -Wextra-tokens -Wformat";
+        $sys_c_opt .= " -Wformat-security -Wmissing-declarations";
+        $sys_c_opt .= " -Wmissing-prototypes -Wpointer-arith -Wremarks";
+        $sys_c_opt .= " -Wreturn-type -Wshadow -Wsign-compare";
+        $sys_c_opt .= " -Wstrict-prototypes -Wtrigraphs -Wuninitialized";
+        $sys_c_opt .= " -Wunused-function -Wunused-parameter";
+        $sys_c_opt .= " -Wunused-variable -Wwrite-strings";
+
+	     $sys_c_opt .= $intel_stack_check;
+        $sys_c_opt .= " -fp-trap=common";
+        $sys_c_opt .= " -fp-trap-all=common";
+        $sys_c_opt .= " -ftrapv";
+        $sys_c_opt .= $intel_sanitize;
    }
    elsif($sys_arch eq "linux_pgi") {
       print "Optimization level $opt_lev is not defined for $sys_arch.\n";
