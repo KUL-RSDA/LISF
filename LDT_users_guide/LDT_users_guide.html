@@ -1016,6 +1016,11 @@ The directory containing the LDT source code, <em>LISF/ldt</em>, will be referre
 <td class="tableblock halign-left valign-top"><p class="tableblock">path to RPC library</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">optional (use system RPC library by default)</p></td>
 </tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>LDT_PIO</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">path to PIO library</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">optional (only for NASA Land Coupler (NLC) and NASA Water Insight projects)</p></td>
+</tr>
 </tbody>
 </table>
 <div class="paragraph">
@@ -1103,6 +1108,7 @@ Use HDFEOS? (1-yes, 0-no, default=1):
 Enable GeoTIFF support? (1-yes, 0-no, default=1):
 Enable LIBGEOTIFF support? (1-yes, 0-no, default=1):
 Include date/time stamp history? (1-yes, 0-no, default=1):
+Use PIO? (1-yes, 0-no, default=0):
 -----------------------------------------------------
  configure.ldt file generated successfully
 -----------------------------------------------------
@@ -1156,6 +1162,9 @@ GeoTIFF means the GeoTIFF support provided by the GDAL library.</p>
 <li>
 <p>for <code>Enable LIBGEOTIFF support? (1-yes, 0-no, default=1):</code>,
 LIBGEOTIFF means GeoTIFF support provided by the GeoTIFF library.</p>
+</li>
+<li>
+<p>for <code>Use PIO? (1-yes, 0-no, default=0):</code>, if you wish to enable PIO support, then you must either set the <code>LDT_PIO</code> environment variable or the <code>LDT_PIO_IN_ESMF</code> environment variable.  If you are using the PIO library, then set <code>LDT_PIO</code> to the path of the PIO library.  If you are using PIO included in ESMF, then set <code>LDT_PIO_IN_ESMF=1</code>.</p>
 </li>
 </ul>
 </div>
@@ -1437,6 +1446,14 @@ LIBGEOTIFF means GeoTIFF support provided by the GeoTIFF library.</p>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Noah-MP.4.0.1</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Noah-MP 4.0.1</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Noah-MP.5.0</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Noah-MP 5.0</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Noah-MP.5.2</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Noah-MP 5.2</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">CLM.2</p></td>
@@ -18485,7 +18502,7 @@ There were no public releases for versions 7.6 or 7.7.
 <div id="footer">
 <div id="footer-text">
 Version 7.0<br>
-Last updated 2026-08-03 08:00:57 UTC
+Last updated 2026-10-22 09:40:35 UTC
 </div>
 </div>
 <script type="text/x-mathjax-config">
