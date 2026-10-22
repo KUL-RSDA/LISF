@@ -11,7 +11,9 @@
 #-------------------------END NOTICE -- DO NOT EDIT-----------------------
 # 6 Jan 2012: Sujay Kumar, Initial Specification
 
-#Find the architecture
+#
+# Process environment and configure options
+#
 
 if(defined($ENV{LDT_ARCH})){
    $sys_arch = $ENV{LDT_ARCH};
@@ -38,6 +40,20 @@ if(defined($ENV{LDT_ARCH})){
    }
    else{
       $ibm_modifications = 0;
+   }
+   # The Intel/ifx environment is almost identical to the Intel/ifort
+   # environment.  There are two compiler flags that must be appropriately
+   # set to share the remaining compiler flags.
+   # So set those two flags here and reset the sys_arch variable
+   # to "linux_ifc" if necessary.
+   if($sys_arch eq "linux_ifc"){
+      $intel_sanitize = " ";
+      $intel_stack_check = " -fp-stack-check ";
+   }
+   if($sys_arch eq "linux_ifx"){
+      $sys_arch = "linux_ifc";
+      $intel_sanitize = " -fsanitize=memory ";
+      $intel_stack_check = " ";
    }
 }
 else{
@@ -96,6 +112,15 @@ chomp($opt_lev);
 if($opt_lev eq ""){
    $opt_lev=2;
 }
+
+if($sys_arch eq "linux_ifc"){
+   if($opt_lev > -2) {
+      # $intel_sanitize = " -fsanitize=memory " is for optimization
+      # levels -3 and -2 only.
+      $intel_sanitize = " ";
+   }
+}
+
 if($opt_lev == -3) {
     $sys_opt = "-g -O0"; # Default flags for Fortran.
     $sys_c_opt = "-g -O0"; # Default flags for C.
@@ -169,14 +194,15 @@ if($opt_lev == -2) {
     $sys_opt = "-g -O0"; # Default flags for Fortran.
     $sys_c_opt = "-g -O0"; # Default flags for C.
     if($sys_arch eq "linux_ifc") {
-
         # Fortran flags
         $sys_opt = "-g -O0 -warn alignments,declarations,externals,";
         $sys_opt .= "general,truncated_source,unused,uncalled";
         $sys_opt .= " -check bounds,format,output_conversion,pointers,";
         $sys_opt .= "stack,uninit";
-        $sys_opt .= " -fp-stack-check -ftrapuv ";
+        $sys_opt .= $intel_stack_check;
+        $sys_opt .= " -ftrapuv ";
         $sys_opt .= " -mcmodel=medium ";
+        $sys_opt .= $intel_sanitize;
 
         # C flags
         $sys_c_opt = "-g -O0 -Wall -Wcast-qual -Wdeprecated";
@@ -187,10 +213,12 @@ if($opt_lev == -2) {
         $sys_c_opt .= " -Wstrict-prototypes -Wtrigraphs -Wuninitialized";
         $sys_c_opt .= " -Wunused-function -Wunused-parameter";
         $sys_c_opt .= " -Wunused-variable -Wwrite-strings";
-        $sys_c_opt .= " -fp-stack-check -fp-trap=common";
+        $sys_c_opt .= $intel_stack_check;
+        $sys_c_opt .= " -fp-trap=common";
         $sys_c_opt .= " -fp-trap-all=common";
         $sys_c_opt .= " -ftrapv";
         $sys_c_opt .= " -mcmodel=medium ";
+        $sys_c_opt .= $intel_sanitize;
 
    }
    elsif($sys_arch eq "linux_gfortran") {
@@ -205,7 +233,7 @@ if($opt_lev == -2) {
    }
 }
 if($opt_lev == -1) {
-    $sys_opt = "-g -O0"; # Default flags for Fortran.
+    $sys_opt = "-g -O0 "; # Default flags for Fortran.
     $sys_c_opt = "-g -O0"; # Default flags for C.
 }
 elsif($opt_lev == 0) {
@@ -630,6 +658,37 @@ if($use_history eq ""){
    $use_history=1;
 }
 
+print "Use PIO? (1-yes, 0-no, default=0): ";
+$use_pio=<stdin>;
+$use_pio=~s/ *#.*$//;
+chomp($use_pio);
+if($use_pio eq ""){
+   $use_pio=0;
+}
+
+if($use_pio == 1) {
+   if(defined($ENV{LDT_PIO})){
+      $sys_pio_path = $ENV{LDT_PIO};
+      $inc = "/include/";
+      $lib = "/lib/";
+      $inc_pio=$sys_pio_path.$inc;
+      $lib_pio=$sys_pio_path.$lib;
+   }
+   elsif(defined($ENV{LDT_PIO_IN_ESMF}) && $ENV{LDT_PIO_IN_ESMF} eq "1"){
+      $inc_pio=$sys_esmfmod_path;
+      $lib_pio=$sys_esmflib_path;
+   }
+   else {
+      print "--------------ERROR---------------------\n";
+      print "Please specify the PIO path using\n";
+      print "the LDT_PIO variable or set the\n";
+      print "LDT_PIO_IN_ESMF variable if PIO is\n";
+      print "embedded in ESMF.\n";
+      print "Configuration exiting ....\n";
+      print "--------------ERROR---------------------\n";
+      exit 1;
+   }
+}
 
 if(defined($ENV{LDT_JPEG})){
    $libjpeg = "-L".$ENV{LDT_JPEG}."/lib"." -ljpeg";
@@ -650,25 +709,25 @@ if($sys_arch eq "linux_ifc") {
       if($use_endian == 1) {
          $fflags77= "-c -openmp ".$sys_opt."-nomixed-str-len-arg -names lowercase -convert little_endian -assume byterecl ".$sys_par." -DIFC -I\$(MOD_ESMF) -DUSE_INCLUDE_MPI";
          $fflags =" -c -openmp ".$sys_opt."-u -traceback -fpe0  -nomixed-str-len-arg -names lowercase -convert little_endian -assume byterecl ".$sys_par."-DIFC -I\$(MOD_ESMF) -DUSE_INCLUDE_MPI";
-         $ldflags= " -openmp -L\$(LIB_ESMF) -lesmf -lstdc++ -limf -lm -lrt -lz";
+         $ldflags= $intel_sanitize." -openmp -L\$(LIB_ESMF) -lesmf -lstdc++ -limf -lm -lrt -lz";
       }
       else {
          $fflags77= "-c -openmp ".$sys_opt."-nomixed-str-len-arg -names lowercase -convert big_endian -assume byterecl ".$sys_par." -DIFC -I\$(MOD_ESMF) -DUSE_INCLUDE_MPI";
          $fflags =" -c -openmp ".$sys_opt."-u -traceback -fpe0  -nomixed-str-len-arg -names lowercase -convert big_endian -assume byterecl ".$sys_par."-DIFC -I\$(MOD_ESMF) -DUSE_INCLUDE_MPI";
-         $ldflags= " -openmp -L\$(LIB_ESMF) -lesmf -lstdc++ -limf -lm -lrt -lz";
+         $ldflags= $intel_sanitize." -openmp -L\$(LIB_ESMF) -lesmf -lstdc++ -limf -lm -lrt -lz";
       }
    }
    else {
       if($use_endian == 1) {
          $fflags77= "-c ".$sys_opt."-nomixed-str-len-arg -names lowercase -convert little_endian -assume byterecl ".$sys_par." -DIFC -I\$(MOD_ESMF) -DUSE_INCLUDE_MPI";
          $fflags =" -c ".$sys_opt."-u -traceback -fpe0  -nomixed-str-len-arg -names lowercase -convert little_endian -assume byterecl ".$sys_par."-DIFC -I\$(MOD_ESMF) -DUSE_INCLUDE_MPI";
-         $ldflags  = " -L\$(LIB_ESMF) -lesmf -lstdc++ -limf -lm -lrt -lz";
+         $ldflags  = $intel_sanitize." -L\$(LIB_ESMF) -lesmf -lstdc++ -limf -lm -lrt -lz";
          $ldflags .= " -mcmodel=medium ";
       }
       else {
          $fflags77= "-c ".$sys_opt."-nomixed-str-len-arg -names lowercase -convert big_endian -assume byterecl ".$sys_par." -DIFC -I\$(MOD_ESMF) -DUSE_INCLUDE_MPI";
          $fflags =" -c ".$sys_opt."-u -traceback -fpe0  -nomixed-str-len-arg -names lowercase -convert big_endian -assume byterecl ".$sys_par."-DIFC -I\$(MOD_ESMF) -DUSE_INCLUDE_MPI";
-         $ldflags= " -L\$(LIB_ESMF) -lesmf -lstdc++ -limf -lm -lrt -lz";
+         $ldflags= $intel_sanitize." -L\$(LIB_ESMF) -lesmf -lstdc++ -limf -lm -lrt -lz";
          $ldflags .= " -mcmodel=medium ";
       }
    }
@@ -804,6 +863,14 @@ if($enable_libgeotiff== 1){
     $ldflags = $ldflags." -L\$(LIB_LIBGEOTIFF) ".$tiffpath." -ltiff -lgeotiff -lm -lz ".$libjpeg." ".$tiffdeps;
 }
 
+if($use_pio == 1) {
+   $fflags77 = $fflags77." -I\$(INC_PIO)";
+   $fflags = $fflags." -I\$(INC_PIO)";
+   $ldflags = $ldflags." -L\$(LIB_PIO) -lpioc";
+   $lib_flags= $lib_flags." -lpioc";
+   $lib_paths= $lib_paths." -L\$(LIB_PIO)";
+}
+
 $ldflags .= " -lmkl -lpioc";
 $ldflags =~ s/-L([^\s]+)/-L$1 -Wl,-rpath=$1/g;
 
@@ -841,6 +908,8 @@ printf conf_file "%s%s\n","INC_LIBGEOTIFF  = $inc_libgeotiff";
 printf conf_file "%s%s\n","LIB_LIBGEOTIFF  = $lib_libgeotiff";
 
 printf conf_file "%s%s\n","LIB_GDAL        = $lib_gdal";
+printf conf_file "%s%s\n","INC_PIO         = $inc_pio";
+printf conf_file "%s%s\n","LIB_PIO         = $lib_pio";
 printf conf_file "%s%s\n","CFLAGS          = $cflags";
 printf conf_file "%s%s\n","FFLAGS77        = $fflags77";
 printf conf_file "%s%s\n","FFLAGS          = $fflags";

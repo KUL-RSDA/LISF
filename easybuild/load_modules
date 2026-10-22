@@ -45,8 +45,8 @@ else
 
 fi
 
-export LDT_ARCH=linux_ifc
-export LIS_ARCH=linux_ifc
+export LDT_ARCH=linux_ifx
+export LIS_ARCH=linux_ifx
 export LDT_FC=mpiifx
 export LIS_FC=mpiifx
 export LDT_CC=mpiicx
