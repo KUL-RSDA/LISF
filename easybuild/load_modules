@@ -34,6 +34,8 @@ fi
 
 export LDT_ARCH=linux_ifx
 export LIS_ARCH=linux_ifx
+export LDT_MARCH="-march=native"
+export LIS_MARCH="-march=native"
 export LDT_FC=mpiifx
 export LIS_FC=mpiifx
 export LDT_CC=mpiicx

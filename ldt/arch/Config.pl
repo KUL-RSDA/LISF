@@ -259,6 +259,12 @@ elsif($opt_lev == 3) {
    $sys_opt = "-O3 ";
    $sys_c_opt = "-O3";
 }
+
+if(defined($ENV{LDT_MARCH}) && ($ENV{LDT_MARCH} ne "") && ($opt_lev > 0)) {
+   $sys_opt .= " ".$ENV{LDT_MARCH};
+   $sys_c_opt .= " ".$ENV{LDT_MARCH};
+}
+
 print "Assume little/big_endian data format (1-little, 2-big, default=2): ";
 $use_endian=<stdin>;
 chomp($use_endian);
